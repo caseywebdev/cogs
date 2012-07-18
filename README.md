@@ -7,7 +7,20 @@ Installation
 ```bash
 npm install xl8
 ```
+
 or add `"xl8"` to your `package.json`.
+
+Tests
+-----
+xl8 uses mocha for testing. To run the tests...
+
+```bash
+cd to/the/repot
+# Make sure you have **the right stuff**
+npm install
+mocha
+```
+
 Licence
 -------
 Copyright (C) 2012 Casey Foster <casey@caseywebdev.com>

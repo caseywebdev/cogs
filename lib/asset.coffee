@@ -67,9 +67,9 @@ class Asset
 
           @str = data.toString()
           @exts = _.clone @originalExts
-          callback err, @
+          callback err
       else
-        callback err, @
+        callback err
 
   outPath: (callback) ->
     @env.logical @abs, (err, p) =>
