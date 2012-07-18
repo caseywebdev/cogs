@@ -2,11 +2,20 @@
   "name": "xl8",
   "version": "0.0.1",
   "author": "Casey Foster <casey@caseywebdev.com>",
+  "licence": "MIT",
+  "main": "./lib/index.coffee",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caseywebdev/xl8.git"
+  },
   "dependencies": {
     "coffee-script": "x",
+    "underscore": "x",
     "stylus": "x",
     "nib": "x",
-    "jade": "x"
+    "jade": "x",
+    "uglify-js": "x",
+    "clean-css": "x"
   },
   "devDependencies": {
     "mocha": "x",
