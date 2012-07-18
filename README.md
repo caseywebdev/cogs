@@ -15,7 +15,7 @@ Tests
 xl8 uses mocha for testing. To run the tests...
 
 ```bash
-cd to/the/repot
+cd to/the/repo
 # Make sure you have **the right stuff**
 npm install
 mocha
