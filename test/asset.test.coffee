@@ -55,4 +55,3 @@ describe 'Asset', ->
 
             str.should.equal data.toString()
             done()
-    #(function(){var e;e=function(){return b(1),2}}).call(this)
