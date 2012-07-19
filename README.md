@@ -11,18 +11,11 @@ Installation
 npm install xl8
 ```
 
-or add `"xl8"` to your `package.json`.
-
 Tests
 -----
 
-xl8 uses mocha for testing. To run the tests...
-
 ```bash
-cd to/the/repo
-# Make sure you have **the right stuff**
-npm install
-mocha
+make test
 ```
 
 Licence

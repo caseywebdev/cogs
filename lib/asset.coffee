@@ -45,6 +45,7 @@ class Asset
       @exts.pop()
       processor.process @, (err) =>
         return callback err if err
+
         @process callback
     else
       callback()
@@ -80,7 +81,7 @@ class Asset
         (if @exts.length then '.' else '') +
         @exts.join '.'
 
-  saveToDir: (dir, callback = ->) ->
+  saveToDir: (dir, callback) ->
     @outPath (err, p) =>
       return callback err if err
 

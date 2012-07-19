@@ -6,10 +6,7 @@ exports.process = (asset, callback) ->
   # Replace single-line directive comments with multiline comments so
   # CoffeeScript doesn't demolish them.
   str = asset.str.replace ///
-    \#
-    \s*
-    =
-    \s*
+    \#\s*=\s*
     (
       (require
       |require_self
