@@ -61,7 +61,7 @@ describe 'Asset', ->
             done()
 
     it 'should translate `.styl` to `.css`', (done) ->
-      env.asset 'styl', (err, asset) ->
+      env.asset 'styl.styl', (err, asset) ->
         return done err if err
 
         asset.xl8 (err, str) ->

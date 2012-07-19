@@ -1,4 +1,5 @@
 fs = require 'fs'
+path = require 'path'
 _ = require 'underscore'
 
 class Asset
@@ -73,11 +74,20 @@ class Asset
 
   outPath: (callback) ->
     @env.logical @abs, (err, p) =>
-      if err
-        callback err
-      else
-        callback err, p +
-          (if @exts.length then '.' else '') +
-          @exts.join '.'
+      return callback err if err
+
+      callback err, p +
+        (if @exts.length then '.' else '') +
+        @exts.join '.'
+
+  saveToDir: (dir, callback = ->) ->
+    @outPath (err, p) =>
+      return callback err if err
+
+      fs.writeFile path.resolve(dir, p), @toString(), (err) ->
+        return callback err if err
+
+        callback()
+
 
 module.exports = Asset

@@ -1,9 +1,12 @@
 xl8
 ===
-Translate files written in the language of your choice to the language then need to end up in.
+
+Translate files written in the language of your choice to the language then
+need to end up in.
 
 Installation
 ------------
+
 ```bash
 npm install xl8
 ```
@@ -12,6 +15,7 @@ or add `"xl8"` to your `package.json`.
 
 Tests
 -----
+
 xl8 uses mocha for testing. To run the tests...
 
 ```bash
@@ -23,6 +27,7 @@ mocha
 
 Licence
 -------
+
 Copyright (C) 2012 Casey Foster <casey@caseywebdev.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
