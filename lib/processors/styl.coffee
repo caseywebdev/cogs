@@ -3,7 +3,6 @@ stylus = require 'stylus'
 nib = require 'nib'
 
 exports.process = (asset, callback) ->
-
   stylus(asset.str).use(nib()).render (err, css) ->
     return callback err if err
 

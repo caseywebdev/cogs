@@ -2,6 +2,21 @@ fs = require 'fs'
 path = require 'path'
 _ = require 'underscore'
 
+HEADER_PATTERN = ///
+  ^ (
+    \s* (
+      (/\*[\s\S]*?\*/) |
+      (\#\#\#[\s\S]*?\#\#\#) |
+      (//.*)+ |
+      (\#.*)+
+    ) \n?
+  )+
+///
+
+DIRECTIVES_PATTERN = /^\W*=.*\n?/gm
+
+DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
+
 class Asset
 
   constructor: (env, abs, callback) ->
@@ -20,17 +35,20 @@ class Asset
   toString: ->
     if @compressEnabled() then @compressedStr else @str
 
-  xl8: (callback, asDependency = false) ->
+  xl8: (callback, dependencies) ->
 
     # Update the file if it has changed
     @readFile (err) =>
       return callback err if err
 
+      # Scan for dependencies
+      @scanDirectives()
+
       # Process the extensions
       @process (err) =>
         return callback err if err
 
-        # Inject dependencies
+        #@inject err, []
         # Compress if necessary or return the uncompressed
         if @compressEnabled()
           @compress (err, str) =>
@@ -38,6 +56,30 @@ class Asset
             callback err, @compressedStr = str
         else
           callback err, @str
+
+  scanDirectives: ->
+
+    # Modified from sprockets
+    header = @str.match HEADER_PATTERN
+
+    if header
+      directives = header[0].match DIRECTIVES_PATTERN
+
+      if directives
+        for directive in directives
+          console.log [directive]
+          match = directive.match DIRECTIVE_PATTERN
+          d = match[1].toLowerCase().replace /\W/g, ''
+          console.log "Directive: #{d}"
+          console.log "Argument: #{match[2]}"
+          @str = @str.replace directive, ''
+
+    console.log "'#{@str}'"
+
+    @dependencies.push @path unless @path in @dependencies
+
+  injectDependencies: ->
+
 
   process: (callback) ->
     processor = @env.processors[@ext()]
@@ -69,6 +111,7 @@ class Asset
 
           @str = data.toString()
           @exts = _.clone @originalExts
+          @dependencies = []
           callback err
       else
         callback err

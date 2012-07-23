@@ -1,18 +1,20 @@
+[![Build Status](https://secure.travis-ci.org/caseywebdev/xl8.png)](http://travis-ci.org/caseywebdev/xl8)
+
 xl8
 ===
 
 Translate files written in the language of your choice to the language then
 need to end up in.
 
-Installation
-------------
+Install
+-------
 
 ```bash
 npm install xl8
 ```
 
-Tests
------
+Test
+----
 
 ```bash
 make test

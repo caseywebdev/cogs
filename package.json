@@ -19,12 +19,15 @@
   },
   "devDependencies": {
     "mocha": "x",
-    "should": "x",
+    "chai": "x",
     "watchr": "x",
     "growl": "x"
   },
   "engines": {
     "node": "x",
     "npm": "x"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }

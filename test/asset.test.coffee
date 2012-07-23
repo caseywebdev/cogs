@@ -1,7 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 _ = require 'underscore'
-should = require 'should'
+should = require('chai').should()
 xl8 = require '../lib'
 uglifyjs = require '../lib/compressors/uglifyjs'
 cleanCss = require '../lib/compressors/clean-css'
