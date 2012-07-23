@@ -48,7 +48,7 @@ class Asset
       @process (err) =>
         return callback err if err
 
-        #@inject err, []
+        #@joinDependencies err, []
         # Compress if necessary or return the uncompressed
         if @compressEnabled()
           @compress (err, str) =>
@@ -78,7 +78,7 @@ class Asset
 
     @dependencies.push @path unless @path in @dependencies
 
-  injectDependencies: ->
+  joinDependencies: ->
 
 
   process: (callback) ->

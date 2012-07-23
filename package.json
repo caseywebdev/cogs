@@ -20,7 +20,6 @@
   "devDependencies": {
     "mocha": "x",
     "chai": "x",
-    "watchr": "x",
     "growl": "x"
   },
   "engines": {

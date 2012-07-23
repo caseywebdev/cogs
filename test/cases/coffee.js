@@ -1,20 +1,3 @@
-
-/* = require some-file
-*/
-
-
-/* = require-tree .
-*/
-
-
-/* = require-tree some-dir
-*/
-
-
-/* = require-self
-*/
-
-
 (function() {
   var a;
 
