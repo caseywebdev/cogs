@@ -70,8 +70,8 @@ class Asset
           console.log [directive]
           match = directive.match DIRECTIVE_PATTERN
           d = match[1].toLowerCase().replace /\W/g, ''
-          console.log "Directive: #{d}"
-          console.log "Argument: #{match[2]}"
+          a = match[2]
+          @directives.push
           @str = @str.replace directive, ''
 
     console.log "'#{@str}'"
@@ -111,6 +111,7 @@ class Asset
 
           @str = data.toString()
           @exts = _.clone @originalExts
+          @directives = []
           @dependencies = []
           callback err
       else

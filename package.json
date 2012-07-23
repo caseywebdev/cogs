@@ -25,5 +25,8 @@
   "engines": {
     "node": "x",
     "npm": "x"
+  },
+  "scripts": {
+    "test": "make test"
   }
 }
