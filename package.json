@@ -3,24 +3,25 @@
   "version": "0.0.1",
   "author": "Casey Foster <casey@caseywebdev.com>",
   "licence": "MIT",
-  "main": "./lib",
+  "main": "./dist",
   "repository": {
     "type": "git",
     "url": "https://github.com/caseywebdev/xl8.git"
   },
   "dependencies": {
-    "coffee-script": "x",
     "underscore": "x",
+    "glob": "x",
+    "coffee-script": "x",
     "stylus": "x",
-    "nib": "x",
     "jade": "x",
+    "nib": "x",
     "uglify-js": "x",
-    "clean-css": "x"
+    "clean-css": "x",
+    "growl": "x"
   },
   "devDependencies": {
     "mocha": "x",
-    "chai": "x",
-    "growl": "x"
+    "chai": "x"
   },
   "engines": {
     "node": "x",

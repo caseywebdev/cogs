@@ -1,4 +1,10 @@
 (function() {
+  var requireMe;
+
+  requireMe = true;
+
+}).call(this);
+(function() {
   var a;
 
   a = function() {

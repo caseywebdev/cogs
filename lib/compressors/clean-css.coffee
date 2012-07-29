@@ -1,12 +1,12 @@
 cleanCss = require 'clean-css'
 
-exports.compress = (asset, callback) ->
+module.exports = new (require './compressor')
 
-  # Based on the example from the clean-css README
-  try
-    str = cleanCss.process asset.str
-    callback undefined, str
+  compress: (str, callback) ->
 
-  # Save this sucka from a syntax error
-  catch err
-    callback err
+    # From the clean-css README
+    try
+      str = cleanCss.process str
+      callback null, str
+    catch err
+      callback err

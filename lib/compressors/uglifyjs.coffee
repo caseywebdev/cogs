@@ -2,17 +2,16 @@ uglifyjs = require 'uglify-js'
 parser = uglifyjs.parser
 uglify = uglifyjs.uglify
 
-exports.compress = (asset, callback) ->
+module.exports = new (require './compressor')
 
-  # Based on the example from the uglifyjs README
-  try
-    str = parser.parse asset.str
-    str = uglify.ast_mangle str
-    str = uglify.ast_squeeze str
-    str = uglify.gen_code str
-    console.log str
-    callback undefined, str
+  compress: (str, callback) ->
 
-  # Save this sucka from a syntax error
-  catch err
-    callback err
+    # Based on the example from the uglifyjs README
+    try
+      str = parser.parse str
+      str = uglify.ast_mangle str
+      str = uglify.ast_squeeze str
+      str = uglify.gen_code str
+      callback null, str
+    catch err
+      callback err
