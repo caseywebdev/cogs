@@ -12,8 +12,8 @@ module.exports = class Asset
     readFile = (callback) =>
       fs.stat @abs, (err, stats) =>
         return callback err if err
-
-        unless @mtime and @mtime - (@mtime = stats.mtime) is 0
+        unless @mtime and @mtime is stats.mtime
+          @mtime = stats.mtime
           fs.readFile @abs, (err, data) =>
             return callback err if err
             @raw = data.toString()
@@ -40,15 +40,44 @@ module.exports = class Asset
           return callback err if err
           process callback
       else
+
+        # Ensure every JS raw file ends with a semicolon and new line. Without
+        # this, concatenated scripts (especially minified ones) can cause
+        # syntax errors.
+        if @ext() is 'js' and not @raw.match /;\n$/
+          @raw = @raw.replace /[\s;]*$/, ';\n'
         callback null
 
-    concatDependencies = =>
-      _.pluck(@dependencies(), 'raw').join ''
+    concatDependencies = (callback) =>
+      dependencies = @dependencies()
+      n = 0
+      m = dependencies.length-1
+      if m
+        _.each dependencies, (dependency) =>
+          unless dependency is @
+
+            # Update dependencies before including them
+            dependency.update (err) =>
+              return callback err if err
+              if ++n is m
+
+                # Check if sub-dependencies have changed since file reloads
+                if _.isEqual dependencies, @dependencies()
+                  callback null, _.pluck(dependencies, 'raw').join ''
+                else
+
+                  # If the dependency tree has changed, recurse
+                  @concatDependencies callback
+      else
+        callback null, @raw
 
     compress = =>
       @env.compressors[@ext()]?.compress
 
     # Public Methods
+
+    @update = (callback) ->
+      readFile callback
 
     @toString = ->
       if compress() then @compressed else @concat or @raw
@@ -56,17 +85,21 @@ module.exports = class Asset
     @xl8 = (callback) ->
 
       # Update the file if it has changed
-      readFile (err) =>
+      @update (err) =>
         return callback err if err
 
-        @concat = concatDependencies()
-
-        return callback null, @concat unless compress()
-
-        # Compress if necessary or return the uncompressed
-        compress() @concat, (err, str) =>
+        concatDependencies (err, str) =>
           return callback err if err
-          callback null, @compressed = str
+
+          @concat = str
+
+          return callback null, @ unless compress()
+
+          # Compress if necessary or return the uncompressed
+          compress() @concat, (err, str) =>
+            return callback err if err
+            @compressed = str
+            callback null, @
 
     @ext = ->
       _.last @exts
@@ -84,12 +117,14 @@ module.exports = class Asset
           @exts.join '.'
 
     @saveToDir = (dir, callback) ->
-      @outPath (err, p) =>
+      @xl8 (err) =>
         return callback err if err
-        target = path.resolve dir, p
-        fs.writeFile target, @toString(), (err) ->
+        @outPath (err, p) =>
           return callback err if err
-          callback null
+          target = path.resolve dir, p
+          fs.writeFile target, @toString(), (err) ->
+            return callback err if err
+            callback null
 
     @dependencies = (visited = [], required = []) ->
       ext = @ext()

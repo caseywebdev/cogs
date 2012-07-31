@@ -6,7 +6,7 @@ xl8 = require '../lib'
 
 describe 'Env', ->
 
-  describe '#constructor()', ->
+  describe '#constructor', ->
     it 'should initialize with no args', ->
       env = new xl8.Env
     it 'should initialize with compressors and save them', ->
@@ -19,7 +19,7 @@ describe 'Env', ->
       env.compressors.js.should.equal jsCompressor
       env.compressors.css.should.equal cssCompressor
 
-  describe 'path functions', ->
+  (->
     root = path.resolve "#{__dirname}/../"
     paths = [
       'lib'
@@ -28,7 +28,7 @@ describe 'Env', ->
     ]
     env = new xl8.Env paths: paths
 
-    describe '#abs()', (done) ->
+    describe '#abs', (done) ->
       it 'should convert logical to absolute correctly', ->
         tests =
           'index': "#{root}/lib/index.coffee"
@@ -41,12 +41,12 @@ describe 'Env', ->
         _.each tests, (abs, logical) ->
           env.abs logical, (err, abs2) ->
             if err
-              (abs2 is undefined).should.be.true
+              err.should.be.an.instanceof Error
             else
               abs.should.equal abs2
             done() if ++n is tests.length
 
-    describe '#logical()', (done) ->
+    describe '#logical', (done) ->
       it 'should convert absolute paths to logical paths correctly', ->
         tests =
           'index': "#{root}/lib/index.coffee"
@@ -58,7 +58,8 @@ describe 'Env', ->
         _.each tests, (abs, logical) ->
           env.logical abs, (err, logical2) ->
             if err
-              (logical2 is undefined).should.be.true
+              err.should.be.an.instanceof Error
             else
               logical.should.equal logical2
             done() if ++n is tests.length
+  )()

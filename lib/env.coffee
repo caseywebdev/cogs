@@ -7,11 +7,11 @@ module.exports = class Env
 
   constructor: (options = {}) ->
 
-    @xl8 = (logical, callback, raw) ->
-      @asset logical, (err, asset) ->
+    @xl8 = (logical, callback) ->
+      @asset logical, (err, asset) =>
         return callback err if err
 
-        asset.xl8 callback, raw
+        asset.xl8 callback
 
     @asset = (logical, callback) ->
       @abs logical, (err, abs) =>
@@ -32,19 +32,19 @@ module.exports = class Env
         check = path.resolve p, logical
         dir = path.dirname check
         fs.readdir dir, (err, files) =>
-          return callback err if err
-          abs = false
-          console.log
-          base = path.basename check
-          for file in files
-            if file is base or file.indexOf("#{base}.") is 0
-              abs = path.join dir, file
-              break
+          unless err
+            abs = false
+            console.log
+            base = path.basename check
+            for file in files
+              if file is base or file.indexOf("#{base}.") is 0
+                abs = path.join dir, file
+                break
 
-          if abs and ((cp = candidate.priority) is -1 or priority < cp)
-            candidate =
-              priority: priority
-              abs: abs
+            if abs and ((cp = candidate.priority) is -1 or priority < cp)
+              candidate =
+                priority: priority
+                abs: abs
 
           if ++n is m
             return callback null, candidate.abs if candidate.abs
@@ -76,8 +76,13 @@ module.exports = class Env
         if ~(i = @paths.indexOf path.resolve p)
           @paths.splice i, 1
 
+    @notify = (options) ->
+      for notifier in @notifiers
+        notifier.notify options
+
     @cache = {}
     @paths = []
+    @addPath options.path if options.path
     @addPath options.paths if options.paths
     @processors = _.extend require('./processors'), options.processors
     @compressors =  _.extend require('./compressors'), options.compressors

@@ -13,7 +13,7 @@ env = new xl8.Env
 
 describe 'Asset', ->
 
-  describe 'constructor()', ->
+  describe '#constructor', ->
     asset = null
     before (done) ->
       env.asset 'coffee/a', (err, asset2) ->
@@ -42,7 +42,7 @@ describe 'Asset', ->
           env.asset 'coffee/result', (err, asset2) ->
             return done err if err
 
-            asset.toString().should.equal asset2.toString()
+            asset.toString().trim().should.equal asset2.toString().trim()
             done()
 
     it 'should translate `.styl` to `.css`', (done) ->
@@ -55,7 +55,46 @@ describe 'Asset', ->
           env.asset 'styl/result', (err, asset2) ->
             return done err if err
 
-            asset.toString().should.equal asset2.toString()
+            asset.toString().trim().should.equal asset2.toString().trim()
+            done()
+
+    it 'should translate `.jade` to `.js`', (done) ->
+      env.asset 'jade/a.jade', (err, asset) ->
+        return done err if err
+
+        asset.xl8 (err, str) ->
+          return done err if err
+
+          env.asset 'jade/result.js', (err, asset2) ->
+            return done err if err
+
+            asset.toString().trim().should.equal asset2.toString().trim()
+            done()
+
+    it 'should translate `.jst.jade` to `.js`', (done) ->
+      env.asset 'jade/a.jst.jade', (err, asset) ->
+        return done err if err
+
+        asset.xl8 (err, str) ->
+          return done err if err
+
+          env.asset 'jade/result.js', (err, asset2) ->
+            return done err if err
+
+            asset.toString().trim().should.equal asset2.toString().trim()
+            done()
+
+    it 'should translate `.html.jade` to `.html`', (done) ->
+      env.asset 'jade/a.html.jade', (err, asset) ->
+        return done err if err
+
+        asset.xl8 (err, str) ->
+          return done err if err
+
+          env.asset 'jade/result.html', (err, asset2) ->
+            return done err if err
+
+            asset.toString().trim().should.equal asset2.toString().trim()
             done()
 
   describe '#outPath', ->

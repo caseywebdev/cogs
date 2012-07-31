@@ -25,15 +25,18 @@ module.exports = new (require './processor')
     else if match = asset.raw.match /(^|\n)\/\/- !(jst|html)(\n|$)/i
       out = match[1]
 
+    options =
+      filename: asset.abs
     try
       # Time to compile
       if out is 'html'
-        options = client: true, debug: @debug
-        asset.raw = jade.compile(asset.raw, options).toString()
-        assets.exts.push 'html' unless ext is 'html'
+        asset.raw = jade.compile(asset.raw, options)()
+        asset.exts.push 'html' unless ext is 'html'
       else
-        asset.raw = jade.compile(asset.raw)()
-        assest.exts.push 'jst' unless ext is 'jst'
+        options.client = true
+        options.compileDebug = @debug
+        asset.raw = jade.compile(asset.raw, options).toString()
+        asset.exts.push 'jst' unless ext is 'jst'
       callback null
     catch err
       callback err

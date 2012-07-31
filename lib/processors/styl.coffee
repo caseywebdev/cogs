@@ -8,6 +8,7 @@ module.exports = new (require './processor')
   process: (asset, callback) ->
     styl = stylus asset.raw
 
+    styl.set 'filename', asset.abs
     styl.set 'compress', true if @compress
 
     if @nib

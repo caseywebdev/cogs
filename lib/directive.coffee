@@ -14,7 +14,7 @@ HEADER_PATTERN = ///
   )+
 ///
 
-DIRECTIVE_LINE_PATTERN = /^\W*=.*\n?/gm
+DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=.*\n?/gm
 
 DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
 
@@ -76,7 +76,7 @@ module.exports = class Directive
         @dependencies = dependencies
         callback null, @
     else
-      callback new Error "'#{name}' is not a valid directive"
+      callback new Error "'#{action}' is not a valid directive action"
 
   @scan: (asset, callback) =>
 
@@ -105,7 +105,7 @@ module.exports = class Directive
       #     = requireSelf
       #     = requireself
       # etc...
-      action = directive[1].toLowerCase().replace /\W/g, ''
+      action = directive[1].toLowerCase().replace /[^a-z]/ig, ''
 
       # Should be undefined for `requireself`, but exist for everything else
       argument = directive[2]
