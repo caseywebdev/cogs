@@ -7,7 +7,7 @@ module.exports = class Notifier
   images:
     done: path.join base, 'done.png'
     fail: path.join base, 'fail.png'
-    progress: path.join base, 'progress.png'
+    info: path.join base, 'info.png'
 
   constructor: (options) ->
     @config options

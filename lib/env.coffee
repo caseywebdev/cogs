@@ -16,9 +16,8 @@ module.exports = class Env
     @asset = (logical, callback) ->
       @abs logical, (err, abs) =>
         return callback err if err
-
         if @cache[abs]
-          callback err, @cache[abs]
+          callback null, @cache[abs]
         else
           @cache[abs] = new Asset @, abs, callback
 
@@ -48,7 +47,7 @@ module.exports = class Env
 
           if ++n is m
             return callback null, candidate.abs if candidate.abs
-            callback new Error "Unable to match #{logical} to any absolute path"
+            callback new Error "Unable to match '#{logical}' to any absolute path"
 
       callback new Error 'No env paths are defined' unless @paths.length
 
@@ -59,9 +58,9 @@ module.exports = class Env
           for p in @paths
             if abs.indexOf(p) is 0
               return callback null, abs[p.length + 1..-1]
-          callback new Error "Unable to match #{abs} to any logical path"
+          callback new Error "Unable to match '#{abs}' to any logical path"
         else
-          callback new Error "#{abs} does not exist"
+          callback new Error "'#{abs}' does not exist"
 
     @addPath = (paths) ->
       # Remove existing matches
@@ -79,6 +78,24 @@ module.exports = class Env
     @notify = (options) ->
       for notifier in @notifiers
         notifier.notify options
+
+    @info = (message) ->
+      @notify
+        title: 'Info'
+        message: message
+        image: 'info'
+
+    @done = (message) ->
+      @notify
+        title: 'Done!'
+        message: message
+        image: 'done'
+
+    @fail = (message) ->
+      @notify
+        title: 'Fail!'
+        message: message
+        image: 'fail'
 
     @cache = {}
     @paths = []

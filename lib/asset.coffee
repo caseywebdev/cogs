@@ -30,6 +30,7 @@ module.exports = class Asset
     scanDirectives = (callback) =>
       Directive.scan @, (err) =>
         return callback err if err
+
         process callback
 
     process = (callback) =>
@@ -55,10 +56,10 @@ module.exports = class Asset
       if m
         _.each dependencies, (dependency) =>
           unless dependency is @
-
             # Update dependencies before including them
             dependency.update (err) =>
               return callback err if err
+
               if ++n is m
 
                 # Check if sub-dependencies have changed since file reloads
@@ -122,7 +123,7 @@ module.exports = class Asset
         @outPath (err, p) =>
           return callback err if err
           target = path.resolve dir, p
-          fs.writeFile target, @toString(), (err) ->
+          fs.writeFile target, @toString(), (err) =>
             return callback err if err
             callback null
 
@@ -142,6 +143,6 @@ module.exports = class Asset
     @env = env
     @abs = abs
 
-    readFile (err) =>
+    @update (err) =>
       return callback err if err
       callback null, @

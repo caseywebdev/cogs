@@ -41,6 +41,7 @@ module.exports = class Directive
         n = 0
         m = logicals.length
         assets = []
+        return callback null, assets unless m
         _.each logicals, (logical) =>
           actions.require logical, (err, asset) ->
             return callback err if err
@@ -76,7 +77,7 @@ module.exports = class Directive
         @dependencies = dependencies
         callback null, @
     else
-      callback new Error "'#{action}' is not a valid directive action"
+      callback new Error "'#{action}' is not a valid directive action in '#{asset.abs}'"
 
   @scan: (asset, callback) =>
 
@@ -111,10 +112,10 @@ module.exports = class Directive
       argument = directive[2]
 
       # Erase the directive line in the source
-      asset.raw = asset.raw.replace directiveLine, ''
+      asset.raw = asset.raw.replace directiveLine, '\n'
 
       # Add the directive to the assets directives list
       new @ asset, action, argument, (err, directive) ->
         return callback err if err
-        asset.directives[i] = directive
+        asset.directives[i] = directive if directive
         callback null if ++n is m

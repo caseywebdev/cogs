@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "author": "Casey Foster <casey@caseywebdev.com>",
   "licence": "MIT",
-  "main": "./dist",
   "repository": {
     "type": "git",
     "url": "https://github.com/caseywebdev/xl8.git"
