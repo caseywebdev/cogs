@@ -15,4 +15,4 @@ module.exports = class Notifier
     (@config = (options) ->
       @[name] = option for name, option of options
       @
-    ) options
+    ).call @, options
