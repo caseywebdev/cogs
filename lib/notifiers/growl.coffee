@@ -1,7 +1,7 @@
 # Growl Notifier
 growl = require 'growl'
 
-module.exports = new (require './notifier')
+module.exports = class GrowlNotifier extends (require './notifier')
 
   notify: (options = {}) ->
     growl options.message,

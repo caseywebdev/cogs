@@ -1,6 +1,8 @@
 # Default processors
-module.exports =
-  coffee: require './coffee'
-  jade: require './jade'
-  jst: require './jst'
-  styl: require './styl'
+xl8 = require '..'
+
+module.exports = ->
+  coffee: new xl8.processors.coffee
+  jade: new xl8.processors.jade
+  jst: new xl8.processors.jst
+  styl: new xl8.processors.styl

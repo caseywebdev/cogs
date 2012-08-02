@@ -1,6 +1,7 @@
 # CoffeeScript Processor
 coffee = require 'coffee-script'
-module.exports = new (require './processor')
+
+module.exports = class CoffeeScriptProcessor extends (require './processor')
   process: (asset, callback) ->
     try
       options =

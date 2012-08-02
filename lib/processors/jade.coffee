@@ -1,8 +1,11 @@
 # Jade Processor
 jade = require 'jade'
 
-module.exports = new (require './processor')
+DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
+
+module.exports = class JadeProcessor extends (require './processor')
   debug: false
+  default: 'jst'
   process: (asset, callback) ->
 
     # Grab the extension preceding `.jade`
@@ -14,16 +17,17 @@ module.exports = new (require './processor')
     # two options:
     # 1. Name your files `.jst.jade` or `.html.jade`
     # or
-    # 2. Put `//- !jst` or `//- !html` on its own line somewhere in the .jade
-    # file
+    # 2. Put `//- !jst` or `//- !html` somewhere in the .jade file
     # Files that do neither will default to the JST output.
 
     # Check the preceding extension
     if ext in ['jst', 'html']
       out = ext
     # Check for the output directives
-    else if match = asset.raw.match /(^|\n)\/\/- !(jst|html)(\n|$)/i
+    else if match = asset.raw.match DIRECIVE_PATTERN
       out = match[1]
+    else
+      out = @default
 
     options =
       filename: asset.abs
@@ -31,12 +35,11 @@ module.exports = new (require './processor')
       # Time to compile
       if out is 'html'
         asset.raw = jade.compile(asset.raw, options)()
-        asset.exts.push 'html' unless ext is 'html'
       else
         options.client = true
         options.compileDebug = @debug
         asset.raw = jade.compile(asset.raw, options).toString()
-        asset.exts.push 'jst' unless ext is 'jst'
+      asset.exts.push out unless ext is out
       callback null
     catch err
       callback err

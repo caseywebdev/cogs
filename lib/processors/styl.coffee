@@ -1,7 +1,8 @@
 # Stylus Processor
 stylus = require 'stylus'
 nib = require 'nib'
-module.exports = new (require './processor')
+
+module.exports = class StylusProcessor extends (require './processor')
   compress: false
   nib: true
   importNib: true

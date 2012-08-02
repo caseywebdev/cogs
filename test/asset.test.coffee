@@ -31,12 +31,12 @@ describe 'Asset', ->
     it 'should have a parent environment', ->
       asset.env.should.be.an.instanceof Env
 
-  describe '#xl8', ->
+  describe '#build', ->
     it 'should translate `.coffee` to `.js`', (done) ->
       env.asset 'coffee/a', (err, asset) ->
         return done err if err
 
-        asset.xl8 (err, str) ->
+        asset.build (err, str) ->
           return done err if err
 
           env.asset 'coffee/result', (err, asset2) ->
@@ -49,7 +49,7 @@ describe 'Asset', ->
       env.asset 'styl/a', (err, asset) ->
         return done err if err
 
-        asset.xl8 (err, str) ->
+        asset.build (err, str) ->
           return done err if err
 
           env.asset 'styl/result', (err, asset2) ->
@@ -62,7 +62,7 @@ describe 'Asset', ->
       env.asset 'jade/a.jade', (err, asset) ->
         return done err if err
 
-        asset.xl8 (err, str) ->
+        asset.build (err, str) ->
           return done err if err
 
           env.asset 'jade/result.js', (err, asset2) ->
@@ -75,7 +75,7 @@ describe 'Asset', ->
       env.asset 'jade/a.jst.jade', (err, asset) ->
         return done err if err
 
-        asset.xl8 (err, str) ->
+        asset.build (err, str) ->
           return done err if err
 
           env.asset 'jade/result.js', (err, asset2) ->
@@ -88,7 +88,7 @@ describe 'Asset', ->
       env.asset 'jade/a.html.jade', (err, asset) ->
         return done err if err
 
-        asset.xl8 (err, str) ->
+        asset.build (err, str) ->
           return done err if err
 
           env.asset 'jade/result.html', (err, asset2) ->

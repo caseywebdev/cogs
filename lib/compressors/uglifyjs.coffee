@@ -1,8 +1,9 @@
+# Uglifyjs Compressor
 uglifyjs = require 'uglify-js'
 parser = uglifyjs.parser
 uglify = uglifyjs.uglify
 
-module.exports = new (require './compressor')
+module.exports = class UglifyjsCompressor extends (require './compressor')
 
   compress: (str, callback) ->
 

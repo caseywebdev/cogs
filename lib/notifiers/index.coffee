@@ -1,4 +1,8 @@
-# Default notifiers (I like growl)
-module.exports = [
-  require './growl'
-]
+# Default notifiers
+xl8 = require '..'
+
+module.exports = ->
+  [
+    new xl8.notifiers.growl
+    new xl8.notifiers.consoler
+  ]

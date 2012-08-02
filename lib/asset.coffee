@@ -83,7 +83,7 @@ module.exports = class Asset
     @toString = ->
       if compress() then @compressed else @concat or @raw
 
-    @xl8 = (callback) ->
+    @build = (callback) ->
 
       # Update the file if it has changed
       @update (err) =>
@@ -118,7 +118,7 @@ module.exports = class Asset
           @exts.join '.'
 
     @saveToDir = (dir, callback) ->
-      @xl8 (err) =>
+      @build (err) =>
         return callback err if err
         @outPath (err, p) =>
           return callback err if err

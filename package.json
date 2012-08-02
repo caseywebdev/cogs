@@ -16,7 +16,8 @@
     "nib": "x",
     "uglify-js": "x",
     "clean-css": "x",
-    "growl": "x"
+    "growl": "x",
+    "colors": "x"
   },
   "devDependencies": {
     "mocha": "x",

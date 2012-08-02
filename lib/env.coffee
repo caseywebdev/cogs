@@ -7,11 +7,11 @@ module.exports = class Env
 
   constructor: (options = {}) ->
 
-    @xl8 = (logical, callback) ->
+    @build = (logical, callback) ->
       @asset logical, (err, asset) =>
         return callback err if err
 
-        asset.xl8 callback
+        asset.build callback
 
     @asset = (logical, callback) ->
       @abs logical, (err, abs) =>
@@ -79,21 +79,21 @@ module.exports = class Env
       for notifier in @notifiers
         notifier.notify options
 
-    @info = (message) ->
+    @info = (message, title) ->
       @notify
-        title: 'Info'
+        title: title
         message: message
         image: 'info'
 
-    @done = (message) ->
+    @done = (message, title) ->
       @notify
-        title: 'Done!'
+        title: title
         message: message
         image: 'done'
 
-    @fail = (message) ->
+    @fail = (message, title) ->
       @notify
-        title: 'Fail!'
+        title: title
         message: message
         image: 'fail'
 
@@ -101,6 +101,6 @@ module.exports = class Env
     @paths = []
     @addPath options.path if options.path
     @addPath options.paths if options.paths
-    @processors = _.extend require('./processors'), options.processors
-    @compressors =  _.extend require('./compressors'), options.compressors
-    @notifiers = _.union require('./notifiers'), options.notifiers or []
+    @processors = _.extend require('./processors')(), options.processors
+    @compressors =  _.extend require('./compressors')(), options.compressors
+    @notifiers = _.union require('./notifiers')(), options.notifiers or []

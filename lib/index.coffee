@@ -9,10 +9,9 @@ module.exports =
     jst: require './processors/jst'
 
   compressors:
-    js:
-      uglifyjs: require './compressors/uglifyjs'
-    css:
-      cleanCss: require './compressors/clean-css'
+    uglifyjs: require './compressors/uglifyjs'
+    cleanCss: require './compressors/clean-css'
 
   notifiers:
     growl: require './notifiers/growl'
+    consoler: require './notifiers/consoler'

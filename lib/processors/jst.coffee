@@ -1,5 +1,5 @@
 # JST Proccessor
-module.exports = new (require './processor')
+module.exports = class JstProcessor extends (require './processor')
   namespace: 'JST'
   process: (asset, callback) ->
 
