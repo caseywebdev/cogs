@@ -5,13 +5,15 @@
   fail: 'red'
 
 module.exports = class ConsolerNotifier extends (require './notifier')
+  constructor: (options) ->
+    super options
 
-  notify: (options = {}) ->
-    style =
-      if options.image in ['info', 'done', 'fail']
-      then options.image
-      else 'info'
-    console.log """
-      #{"[#{style.toUpperCase()}] #{options.title or 'xl8'}".bold}
-      #{options.message}
-    """[style]
+    @notify = (options = {}) ->
+      style =
+        if options.image in ['info', 'done', 'fail']
+        then options.image
+        else 'info'
+      console.log """
+        #{"[#{style.toUpperCase()}] #{options.title or 'xl8'}".bold}
+        #{options.message}
+      """[style]

@@ -3,23 +3,27 @@ stylus = require 'stylus'
 nib = require 'nib'
 
 module.exports = class StylusProcessor extends (require './processor')
-  compress: false
-  nib: true
-  importNib: true
-  process: (asset, callback) ->
-    styl = stylus asset.raw
+  constructor: (options) ->
+    super options
 
-    styl.set 'filename', asset.abs
-    styl.set 'compress', true if @compress
+    @compress = false
+    @nib = true
+    @importNib = true
 
-    if @nib
-      styl.use nib()
-      styl.import 'nib' if @importNib
+    @process = (asset, callback) ->
+      styl = stylus asset.raw
 
-    styl.render (err, css) ->
-      return callback err if err
+      styl.set 'filename', asset.abs
+      styl.set 'compress', true if @compress
 
-      asset.raw = css
-      # Add the `.css` extension if it's not already there
-      asset.exts.push 'css' unless asset.ext() is 'css'
-      callback null
+      if @nib
+        styl.use nib()
+        styl.import 'nib' if @importNib
+
+      styl.render (err, css) ->
+        return callback err if err
+
+        asset.raw = css
+        # Add the `.css` extension if it's not already there
+        asset.exts.push 'css' unless asset.ext() is 'css'
+        callback null

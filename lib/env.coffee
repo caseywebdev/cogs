@@ -10,7 +10,6 @@ module.exports = class Env
     @build = (logical, callback) ->
       @asset logical, (err, asset) =>
         return callback err if err
-
         asset.build callback
 
     @asset = (logical, callback) ->
