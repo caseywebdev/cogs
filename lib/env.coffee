@@ -32,7 +32,6 @@ module.exports = class Env
         fs.readdir dir, (err, files) =>
           unless err
             abs = false
-            console.log
             base = path.basename check
             for file in files
               if file is base or file.indexOf("#{base}.") is 0
