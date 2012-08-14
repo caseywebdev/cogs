@@ -13,7 +13,8 @@ module.exports = class ConsolerNotifier extends (require './notifier')
         if options.image in ['info', 'done', 'fail']
         then options.image
         else 'info'
-      console.log """
-        #{"[#{style.toUpperCase()}] #{options.title or 'xl8'}".bold}
-        #{options.message}
-      """[style]
+      message =
+        "#{"[#{style.toUpperCase()}] " +
+        "#{options.title or 'xl8'}".bold} " +
+        "#{options.message}"
+      console.log message[style]

@@ -14,7 +14,7 @@ HEADER_PATTERN = ///
   )+
 ///
 
-DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=.*\n?/gm
+DIRECTIVE_LINE_PATTERN = /^\s*=\s*\w+(\s+\S+(,\s*\S+)?)?(\n|$)/gm
 
 DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
 
@@ -43,7 +43,7 @@ module.exports = class Directive
         assets = []
         return callback null, assets unless m
         _.each logicals, (logical) =>
-          actions.require logical, (err, asset) ->
+          actions.require logical.trim(), (err, asset) ->
             return callback err if err
             assets.push asset
             if ++n is m
@@ -101,12 +101,11 @@ module.exports = class Directive
       directive = directiveLine.match DIRECTIVE_PATTERN
 
       # Normalize the directive action. This allows the use of any of
-      #     = require-self
       #     = require_self
       #     = requireSelf
       #     = requireself
       # etc...
-      action = directive[1].toLowerCase().replace /[^a-z]/ig, ''
+      action = directive[1].toLowerCase().replace /[^a-z]/g, ''
 
       # Should be undefined for `requireself`, but exist for everything else
       argument = directive[2]

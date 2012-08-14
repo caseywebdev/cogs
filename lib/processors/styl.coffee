@@ -4,11 +4,11 @@ nib = require 'nib'
 
 module.exports = class StylusProcessor extends (require './processor')
   constructor: (options) ->
-    super options
-
     @compress = false
     @nib = true
     @importNib = true
+
+    super options
 
     @process = (asset, callback) ->
       styl = stylus asset.raw

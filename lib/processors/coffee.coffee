@@ -3,9 +3,9 @@ coffee = require 'coffee-script'
 
 module.exports = class CoffeeScriptProcessor extends (require './processor')
   constructor: (options) ->
-    super options
-
     @bare = false
+
+    super options
 
     @process = (asset, callback) ->
       try

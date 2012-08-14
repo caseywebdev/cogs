@@ -5,10 +5,10 @@ DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
 
 module.exports = class JadeProcessor extends (require './processor')
   constructor: (options) ->
-    super options
-
     @debug = false
     @default = 'jst'
+
+    super options
 
     @process = (asset, callback) ->
 

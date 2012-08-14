@@ -1,9 +1,9 @@
 # JST Proccessor
 module.exports = class JstProcessor extends (require './processor')
   constructor: (options) ->
-    super options
-
     @namespace = 'JST'
+
+    super options
 
     @process = (asset, callback) ->
 
