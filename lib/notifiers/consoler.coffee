@@ -1,3 +1,5 @@
+util = require 'util'
+
 # Consoler Notifier
 (colors = require 'colors').setTheme
   info: 'grey'
@@ -13,8 +15,6 @@ module.exports = class ConsolerNotifier extends (require './notifier')
         if options.image in ['info', 'done', 'fail']
         then options.image
         else 'info'
-      message =
-        "#{"[#{style.toUpperCase()}] " +
-        "#{options.title or 'xl8'}".bold} " +
-        "#{options.message}"
-      console.log message[style]
+      title = options.title or style.toUpperCase()
+      message = "[xl8] #{title.bold} #{options.message}"
+      util.log message[style]
