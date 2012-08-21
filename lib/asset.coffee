@@ -19,8 +19,8 @@ module.exports = class Asset
             @raw = data.toString()
             @compressed = ''
             @concat = ''
-            i = 1 + abs.indexOf '.'
-            @exts = if i then abs[i..-1].toLowerCase().split '.' else []
+            i = 1 + (base = path.basename abs).indexOf '.'
+            @exts = if i then base[i..-1].toLowerCase().split '.' else []
 
             # Gather directives and store in @directives
             scanDirectives callback

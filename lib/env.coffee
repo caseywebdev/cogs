@@ -52,7 +52,7 @@ module.exports = class Env
     @logical = (abs, callback) ->
       fs.exists abs, (exists) =>
         if exists
-          abs = if ~(i = abs.indexOf '.') then abs[0...i] else abs
+          abs = path.dirname(abs) + path.basename(abs).replace /\..*$/, ''
           for p in @paths
             if abs.indexOf(p) is 0
               return callback null, abs[p.length + 1..-1]
