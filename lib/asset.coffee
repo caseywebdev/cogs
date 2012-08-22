@@ -128,15 +128,16 @@ module.exports = class Asset
             callback null
 
     @dependencies = (visited = [], required = []) ->
-      ext = @ext()
-      visited.push @
-      for directive in @directives
-        for dependency in directive.dependencies
-          if dependency in visited
-            unless dependency in required or ext isnt dependency.ext()
-              required.push dependency
-          else
-            required = dependency.dependencies visited, required
+      if @directives
+        ext = @ext()
+        visited.push @
+        for directive in @directives
+          for dependency in directive.dependencies
+            if dependency in visited
+              unless dependency in required or ext isnt dependency.ext()
+                required.push dependency
+            else
+              required = dependency.dependencies visited, required
       required
 
     # Constructor Code
