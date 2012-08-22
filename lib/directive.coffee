@@ -46,8 +46,7 @@ module.exports = class Directive
           actions.require logical.trim(), (err, asset) ->
             return callback err if err
             assets.push asset
-            if ++n is m
-              callback null, _.flatten assets
+            callback null, assets if ++n is m
 
       # A special case require for the current asset
       requireself: (callback) =>
@@ -74,7 +73,7 @@ module.exports = class Directive
     if actions[action]
       actions[action] (err, dependencies) =>
         return callback err if err
-        @dependencies = dependencies
+        @dependencies = _.compact _.flatten dependencies
         callback null, @
     else
       callback new Error "'#{action}' is not a valid directive action in '#{asset.abs}'"

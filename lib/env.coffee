@@ -50,17 +50,16 @@ module.exports = class Env
       callback new Error 'No env paths are defined' unless @paths.length
 
     @logical = (abs, callback) ->
-      fs.exists abs, (exists) =>
-        if exists
-          dirname = path.dirname abs
-          basename = path.basename(abs).replace /\..*$/, ''
-          abs = path.resolve dirname, basename
-          for p in @paths
-            if abs.indexOf(p) is 0
-              return callback null, abs[p.length + 1..-1]
-          callback new Error "Unable to match '#{abs}' to any logical path"
-        else
-          callback new Error "'#{abs}' does not exist"
+      fs.stat abs, (err, stat) =>
+        return callback new Error "'#{abs}' does not exist" if err
+        dirname = path.dirname abs
+        basename = path.basename(abs).replace /\..*$/, ''
+        abs = path.resolve dirname, basename
+        for p in @paths
+          if abs.indexOf(p) is 0
+            return callback null, abs[p.length + 1..-1]
+        callback new Error "Unable to match '#{abs}' to any logical path"
+
 
     @addPath = (paths) ->
       # Remove existing matches

@@ -68,7 +68,7 @@ module.exports = class Asset
                 else
 
                   # If the dependency tree has changed, recurse
-                  @concatDependencies callback
+                  concatDependencies callback
       else
         callback null, @raw
 

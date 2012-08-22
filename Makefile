@@ -1,10 +1,15 @@
+BIN=node_modules/.bin/
+COFFEE=$(BIN)coffee
+MOCHA=$(BIN)mocha
+
 all:
-	./node_modules/.bin/coffee -cb -o dist lib
+	npm install
+	$(COFFEE) -c -o dist lib
 
 dev:
-	./node_modules/.bin/coffee -cbw -o dist lib
+	$(COFFEE) -cw -o dist lib
 
 test:
-	./node_modules/.bin/mocha
+	$(MOCHA)
 
-.PHONY: all test watch
+.PHONY: all test
