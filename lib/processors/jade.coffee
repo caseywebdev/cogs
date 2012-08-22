@@ -7,6 +7,7 @@ module.exports = class JadeProcessor extends (require './processor')
   constructor: (options) ->
     @debug = false
     @default = 'jst'
+    @self = false
 
     super options
 
@@ -35,6 +36,7 @@ module.exports = class JadeProcessor extends (require './processor')
 
       options =
         filename: asset.abs
+        self: @self
       try
         # Time to compile
         if out is 'html'
