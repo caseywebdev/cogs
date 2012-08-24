@@ -4,12 +4,12 @@ MOCHA=$(BIN)mocha
 
 all:
 	npm install
-	$(COFFEE) -c -o dist lib
+	$(COFFEE) -cbo dist lib
 
 dev:
-	$(COFFEE) -cw -o dist lib
+	$(COFFEE) -cbwo dist lib
 
 test:
 	$(MOCHA)
 
-.PHONY: all test
+.PHONY: test
