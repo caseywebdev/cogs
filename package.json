@@ -11,7 +11,7 @@
     "underscore": "x",
     "glob": "x",
     "coffee-script": "x",
-    "stylus": "x",
+    "stylus": "git://github.com/caseywebdev/stylus",
     "jade": "x",
     "nib": "x",
     "uglify-js": "x",
