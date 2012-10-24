@@ -1,12 +1,5 @@
-# Compressor skeleton
+_ = require 'underscore'
+
 module.exports = class Compressor
   constructor: (options) ->
-
-    # noop, should be overridden
-    @compress = (str, callback) ->
-      callback null, str
-
-    (@config = (options) ->
-      @[name] = option for name, option of options
-      @
-    ).call @, options
+    @options = _({}).extend @defaults, options

@@ -1,15 +1,8 @@
-# Clean CSS Compressor
-cleanCss = require 'clean-css'
-
-module.exports = class CleanCssCompressor extends (require './compressor')
-  constructor: (options) ->
-    super options
-
-    @compress = (str, callback) ->
-
-      # From the clean-css README
-      try
-        str = cleanCss.process str
-        callback null, str
-      catch err
-        callback err
+module.exports = class CleanCss extends (require './compressor')
+  compress: (str, cb) ->
+    try
+      cleanCss = require 'clean-css'
+      str = cleanCss.process str
+      cb null, str
+    catch er
+      cb er

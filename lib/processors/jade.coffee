@@ -1,16 +1,15 @@
-# Jade Processor
-jade = require 'jade'
+_ = require 'underscore'
 
 DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
 
-module.exports = class JadeProcessor extends (require './processor')
-  constructor: (options) ->
-    @debug = false
-    @default = 'jst'
+module.exports = class Jade extends (require './processor')
+  defaults:
+    compileDebug: false
+    default: 'jst'
 
-    super options
-
-    @process = (asset, callback) ->
+  process: (asset, cb) ->
+    try
+      jade = require 'jade'
 
       # Grab the extension preceding `.jade`
       ext = asset.ext()
@@ -31,19 +30,17 @@ module.exports = class JadeProcessor extends (require './processor')
       else if match = asset.raw.match DIRECIVE_PATTERN
         out = match[1]
       else
-        out = @default
+        out = @options.default
 
-      options =
-        filename: asset.abs
-      try
-        # Time to compile
-        if out is 'html'
-          asset.raw = jade.compile(asset.raw, options)()
-        else
-          options.client = true
-          options.compileDebug = @debug
-          asset.raw = jade.compile(asset.raw, options).toString()
-        asset.exts.push out unless ext is out
-        callback null
-      catch err
-        callback err
+      options = _({}).extend @options, filename: asset.abs
+
+      # Time to compile
+      if out is 'html'
+        asset.raw = jade.compile(asset.raw, options)()
+      else
+        options.client = true
+        asset.raw = jade.compile(asset.raw, options).toString()
+      asset.exts.push out unless ext is out
+      cb null
+    catch er
+      cb er

@@ -20,65 +20,18 @@ DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
 
 module.exports = class Directive
 
-  constructor: (asset, action, argument, callback) ->
-
-    actions =
-
-      # Require a single file
-      require: (logical, callback) =>
-        if typeof logical is 'function'
-          callback = logical
-          logical = @argument
-        @asset.env.asset logical, (err, asset) =>
-          return callback err if err
-          callback null, [asset]
-
-      # Require many files
-      requiremany: (logicals, callback) =>
-        if typeof logicals is 'function'
-          callback = logicals
-          logicals = @argument.split ','
-        n = 0
-        m = logicals.length
-        assets = []
-        return callback null, assets unless m
-        _.each logicals, (logical) =>
-          actions.require logical.trim(), (err, asset) ->
-            return callback err if err
-            assets.push asset
-            callback null, assets if ++n is m
-
-      # A special case require for the current asset
-      requireself: (callback) =>
-        callback null, [@asset]
-
-      # Require an entire directory, recursively
-      requiretree: (callback) =>
-        base = path.dirname @asset.abs
-        target = path.resolve base, @argument
-        glob "#{target}/**/*.*", (err, files) =>
-          return callback err if err
-          actions.requiremany files, callback
-
-      # Require a directory, just the first level
-      requiredir: (callback) =>
-        base = path.dirname @asset.abs
-        target = path.resolve base, @argument
-        fs.readdir target, (err, files) =>
-          return callback err if err
-          actions.requiremany files, callback
-
+  constructor: (@asset, @action, @argument, cb) ->
     @asset = asset
     @argument = argument
-    if actions[action]
-      actions[action] (err, dependencies) =>
-        return callback err if err
-        @dependencies = _.compact _.flatten dependencies
-        callback null, @
+    if @[@action]
+      @[@action] (er, dependencies) =>
+        return cb er if er
+        @dependencies = _(dependencies).chain().flatten().compact().value()
+        cb null, @
     else
-      callback new Error "'#{action}' is not a valid directive action in '#{asset.abs}'"
+      cb new Error "'#{@action}' is not a valid directive action in '#{asset.abs}'"
 
-  @scan: (asset, callback) =>
+  @scan: (asset, cb) ->
 
     # Reset the directives
     asset.directives = []
@@ -87,17 +40,16 @@ module.exports = class Directive
     header = asset.raw.match(HEADER_PATTERN) or ['']
 
     # Pull out the specific directive lines
-    directiveLines = header[0].match(DIRECTIVE_LINE_PATTERN) or []
+    lines = header[0].match(DIRECTIVE_LINE_PATTERN) or []
 
     # Push a requireself to ensure the body is included
-    directiveLines.push '=requireself'
+    lines.push '=requireself'
 
-    n = 0
-    m = directiveLines.length
-    _.each directiveLines, (directiveLine, i) =>
+    done = _.after lines.length, cb
+    _.each lines, (line, i) ->
 
       # Split the directive and argument
-      directive = directiveLine.match DIRECTIVE_PATTERN
+      directive = line.match DIRECTIVE_PATTERN
 
       # Normalize the directive action. This allows the use of any of
       #     = require_self
@@ -110,10 +62,53 @@ module.exports = class Directive
       argument = directive[2]
 
       # Erase the directive line in the source
-      asset.raw = asset.raw.replace directiveLine, '\n'
+      asset.raw = asset.raw.replace line, '\n'
 
       # Add the directive to the assets directives list
-      new @ asset, action, argument, (err, directive) ->
-        return callback err if err
+      new Directive asset, action, argument, (er, directive) ->
+        return cb er if er
         asset.directives[i] = directive if directive
-        callback null if ++n is m
+        done()
+
+  # Require a single file
+  require: (logical, cb) ->
+    if typeof logical is 'function'
+      cb = logical
+      logical = @argument
+    @asset.env.asset logical, (er, asset) =>
+      return cb er if er
+      cb null, [asset]
+
+  # Require many files
+  requiremany: (logicals, cb) ->
+    if typeof logicals is 'function'
+      cb = logicals
+      logicals = @argument.split ','
+    done = _.after logicals.length, cb
+    assets = []
+    return cb null, assets unless m
+    _.each logicals, (logical) =>
+      @require logical.trim(), (er, asset) ->
+        return cb er if er
+        assets.push asset
+        done null, assets
+
+  # A special case require for the current asset
+  requireself: (cb) ->
+    cb null, [@asset]
+
+  # Require an entire directory, recursively
+  requiretree: (cb) ->
+    base = path.dirname @asset.abs
+    target = path.resolve base, @argument
+    glob "#{target}/**/*.*", (er, files) =>
+      return cb er if er
+      @requiremany files, cb
+
+  # Require a directory, just the first level
+  requiredir: (cb) ->
+    base = path.dirname @asset.abs
+    target = path.resolve base, @argument
+    fs.readdir target, (er, files) =>
+      return cb er if er
+      @requiremany files, cb

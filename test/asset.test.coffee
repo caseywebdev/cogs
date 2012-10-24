@@ -3,11 +3,8 @@ path = require 'path'
 _ = require 'underscore'
 should = require('chai').should()
 xl8 = require '../lib'
-Env = require '../lib/env'
 Asset = require '../lib/asset'
 Directive = require '../lib/directive'
-uglifyjs = require '../lib/compressors/uglifyjs'
-cleanCss = require '../lib/compressors/clean-css'
 env = new xl8.Env
   paths: 'test/cases'
 
@@ -29,7 +26,7 @@ describe 'Asset', ->
       asset.directives[0].should.be.an.instanceof Directive
 
     it 'should have a parent environment', ->
-      asset.env.should.be.an.instanceof Env
+      asset.env.should.be.an.instanceof xl8.Env
 
   describe '#build', ->
     it 'should translate `.coffee` to `.js`', (done) ->
@@ -48,7 +45,6 @@ describe 'Asset', ->
     it 'should translate `.styl` to `.css`', (done) ->
       env.asset 'styl/a', (err, asset) ->
         return done err if err
-
         asset.build (err, str) ->
           return done err if err
 

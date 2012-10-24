@@ -1,17 +1,6 @@
-module.exports =
-  Env: require './env'
+_ = require 'underscore'
+Env = require './env'
+processors = require './processors'
+compressors = require './compressors'
 
-  # Expose built-in processors/compressors/notifiers for easy access
-  processors:
-    coffee: require './processors/coffee'
-    styl: require './processors/styl'
-    jade: require './processors/jade'
-    jst: require './processors/jst'
-
-  compressors:
-    uglifyjs: require './compressors/uglifyjs'
-    cleanCss: require './compressors/clean-css'
-
-  notifiers:
-    growl: require './notifiers/growl'
-    consoler: require './notifiers/consoler'
+_(module.exports).extend {Env}, processors, compressors

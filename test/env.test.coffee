@@ -10,8 +10,8 @@ describe 'Env', ->
     it 'should initialize with no args', ->
       env = new xl8.Env
     it 'should initialize with compressors and save them', ->
-      jsCompressor = require '../lib/compressors/uglifyjs'
-      cssCompressor = require '../lib/compressors/clean-css'
+      jsCompressor = new xl8.UglifyJs
+      cssCompressor = new xl8.CleanCss
       env = new xl8.Env
         compressors:
           js: jsCompressor

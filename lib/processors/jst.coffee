@@ -1,19 +1,15 @@
-# JST Proccessor
-module.exports = class JstProcessor extends (require './processor')
-  constructor: (options) ->
-    @namespace = 'JST'
+module.exports = class Jst extends (require './processor')
+  defaults:
+    namespace: 'JST'
 
-    super options
+  process: (asset, cb) ->
+    asset.logical (er, logical) =>
+      return cb er if er
 
-    @process = (asset, callback) ->
+      # Wrap the asset in a JST namespace with the logical path as its key
+      asset.raw = "(this['#{@options.namespace}'] = this['#{@options.namespace}'] || {})['#{logical}'] = #{asset.raw};\n"
 
-      asset.logical (err, logical) =>
-        return callback err if err
+      # Add the `.js` extension if it's not already there
+      asset.exts.push 'js' unless asset.ext() is 'js'
 
-        # Wrap the asset in a JST namespace with the logical path as its key
-        asset.raw = "(this['#{@namespace}'] = this['#{@namespace}'] || {})['#{logical}'] = #{asset.raw};\n"
-
-        # Add the `.js` extension if it's not already there
-        asset.exts.push 'js' unless asset.ext() is 'js'
-
-        callback null
+      cb null

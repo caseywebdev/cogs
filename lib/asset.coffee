@@ -4,146 +4,128 @@ _ = require 'underscore'
 Directive = require './directive'
 
 module.exports = class Asset
+  constructor: (@env, @abs, cb) ->
+    @readFile (er) =>
+      return cb er if er
+      cb null, @
 
-  constructor: (env, abs, callback) ->
+  toString: ->
+    if @compress() then @compressed else @concat or @raw
 
-    # Private Methods
+  build: (cb) ->
 
-    readFile = (callback) =>
-      fs.stat @abs, (err, stats) =>
-        return callback err if err
-        unless @mtime and @mtime is stats.mtime
-          @mtime = stats.mtime
-          fs.readFile @abs, (err, data) =>
-            return callback err if err
-            @raw = data.toString()
-            @compressed = ''
-            @concat = ''
-            i = 1 + (base = path.basename abs).indexOf '.'
-            @exts = if i then base[i..-1].toLowerCase().split '.' else []
+    # Check the file for changes
+    @readFile (er) =>
+      return cb er if er
 
-            # Gather directives and store in @directives
-            scanDirectives callback
-        else
-          callback null
+      @concatDependencies (er, str) =>
+        return cb er if er
 
-    scanDirectives = (callback) =>
-      Directive.scan @, (err) =>
-        return callback err if err
+        @concat = str
 
-        process callback
+        return cb null, @ unless compress = @compress()
 
-    process = (callback) =>
-      processor = @env.processors[@ext()]
-      if processor
-        @exts.pop()
-        processor.process @, (err) =>
-          return callback err if err
-          process callback
+        # Compress if necessary or return the uncompressed
+        compress @concat, (er, str) =>
+          return cb er if er
+          @compressed = str
+          cb null, @
+
+  ext: ->
+    _(@exts).last()
+
+  logical: (cb) ->
+    @env.logical @abs, (er, logical) =>
+      return cb er if er
+      cb null, logical
+
+  outPath: (cb) ->
+    @logical (er, logical) =>
+      return cb er if er
+      cb null, logical +
+        (if @exts.length then '.' else '') +
+        @exts.join '.'
+
+  saveToDir: (dir, cb) ->
+    @build (er) =>
+      return cb er if er
+      @outPath (er, p) =>
+        return cb er if er
+        target = path.resolve dir, p
+        fs.writeFile target, @toString(), (er) =>
+          return cb er if er
+          cb null
+
+  dependencies: (visited = [], required = []) ->
+    if @directives
+      ext = @ext()
+      visited.push @
+      for directive in @directives
+        for dependency in directive.dependencies
+          if dependency in visited
+            unless dependency in required or ext isnt dependency.ext()
+              required.push dependency
+          else
+            required = dependency.dependencies visited, required
+    required
+
+  readFile: (cb) ->
+    fs.stat @abs, (er, stats) =>
+      return cb er if er
+      unless @mtime and @mtime is stats.mtime
+        @mtime = stats.mtime
+        fs.readFile @abs, (er, data) =>
+          return cb er if er
+          @raw = data.toString()
+          @compressed = ''
+          @concat = ''
+          i = 1 + (base = path.basename @abs).indexOf '.'
+          @exts = if i then base[i..-1].toLowerCase().split '.' else []
+
+          # Gather directives and store in @directives
+          @scanDirectives cb
       else
+        cb null
 
-        # Ensure every JS raw file ends with a semicolon and new line. Without
-        # this, concatenated scripts (especially minified ones) can cause
-        # syntax errors.
-        if @ext() is 'js' and not @raw.match /;\n$/
-          @raw = @raw.replace /[\s;]*$/, ';\n'
-        callback null
+  scanDirectives: (cb) ->
+    Directive.scan @, (er) =>
+      return cb er if er
+      @process cb
 
-    concatDependencies = (callback) =>
-      dependencies = @dependencies()
-      n = 0
-      m = dependencies.length-1
-      if m
-        _.each dependencies, (dependency) =>
-          unless dependency is @
-            # Update dependencies before including them
-            dependency.update (err) =>
-              return callback err if err
+  process: (cb) ->
+    processor = @env.processors[@ext()]
+    if processor
+      @exts.pop()
+      processor.process @, (er) =>
+        return cb er if er
+        @process cb
+    else
 
-              if ++n is m
+      # Ensure every JS raw file ends with a semicolon and new line. Without
+      # this, concatenated scripts (especially minified ones) can cause
+      # syntax errors.
+      if @ext() is 'js' and not @raw.match /;\n$/
+        @raw = @raw.replace /[\s;]*$/, ';\n'
+      cb null
 
-                # Check if sub-dependencies have changed since file reloads
-                if _.isEqual dependencies, @dependencies()
-                  callback null, _.pluck(dependencies, 'raw').join ''
-                else
+  concatDependencies: (cb) ->
+    dependencies = @dependencies()
 
-                  # If the dependency tree has changed, recurse
-                  concatDependencies callback
-      else
-        callback null, @raw
+    done = _.after dependencies.length - 1, =>
 
-    compress = =>
-      @env.compressors[@ext()]?.compress
+      # Check if sub-dependencies have changed since file reloads
+      if _(dependencies).isEqual @dependencies()
+        return cb null, _(dependencies).pluck('raw').join ''
 
-    # Public Methods
+      # If the dependency tree has changed, recurse
+      @concatDependencies cb
 
-    @update = (callback) ->
-      readFile callback
+    for dependency in dependencies when dependency isnt @
 
-    @toString = ->
-      if compress() then @compressed else @concat or @raw
+      # readFile dependencies before including them
+      dependency.readFile (er) ->
+        return cb er if er
+        done()
 
-    @build = (callback) ->
-
-      # Update the file if it has changed
-      @update (err) =>
-        return callback err if err
-
-        concatDependencies (err, str) =>
-          return callback err if err
-
-          @concat = str
-
-          return callback null, @ unless compress()
-
-          # Compress if necessary or return the uncompressed
-          compress() @concat, (err, str) =>
-            return callback err if err
-            @compressed = str
-            callback null, @
-
-    @ext = ->
-      _.last @exts
-
-    @logical = (callback) ->
-      @env.logical @abs, (err, logical) =>
-        return callback err if err
-        callback null, logical
-
-    @outPath = (callback) ->
-      @logical (err, logical) =>
-        return callback err if err
-        callback null, logical +
-          (if @exts.length then '.' else '') +
-          @exts.join '.'
-
-    @saveToDir = (dir, callback) ->
-      @build (err) =>
-        return callback err if err
-        @outPath (err, p) =>
-          return callback err if err
-          target = path.resolve dir, p
-          fs.writeFile target, @toString(), (err) =>
-            return callback err if err
-            callback null
-
-    @dependencies = (visited = [], required = []) ->
-      if @directives
-        ext = @ext()
-        visited.push @
-        for directive in @directives
-          for dependency in directive.dependencies
-            if dependency in visited
-              unless dependency in required or ext isnt dependency.ext()
-                required.push dependency
-            else
-              required = dependency.dependencies visited, required
-      required
-
-    # Constructor Code
-    @env = env
-    @abs = abs
-
-    @update (err) =>
-      return callback err if err
-      callback null, @
+  compress: ->
+    @env.compressors[@ext()]?.compress
