@@ -32,7 +32,7 @@ module.exports = class Asset
           cb null, @
 
   ext: ->
-    _(@exts).last()
+    @exts[@exts.length - 1]
 
   logical: (cb) ->
     @env.logical @abs, (er, logical) =>
@@ -114,7 +114,7 @@ module.exports = class Asset
     done = _.after dependencies.length - 1, =>
 
       # Check if sub-dependencies have changed since file reloads
-      if _(dependencies).isEqual @dependencies()
+      if _.isEqual dependencies, @dependencies()
         return cb null, _(dependencies).pluck('raw').join ''
 
       # If the dependency tree has changed, recurse

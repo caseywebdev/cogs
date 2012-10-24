@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-module.exports = class CoffeeScript extends (require './processor')
+module.exports = class CoffeeScript extends (require './engine')
   defaults:
     bare: false
 

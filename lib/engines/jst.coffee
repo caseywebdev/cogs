@@ -1,4 +1,4 @@
-module.exports = class Jst extends (require './processor')
+module.exports = class Jst extends (require './engine')
   defaults:
     namespace: 'JST'
 

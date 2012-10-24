@@ -1,4 +1,4 @@
-module.exports = class UglifyJs extends (require './compressor')
+module.exports = class UglifyJs extends (require './engine')
   compress: (str, cb) ->
     try
       uglifyjs = require 'uglify-js'

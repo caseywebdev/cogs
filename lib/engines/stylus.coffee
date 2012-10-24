@@ -1,4 +1,4 @@
-module.exports = class Stylus extends (require './processor')
+module.exports = class Stylus extends (require './engine')
   defaults:
     compress: false
     nib: true

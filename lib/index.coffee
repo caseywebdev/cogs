@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Env = require './env'
-processors = require './processors'
-compressors = require './compressors'
+engines = require './engines'
 
-_(module.exports).extend {Env}, processors, compressors
+_.extend module.exports, {Env}, engines

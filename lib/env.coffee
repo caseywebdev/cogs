@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 EventEmitter = require('events').EventEmitter
 _ = require 'underscore'
-processors = require './processors'
+engines = require './engines'
 Asset = require './asset'
 
 module.exports = class Env extends EventEmitter
@@ -12,10 +12,10 @@ module.exports = class Env extends EventEmitter
     @addPath options.paths if options.paths
     @addPath options.path if options.path
     @processors = _.extend
-      coffee: new processors.CoffeeScript
-      jade: new processors.Jade
-      jst: new processors.Jst
-      styl: new processors.Stylus
+      coffee: new engines.CoffeeScript
+      jade: new engines.Jade
+      jst: new engines.Jst
+      styl: new engines.Stylus
     , options.processors
     @compressors = options.compressors or {}
 
@@ -33,15 +33,19 @@ module.exports = class Env extends EventEmitter
         @cache[abs] = new Asset @, abs, cb
 
   abs: (logical, cb) ->
-    candidate =
+    best =
       priority: -1
       abs: null
-    n = 0
-    m = @paths.length
+
+    done = _.after @paths.length, (abs) ->
+      return cb new Error 'No env paths are defined' if abs is undefined
+      return cb null, abs if abs
+      cb new Error "Unable to match '#{logical}' to any absolute path"
+
     _.each @paths, (p, priority) =>
       check = path.resolve p, logical
       dir = path.dirname check
-      fs.readdir dir, (er, files) =>
+      fs.readdir dir, (er, files) ->
         unless er
           abs = false
           base = path.basename check
@@ -50,16 +54,12 @@ module.exports = class Env extends EventEmitter
               abs = path.join dir, file
               break
 
-          if abs and ((cp = candidate.priority) is -1 or priority < cp)
-            candidate =
+          if abs and ((cp = best.priority) is -1 or priority < cp)
+            best =
               priority: priority
               abs: abs
 
-        if ++n is m
-          return cb null, candidate.abs if candidate.abs
-          cb new Error "Unable to match '#{logical}' to any absolute path"
-
-    cb new Error 'No env paths are defined' unless @paths.length
+        done best.abs
 
   logical: (abs, cb) ->
     fs.stat abs, (er, stat) =>
@@ -72,16 +72,15 @@ module.exports = class Env extends EventEmitter
           return cb null, abs[p.length + 1..-1]
       cb new Error "Unable to match '#{abs}' to any logical path"
 
-
   addPath: (paths) ->
     # Remove existing matches
     @removePath paths
-    paths = [paths] if _(paths).isString()
+    paths = [paths] if typeof paths is 'string'
     for p in paths
       @paths.push path.resolve p
 
   removePath: (paths) ->
-    paths = [paths] if _(paths).isString()
+    paths = [paths] if typeof paths is 'string'
     for p in paths
-      if ~(i = _(@paths).indexOf path.resolve p)
+      if ~(i = @paths.indexOf path.resolve p)
         @paths.splice i, 1

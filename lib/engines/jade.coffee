@@ -2,7 +2,7 @@ _ = require 'underscore'
 
 DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
 
-module.exports = class Jade extends (require './processor')
+module.exports = class Jade extends (require './engine')
   defaults:
     compileDebug: false
     default: 'jst'

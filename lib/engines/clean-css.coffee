@@ -1,4 +1,4 @@
-module.exports = class CleanCss extends (require './compressor')
+module.exports = class CleanCss extends (require './engine')
   compress: (str, cb) ->
     try
       cleanCss = require 'clean-css'

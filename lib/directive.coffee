@@ -26,7 +26,7 @@ module.exports = class Directive
     if @[@action]
       @[@action] (er, dependencies) =>
         return cb er if er
-        @dependencies = _(dependencies).chain().flatten().compact().value()
+        @dependencies = dependencies
         cb null, @
     else
       cb new Error "'#{@action}' is not a valid directive action in '#{asset.abs}'"
@@ -46,6 +46,7 @@ module.exports = class Directive
     lines.push '=requireself'
 
     done = _.after lines.length, cb
+
     _.each lines, (line, i) ->
 
       # Split the directive and argument
@@ -75,7 +76,7 @@ module.exports = class Directive
     if typeof logical is 'function'
       cb = logical
       logical = @argument
-    @asset.env.asset logical, (er, asset) =>
+    @asset.env.asset logical, (er, asset) ->
       return cb er if er
       cb null, [asset]
 
@@ -84,13 +85,12 @@ module.exports = class Directive
     if typeof logicals is 'function'
       cb = logicals
       logicals = @argument.split ','
-    done = _.after logicals.length, cb
     assets = []
-    return cb null, assets unless m
-    _.each logicals, (logical) =>
+    done = _.after logicals.length, -> cb null, assets
+    for logical in logicals
       @require logical.trim(), (er, asset) ->
         return cb er if er
-        assets.push asset
+        assets.concat asset
         done null, assets
 
   # A special case require for the current asset
