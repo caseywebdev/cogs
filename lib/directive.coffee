@@ -90,7 +90,7 @@ module.exports = class Directive
     for logical in logicals
       @require logical.trim(), (er, asset) ->
         return cb er if er
-        assets.concat asset
+        assets = assets.concat asset
         done null, assets
 
   # A special case require for the current asset
