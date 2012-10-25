@@ -9,66 +9,6 @@ module.exports = class Asset
       return cb er if er
       cb null, @
 
-  toString: ->
-    if @compress() then @compressed else @concat or @raw
-
-  build: (cb) ->
-
-    # Check the file for changes
-    @readFile (er) =>
-      return cb er if er
-
-      @concatDependencies (er, str) =>
-        return cb er if er
-
-        @concat = str
-
-        return cb null, @ unless compress = @compress()
-
-        # Compress if necessary or return the uncompressed
-        compress @concat, (er, str) =>
-          return cb er if er
-          @compressed = str
-          cb null, @
-
-  ext: ->
-    @exts[@exts.length - 1]
-
-  logical: (cb) ->
-    @env.logical @abs, (er, logical) =>
-      return cb er if er
-      cb null, logical
-
-  outPath: (cb) ->
-    @logical (er, logical) =>
-      return cb er if er
-      cb null, logical +
-        (if @exts.length then '.' else '') +
-        @exts.join '.'
-
-  saveToDir: (dir, cb) ->
-    @build (er) =>
-      return cb er if er
-      @outPath (er, p) =>
-        return cb er if er
-        target = path.resolve dir, p
-        fs.writeFile target, @toString(), (er) =>
-          return cb er if er
-          cb null
-
-  dependencies: (visited = [], required = []) ->
-    if @directives
-      ext = @ext()
-      visited.push @
-      for directive in @directives
-        for dependency in directive.dependencies
-          if dependency in visited
-            unless dependency in required or ext isnt dependency.ext()
-              required.push dependency
-          else
-            required = dependency.dependencies visited, required
-    required
-
   readFile: (cb) ->
     fs.stat @abs, (er, stats) =>
       return cb er if er
@@ -108,6 +48,19 @@ module.exports = class Asset
         @raw = @raw.replace /[\s;]*$/, ';\n'
       cb null
 
+  dependencies: (visited = [], required = []) ->
+    if @directives
+      ext = @ext()
+      visited.push @
+      for directive in @directives
+        for dependency in directive.dependencies
+          if dependency in visited
+            unless dependency in required or ext isnt dependency.ext()
+              required.push dependency
+          else
+            required = dependency.dependencies visited, required
+    required
+
   concatDependencies: (cb) ->
     dependencies = @dependencies()
 
@@ -115,7 +68,7 @@ module.exports = class Asset
 
       # Check if sub-dependencies have changed since file reloads
       if _.isEqual dependencies, @dependencies()
-        return cb null, _(dependencies).pluck('raw').join ''
+        return cb null, _.pluck(dependencies, 'raw').join ''
 
       # If the dependency tree has changed, recurse
       @concatDependencies cb
@@ -127,5 +80,52 @@ module.exports = class Asset
         return cb er if er
         done()
 
+  build: (cb) ->
+
+    # Check the file for changes
+    @readFile (er) =>
+      return cb er if er
+
+      @concatDependencies (er, str) =>
+        return cb er if er
+
+        @concat = str
+
+        return cb null, @ unless compress = @compress()
+
+        # Compress if necessary or return the uncompressed
+        compress @concat, (er, str) =>
+          return cb er if er
+          @compressed = str
+          cb null, @
+
+  saveToDir: (dir, cb) ->
+    @build (er) =>
+      return cb er if er
+      @outPath (er, p) =>
+        return cb er if er
+        target = path.resolve dir, p
+        fs.writeFile target, @toString(), (er) =>
+          return cb er if er
+          cb null
+
+  logical: (cb) ->
+    @env.logical @abs, (er, logical) =>
+      return cb er if er
+      cb null, logical
+
+  outPath: (cb) ->
+    @logical (er, logical) =>
+      return cb er if er
+      cb null, logical +
+        (if @exts.length then '.' else '') +
+        @exts.join '.'
+
+  ext: ->
+    @exts[@exts.length - 1]
+
   compress: ->
     @env.compressors[@ext()]?.compress
+
+  toString: ->
+    if @compress() then @compressed else @concat or @raw

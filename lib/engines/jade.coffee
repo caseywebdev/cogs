@@ -32,7 +32,7 @@ module.exports = class Jade extends (require './engine')
       else
         out = @options.default
 
-      options = _({}).extend @options, filename: asset.abs
+      options = _.extend {}, @options, filename: asset.abs
 
       # Time to compile
       if out is 'html'

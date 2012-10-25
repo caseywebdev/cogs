@@ -19,11 +19,6 @@ module.exports = class Env extends EventEmitter
     , options.processors
     @compressors = options.compressors or {}
 
-  build: (logical, cb) ->
-    @asset logical, (er, asset) =>
-      return cb er if er
-      asset.build cb
-
   asset: (logical, cb) ->
     @abs logical, (er, abs) =>
       return cb er if er
