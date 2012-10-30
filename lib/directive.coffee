@@ -47,7 +47,7 @@ module.exports = class Directive
 
     done = _.after lines.length, cb
 
-    _.each lines, (line, i) ->
+    for line, i in lines then do (line, i) ->
 
       # Split the directive and argument
       directive = line.match DIRECTIVE_PATTERN

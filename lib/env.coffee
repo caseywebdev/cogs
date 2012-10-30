@@ -37,7 +37,7 @@ module.exports = class Env extends EventEmitter
       return cb null, abs if abs
       cb new Error "Unable to match '#{logical}' to any absolute path"
 
-    _.each @paths, (p, priority) =>
+    for p, priority in @paths then do (p, priority) =>
       check = path.resolve p, logical
       dir = path.dirname check
       fs.readdir dir, (er, files) ->

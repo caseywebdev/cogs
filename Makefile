@@ -1,4 +1,4 @@
-BIN=`npm bin`/
+BIN=node_modules/.bin/
 COFFEE=$(BIN)coffee
 MOCHA=$(BIN)mocha
 

@@ -1,6 +1,6 @@
 {
   "name": "xl8",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "author": "Casey Foster <casey@caseywebdev.com>",
   "licence": "MIT",
   "main": "dist",
@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "coffee-script": "x",
-    "stylus": "git://github.com/caseywebdev/stylus",
+    "stylus": "x",
     "jade": "x",
     "nib": "x",
     "uglify-js": "x",
