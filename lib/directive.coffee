@@ -14,12 +14,11 @@ HEADER_PATTERN = ///
   )+
 ///
 
-DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=\s*\w+(\s+\S+(,\s*\S+)*)?(\n|$)/gm
+DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=[ \t]*\w+([ \t]+\S+(,[ \t]*\S+)*)?(\n|$)/gm
 
-DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
+DIRECTIVE_PATTERN = /\=[ \t]*(\S*)[ \t]*(.*)/
 
 module.exports = class Directive
-
   constructor: (@asset, @action, @argument, cb) ->
     @asset = asset
     @argument = argument
@@ -44,9 +43,6 @@ module.exports = class Directive
     actions = []
     for line in lines
 
-      # Trim extra space
-      line = line.trim()
-
       # Split the directive and argument
       directive = line.match DIRECTIVE_PATTERN
 
@@ -60,8 +56,9 @@ module.exports = class Directive
       # Should be undefined for `requireself`, but exist for everything else
       argument = directive[2]
 
-      # Erase the directive line in the source
-      asset.raw = asset.raw.replace line, ''
+      # Erase the directive line in the source, but leave a new line for
+      # debugging purposes (ie `error on line n`)
+      asset.raw = asset.raw.replace line, '\n'
 
       # Push the action
       actions.push [action, argument]
