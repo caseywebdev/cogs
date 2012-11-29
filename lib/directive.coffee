@@ -16,7 +16,7 @@ HEADER_PATTERN = ///
 
 DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=\s*\w+(\s+\S+(,\s*\S+)*)?(\n|$)/gm
 
-DIRECTIVE_PATTERN = /\=\s*(\S*)[^\n\S]*(.*)/
+DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
 
 module.exports = class Directive
 
@@ -41,13 +41,11 @@ module.exports = class Directive
 
     # Pull out the specific directive lines
     lines = header[0].match(DIRECTIVE_LINE_PATTERN) or []
+    actions = []
+    for line in lines
 
-    # Push a requireself to ensure the body is included
-    lines.push '=requireself'
-
-    done = _.after lines.length, cb
-
-    for line, i in lines then do (line, i) ->
+      # Trim extra space
+      line = line.trim()
 
       # Split the directive and argument
       directive = line.match DIRECTIVE_PATTERN
@@ -63,10 +61,20 @@ module.exports = class Directive
       argument = directive[2]
 
       # Erase the directive line in the source
-      asset.raw = asset.raw.replace line, '\n'
+      asset.raw = asset.raw.replace line, ''
+
+      # Push the action
+      actions.push [action, argument]
+
+    # Push a requireself action to ensure the root file is included
+    actions.push ['requireself']
+
+    done = _.after actions.length, cb
+
+    for action, i in actions then do (action, i) ->
 
       # Add the directive to the assets directives list
-      new Directive asset, action, argument, (er, directive) ->
+      new Directive asset, action[0], action[1], (er, directive) ->
         return cb er if er
         asset.directives[i] = directive if directive
         done()
