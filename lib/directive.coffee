@@ -16,7 +16,7 @@ HEADER_PATTERN = ///
 
 DIRECTIVE_LINE_PATTERN = /^[^\w\n]*=\s*\w+(\s+\S+(,\s*\S+)*)?(\n|$)/gm
 
-DIRECTIVE_PATTERN = /\=\s*(\S*)\s*(.*)/
+DIRECTIVE_PATTERN = /\=\s*(\S*)[^\n\S]*(.*)/
 
 module.exports = class Directive
 
