@@ -125,7 +125,7 @@ module.exports = class Asset
     @exts[@exts.length - 1]
 
   compress: ->
-    @env.compressors[@ext()]?.compress
+    (compressor = @env.compressors[@ext()])?.compress?.bind compressor
 
   toString: ->
     if @compress() then @compressed else @concat or @raw
