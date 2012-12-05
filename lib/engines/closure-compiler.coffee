@@ -2,8 +2,7 @@ _ = require 'underscore'
 
 module.exports = class ClosureCompiler extends (require './engine')
   defaults:
-    compilation_level: 'advanced_optimizations'
-    language: 'ecmascript5'
+    compilation_level: 'SIMPLE_OPTIMIZATIONS'
 
   compress: (str, cb) ->
     try
