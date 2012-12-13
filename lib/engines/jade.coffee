@@ -40,6 +40,7 @@ module.exports = class Jade extends (require './engine')
       else
         options.client = true
         asset.raw = jade.compile(asset.raw, options).toString()
+          .replace(/^function anonymous/, 'function ');
       asset.exts.push out unless ext is out
       cb null
     catch er
