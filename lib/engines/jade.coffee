@@ -5,7 +5,7 @@ DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
 module.exports = class Jade extends (require './engine')
   defaults:
     compileDebug: false
-    default: 'jst'
+    type: 'jst'
 
   process: (asset, cb) ->
     try
@@ -30,7 +30,7 @@ module.exports = class Jade extends (require './engine')
       else if match = asset.raw.match DIRECIVE_PATTERN
         out = match[1]
       else
-        out = @options.default
+        out = @options.type
 
       options = _.extend {}, @options, filename: asset.abs
 
