@@ -1,6 +1,9 @@
 _ = require 'underscore'
 
 module.exports = class UnderscoreTemplate extends (require './engine')
+  defaults:
+    variable: 'o'
+
   process: (asset, cb) ->
     try
       asset.raw = _.template(asset.raw, null, @options).source

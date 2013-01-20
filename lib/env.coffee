@@ -16,7 +16,7 @@ module.exports = class Env extends EventEmitter
       jade: new engines.Jade
       jst: new engines.Jst
       styl: new engines.Stylus
-      ut: new engines.UnderscoreTemplate
+      tmpl: new engines.UnderscoreTemplate
     , options.processors
     @compressors = options.compressors or {}
 
