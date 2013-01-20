@@ -10,6 +10,6 @@ module.exports = class CoffeeScript extends (require './engine')
       options = _.extend {}, @options, filename: asset.abs
       asset.raw = coffee.compile asset.raw, options
       asset.exts.push 'js' unless asset.ext() is 'js'
-      cb null
+      cb()
     catch er
       cb er

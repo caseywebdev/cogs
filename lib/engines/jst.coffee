@@ -12,4 +12,4 @@ module.exports = class Jst extends (require './engine')
       # Add the `.js` extension if it's not already there
       asset.exts.push 'js' unless asset.ext() is 'js'
 
-      cb null
+      cb()

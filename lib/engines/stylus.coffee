@@ -22,6 +22,6 @@ module.exports = class Stylus extends (require './engine')
 
         # Add the `.css` extension if it's not already there
         asset.exts.push 'css' unless asset.ext() is 'css'
-        cb null
+        cb()
     catch er
       cb er
