@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-module.exports = class UnderscoreTemplate extends (require './engine')
+module.exports = class Underscore extends (require './engine')
   defaults:
     variable: 'o'
 
