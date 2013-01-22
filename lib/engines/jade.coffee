@@ -4,7 +4,6 @@ DIRECIVE_PATTERN = /^\/\/-\s*!(jst|html)/im
 
 module.exports = class Jade extends (require './engine')
   defaults:
-    compileDebug: false
     type: 'jst'
 
   process: (asset, cb) ->

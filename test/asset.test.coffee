@@ -7,6 +7,10 @@ Asset = require '../lib/asset'
 Directive = require '../lib/directive'
 env = new xl8.Env
   paths: 'test/cases'
+env.processors.jade.options.compileDebug = false
+env.processors.styl.options =
+  nib: true
+  importNib: true
 
 describe 'Asset', ->
 

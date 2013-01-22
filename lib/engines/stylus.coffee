@@ -1,9 +1,4 @@
 module.exports = class Stylus extends (require './engine')
-  defaults:
-    compress: false
-    nib: true
-    importNib: true
-
   process: (asset, cb) ->
     try
       stylus = require 'stylus'
