@@ -81,6 +81,7 @@ module.exports = class Directive
     if typeof logical is 'function'
       cb = logical
       logical = @argument
+    logical = "#{path.dirname @asset.abs}/#{logical}" if logical[0] is '.'
     @asset.env.asset logical, (er, asset) ->
       return cb er if er
       cb null, [asset]
