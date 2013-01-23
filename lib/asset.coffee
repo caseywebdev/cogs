@@ -37,7 +37,7 @@ module.exports = class Asset
     if processor
       @exts.pop()
       processor.process @, (er) =>
-        return cb er if er
+        return cb er if er and er.asset = @
         @process cb
     else
 
@@ -108,6 +108,14 @@ module.exports = class Asset
         fs.writeFile target, @toString(), (er) =>
           return cb er if er
           cb null
+
+  saveAs: (p, cb) ->
+    @build (er) =>
+      return cb er if er
+      target = path.resolve process.env.PWD, p
+      fs.writeFile target, @toString(), (er) =>
+        return cb er if er
+        cb null
 
   logical: (cb) ->
     @env.logical @abs, (er, logical) =>

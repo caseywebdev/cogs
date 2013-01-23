@@ -28,6 +28,16 @@ module.exports = class Env extends EventEmitter
       else
         @cache[abs] = new Asset @, abs, cb
 
+  saveToDir: (logical, dir, cb) ->
+    @asset logical, (er, asset) ->
+      return cb er if er
+      asset.saveToDir logical, dir, cb
+
+  saveAs: (logical, p, cb) ->
+    @asset logical, (er, asset) ->
+      return cb er if er
+      asset.saveToDir logical, p, cb
+
   abs: (logical, cb) ->
     best =
       priority: -1
