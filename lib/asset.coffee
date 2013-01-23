@@ -112,7 +112,7 @@ module.exports = class Asset
   saveAs: (p, cb) ->
     @build (er) =>
       return cb er if er
-      target = path.resolve process.env.PWD, p
+      target = path.resolve process.cwd(), p
       fs.writeFile target, @toString(), (er) =>
         return cb er if er
         cb null
