@@ -31,12 +31,12 @@ module.exports = class Env extends EventEmitter
   saveToDir: (logical, dir, cb) ->
     @asset logical, (er, asset) ->
       return cb er if er
-      asset.saveToDir logical, dir, cb
+      asset.saveToDir dir, cb
 
   saveAs: (logical, p, cb) ->
     @asset logical, (er, asset) ->
       return cb er if er
-      asset.saveToDir logical, p, cb
+      asset.saveAs p, cb
 
   abs: (logical, cb) ->
     best =
