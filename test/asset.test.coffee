@@ -65,7 +65,7 @@ describe 'Asset', ->
         asset.build (err, str) ->
           return done err if err
 
-          env.asset 'jade/result.js', (err, asset2) ->
+          env.asset 'jade/result-default.js', (err, asset2) ->
             return done err if err
 
             asset.toString().trim().should.equal asset2.toString().trim()

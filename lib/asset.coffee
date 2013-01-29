@@ -68,7 +68,18 @@ module.exports = class Asset
 
       # Check if sub-dependencies have changed since file reloads
       if _.isEqual dependencies, @dependencies()
-        return cb null, _.pluck(dependencies, 'raw').join ''
+        return cb null, _.map(dependencies, (asset) ->
+          {raw} = asset
+          relative = path.relative(process.cwd(), asset.abs)
+          switch asset.ext()
+            when 'js'
+              raw = "// #{path.relative(process.cwd(), asset.abs)}\n#{raw}"
+            when 'css'
+              raw = "/* #{path.relative(process.cwd(), asset.abs)} */\n#{raw}"
+            when 'html'
+              raw = "<!-- #{path.relative(process.cwd(), asset.abs)} -->\n#{raw}"
+          raw
+        ).join '\n'
 
       # If the dependency tree has changed, recurse
       @concatDependencies cb

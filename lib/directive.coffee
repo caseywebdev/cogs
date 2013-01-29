@@ -8,6 +8,7 @@ HEADER_PATTERN = ///
     \s* (
       (/\*[\s\S]*?\*/) |        # Multi-line /* comment */
       (###[\s\S]*?###) |        # Multi-line ### comment ###
+      (<!--[\s\S]*?-->)|        # HTML <!-- comment -->
       (//.*) |                  # Single-line // comment
       (#.*)                     # Single-line # comment
     ) \n?                       # Grab the trailing newline
