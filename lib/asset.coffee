@@ -69,7 +69,7 @@ module.exports = class Asset
       # Check if sub-dependencies have changed since file reloads
       if _.isEqual dependencies, @dependencies()
         return cb null, _.map(dependencies, (asset) ->
-          {raw} = asset
+          raw = "#{asset.raw.trim()}\n";
           relative = path.relative(process.cwd(), asset.abs)
           switch asset.ext()
             when 'js'
