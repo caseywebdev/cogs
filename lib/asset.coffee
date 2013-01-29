@@ -73,11 +73,11 @@ module.exports = class Asset
           relative = path.relative(process.cwd(), asset.abs)
           switch asset.ext()
             when 'js'
-              raw = "// #{path.relative(process.cwd(), asset.abs)}\n#{raw}"
+              raw = "// #{relative}\n#{raw}"
             when 'css'
-              raw = "/* #{path.relative(process.cwd(), asset.abs)} */\n#{raw}"
+              raw = "/* #{relative} */\n#{raw}"
             when 'html'
-              raw = "<!-- #{path.relative(process.cwd(), asset.abs)} -->\n#{raw}"
+              raw = "<!-- #{relative} -->\n#{raw}"
           raw
         ).join '\n'
 
