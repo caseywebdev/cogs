@@ -1,15 +1,16 @@
 {
   "name": "xl8",
   "version": "0.3.24",
-  "author": "Casey Foster <casey@caseywebdev.com>",
+  "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
-  "main": "dist",
+  "main": "lib",
   "repository": {
     "type": "git",
     "url": "https://github.com/caseywebdev/xl8"
   },
   "dependencies": {
     "underscore": "x",
+    "underscore-inherit": "x",
     "glob": "x"
   },
   "devDependencies": {
