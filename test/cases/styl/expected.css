@@ -1,5 +1,4 @@
 /* test/cases/styl/a.styl */
 .box {
-  -webkit-border-radius: 5px;
   border-radius: 5px;
 }

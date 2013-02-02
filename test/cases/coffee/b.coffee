@@ -1,1 +1,2 @@
-requireMe = true
+#= require ./c
+b = 2
