@@ -8,7 +8,7 @@ var it = global.it;
 
 describe('Env Setup', function () {
   it('should add new paths', function () {
-    xl8.addPath('test/cases');
+    xl8.addPaths('test/cases');
   });
 });
 
