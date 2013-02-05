@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var fs = require('fs');
 require('chai').should();
-var xl8 = require('../');
+var xl8 = require('..');
 
 var describe = global.describe;
 var it = global.it;
