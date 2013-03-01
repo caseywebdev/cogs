@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+
+var argv = require('optimist')
+  .options({
+    input: {
+      alias: 'i',
+      type: 'string',
+      demand: true,
+      desc: 'The input file.'
+    },
+    output: {
+      alias: 'o',
+      type: 'string',
+      demand: true,
+      desc: 'The output file.'
+    },
+    path: {
+      alias: 'p',
+      'default': process.cwd(),
+      type: 'string',
+      desc: 'An environment path.'
+    },
+    options: {
+      alias: 'O',
+      type: 'string',
+      desc: 'JSON for options to be passed to processors and compressors.'
+    },
+    compress: {
+      alias: 'c',
+      'default': false,
+      type: 'boolean',
+      desc: 'Compress using UglifyJS and CleanCss.'
+    },
+    watch: {
+      alias: 'w',
+      type: 'string',
+      desc: 'Keep the process running, watching the given paths.'
+    },
+    verbose: {
+      alias: 'v',
+      'default': false,
+      type: 'boolean',
+      desc: 'Log build starts and completes.'
+    },
+    colors: {
+      alias: 'C',
+      'default': false,
+      type: 'boolean',
+      desc: 'Use colors in verbose logging.'
+    },
+    growl: {
+      alias: 'g',
+      'default': false,
+      type: 'boolean',
+      desc: 'Use growl notifications for build starts and completes.'
+    }
+  })
+  .argv;
+
+var _ = require('underscore');
+if (argv.colors) {
+  require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
+}
+var growl = argv.growl ? require('growl') : null;
+var util = require('util');
+var watchr = require('watchr');
+var xl8 = require('..');
+
+var alert = function (title, message, type) {
+  var name = 'xl8';
+  var image = (function () {
+    switch (type) {
+    case 'success':
+      return 'node_modules/mocha/images/ok.png';
+    case 'error':
+      return 'node_modules/mocha/images/error.png';
+    }
+  })();
+  if (argv.growl) growl(message, {title: title, name: name, image: image});
+  message =
+    argv.colors ?
+    ('[' + name + '] ' + title.bold + ' ' + message)[type] :
+    '[' + name + '] ' + title + ' ' + message;
+  if (argv.verbose) util.log(message);
+};
+
+var save = function () {
+  var input = argv.input;
+  var output = argv.output;
+  var start = new Date();
+  alert(input, "Building...", 'info');
+  xl8.saveAs(input, output, function (er) {
+    if (er) return alert(er.asset ? er.asset.abs : input, er.message, 'error');
+    var duration = (new Date() - start) / 1000;
+    alert(output, 'Built in ' + duration + 's.', 'success');
+  });
+};
+
+xl8.addPaths(argv.path);
+if (argv.options) {
+  var options = JSON.parse(argv.options);
+  for (var steps in options) {
+    var val = options[steps];
+    steps = steps.split('.');
+    var obj = xl8;
+    for (var i = 0, l = steps.length - 1; i < l; ++i) obj = obj[steps[i]];
+    obj[steps[i]] = val;
+  }
+}
+if (argv.compress) {
+  xl8.compressors.js = new xl8.UglifyJs();
+  xl8.compressors.css = new xl8.CleanCss();
+}
+save();
+if (argv.watch) {
+  watchr.watch({
+    ignoreHiddenFiles: true,
+    paths: _.isArray(argv.watch) ? argv.watch : [argv.watch],
+    listener: save
+  });
+}
