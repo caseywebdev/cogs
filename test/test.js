@@ -20,7 +20,7 @@ describe('Env Setup', function () {
   });
 });
 
-describe('Expected/Result Comparisons', function () {
+describe('Expected/Actual Comparisons', function () {
   var dirs = fs.readdirSync(__dirname + '/cases');
   _.each(dirs, function (dir) {
     if (dir[0] === '.') return;
