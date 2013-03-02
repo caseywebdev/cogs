@@ -35,7 +35,7 @@ describe('Expected/Result Comparisons', function () {
         if (er) return done(er);
         asset.update(function (er) {
           if (er) return done(er);
-          expected = asset.raw.trim();
+          expected = asset.raw.trim().replace(/\n\s*/g, '\n');
           compare();
         });
       });
@@ -43,7 +43,7 @@ describe('Expected/Result Comparisons', function () {
         if (er) return done(er);
         asset.build(function (er) {
           if (er) return done(er);
-          result = asset.built.trim();
+          result = asset.built.trim().replace(/\n\s*/g, '\n');
           compare();
         });
       });
