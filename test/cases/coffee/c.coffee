@@ -1,2 +1,2 @@
-#= require coffee/b
+#= require coffee/b.js
 c = 3

@@ -1,4 +1,4 @@
-// test/cases/coffee/b.coffee
+// test/cases/coffee/b.js
 (function() {
   var b;
 
@@ -11,6 +11,14 @@
   var c;
 
   c = 3;
+
+}).call(this);
+
+// test/cases/coffee/b.c.coffee
+(function() {
+  var b;
+
+  b = 2;
 
 }).call(this);
 

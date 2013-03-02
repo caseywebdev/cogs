@@ -10,6 +10,14 @@ describe('Env Setup', function () {
   it('should add new paths', function () {
     xl8.addPaths('test/cases');
   });
+
+  it('should get the base of a filename with dots', function () {
+    xl8.split('/a/b.html.c.html.jade').base.should.equal('b.html.c');
+  });
+
+  it('should get the extensions of a filename with dots', function () {
+    xl8.split('/a/b.html.c.html.jade').exts.should.eql(['html', 'jade']);
+  });
 });
 
 describe('Expected/Result Comparisons', function () {

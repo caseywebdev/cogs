@@ -1,2 +1,2 @@
-#= require ../b
+#= require ../b.js
 a = 4
