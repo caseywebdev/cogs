@@ -1,18 +1,13 @@
 #!/usr/bin/env node
 
-var argv = require('optimist')
+var optimist = require('optimist');
+var argv = optimist
+  .usage('Usage: $0 input [-o output][-p path][-w watch][-O options][-cvCg]')
   .options({
-    input: {
-      alias: 'i',
-      type: 'string',
-      demand: true,
-      desc: 'The input file (logical names are okay).'
-    },
     output: {
       alias: 'o',
       type: 'string',
-      demand: true,
-      desc: 'The output file.'
+      desc: 'The output file. If not specified result is sent to stdout.'
     },
     path: {
       alias: 'p',
@@ -55,6 +50,9 @@ var argv = require('optimist')
       desc: 'Use growl notifications for build starts and completes.'
     }
   })
+  .check(function () {
+    if (!optimist.argv._[0]) throw new Error('Please specify an input file.');
+  })
   .argv;
 
 var _ = require('underscore');
@@ -81,21 +79,30 @@ var alert = function (title, message, type) {
     argv.colors ?
     ('[' + name + '] ' + title.bold + ' ' + message)[type] :
     '[' + name + '] ' + title + ' ' + message;
+  if (type === 'error') return util.error(message);
   if (argv.verbose) util.log(message);
 };
 
 var save = function () {
-  var input = argv.input;
+  var input = argv._[0];
   var output = argv.output;
   var start = new Date();
   alert(input, "Building...", 'info');
-  xl8.saveAs(input, output, function (er) {
+  var done = function (er) {
     if (er) return alert(er.asset ? er.asset.abs : input, er.message, 'error');
     var duration = (new Date() - start) / 1000;
-    alert(output, 'Built in ' + duration + 's.', 'success');
+    alert(output || 'stdout', 'Built in ' + duration + 's.', 'success');
+  };
+  if (output) return xl8.saveAs(input, output, done);
+  xl8.asset(input, function (er, asset) {
+    if (er) return done(er);
+    asset.build(function (er) {
+      if (er) return done(er);
+      process.stdout.write(asset.toString());
+      done();
+    });
   });
 };
-
 xl8.addPaths(argv.path);
 if (argv.options) {
   var options = JSON.parse(argv.options);
