@@ -12,11 +12,11 @@ describe('Env Setup', function () {
   });
 
   it('should get the base of a filename with dots', function () {
-    xl8.split('/a/b.html.c.html.jade').base.should.equal('b.html.c');
+    xl8.split('/a/b.html.jade.html.jade').base.should.equal('b.html.jade');
   });
 
   it('should get the extensions of a filename with dots', function () {
-    xl8.split('/a/b.html.c.html.jade').exts.should.eql(['html', 'jade']);
+    xl8.split('/a/b.html.coffee.html.jade').exts.should.eql(['html', 'jade']);
   });
 });
 
