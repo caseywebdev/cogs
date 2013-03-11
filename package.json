@@ -1,6 +1,6 @@
 {
   "name": "xl8",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -25,6 +25,7 @@
     "eco": "x",
     "growl": "x",
     "jade": "x",
+    "marked": "x",
     "mocha": "x",
     "nib": "x",
     "request": "x",
