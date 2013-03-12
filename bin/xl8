@@ -13,7 +13,7 @@ var argv = optimist
       alias: 'p',
       'default': process.cwd(),
       type: 'string',
-      desc: 'An environment path. This option may be used multiple times.'
+      desc: 'An environment path or comma-separated paths.'
     },
     options: {
       alias: 'O',
@@ -29,7 +29,7 @@ var argv = optimist
     watch: {
       alias: 'w',
       type: 'string',
-      desc: 'A path to watch. This option may be used multiple times.'
+      desc: 'A path or comma-separated paths to watch.'
     },
     verbose: {
       alias: 'v',
@@ -55,7 +55,6 @@ var argv = optimist
   })
   .argv;
 
-var _ = require('underscore');
 if (argv.colors) {
   require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 }
@@ -103,7 +102,7 @@ var save = function () {
     });
   });
 };
-xl8.addPaths(argv.path);
+xl8.addPaths(argv.path.split(','));
 if (argv.options) {
   var options = JSON.parse(argv.options);
   for (var steps in options) {
@@ -122,7 +121,7 @@ save();
 if (argv.watch) {
   watchr.watch({
     ignoreHiddenFiles: true,
-    paths: _.isArray(argv.watch) ? argv.watch : [argv.watch],
+    paths: argv.watch.split(','),
     listener: save
   });
 }
