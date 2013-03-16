@@ -1,6 +1,6 @@
 {
   "name": "xl8",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -31,7 +31,7 @@
     "request": "x",
     "stylus": "x",
     "uglify-js": "x",
-    "watchr": "x"
+    "watchr": "git://github.com/caseywebdev/watchr#pre-bug"
   },
   "engines": {
     "node": "x",
