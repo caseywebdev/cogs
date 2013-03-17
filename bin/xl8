@@ -55,12 +55,14 @@ var argv = optimist
   })
   .argv;
 
-if (argv.colors) {
-  require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
-}
+var colors = argv.colors ? require('colors').setTheme({
+  info: 'grey',
+  error: 'red',
+  success: 'green'
+}) : null;
 var growl = argv.growl ? require('growl') : null;
 var util = require('util');
-var watchr = require('watchr');
+var watchr = argv.watchr ? require('watchr') : null;
 var xl8 = require('..');
 
 var alert = function (title, message, type) {
@@ -75,7 +77,7 @@ var alert = function (title, message, type) {
   })();
   if (argv.growl) growl(message, {title: title, name: name, image: image});
   message =
-    argv.colors ?
+    colors ?
     ('[' + name + '] ' + title.bold + ' ' + message)[type] :
     '[' + name + '] ' + title + ' ' + message;
   if (type === 'error') return util.error(message);
@@ -118,7 +120,7 @@ if (argv.compress) {
   xl8.compressors.css = new xl8.CleanCss();
 }
 save();
-if (argv.watch) {
+if (watchr) {
   watchr.watch({
     ignoreHiddenFiles: true,
     paths: argv.watch.split(','),
