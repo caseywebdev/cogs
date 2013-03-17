@@ -1,6 +1,6 @@
 {
   "name": "xl8",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -12,26 +12,27 @@
     "xl8": "bin/xl8"
   },
   "dependencies": {
+    "async": "x",
+    "colors": "x",
     "glob": "x",
+    "growl": "x",
     "optimist": "x",
     "underscore": "x",
-    "underscore-inherit": "x"
+    "underscore-inherit": "x",
+    "watchr": "git://github.com/caseywebdev/watchr#pre-bug"
   },
   "devDependencies": {
     "chai": "x",
     "clean-css": "x",
     "coffee-script": "x",
-    "colors": "x",
     "eco": "x",
-    "growl": "x",
     "jade": "x",
     "marked": "x",
     "mocha": "x",
     "nib": "x",
     "request": "x",
     "stylus": "x",
-    "uglify-js": "x",
-    "watchr": "git://github.com/caseywebdev/watchr#pre-bug"
+    "uglify-js": "x"
   },
   "engines": {
     "node": "x",

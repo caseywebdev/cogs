@@ -35,13 +35,7 @@ var argv = optimist
       alias: 'v',
       'default': false,
       type: 'boolean',
-      desc: 'Log build starts and completes in stdout.'
-    },
-    colors: {
-      alias: 'C',
-      'default': false,
-      type: 'boolean',
-      desc: 'Use colors in verbose logging.'
+      desc: 'Log build starts, errors and completes in stdout.'
     },
     growl: {
       alias: 'g',
@@ -55,14 +49,9 @@ var argv = optimist
   })
   .argv;
 
-var colors = argv.colors ? require('colors').setTheme({
-  info: 'grey',
-  error: 'red',
-  success: 'green'
-}) : null;
-var growl = argv.growl ? require('growl') : null;
+require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
+var growl = require('growl');
 var util = require('util');
-var watchr = argv.watchr ? require('watchr') : null;
 var xl8 = require('..');
 
 var alert = function (title, message, type) {
@@ -76,10 +65,7 @@ var alert = function (title, message, type) {
     }
   })();
   if (argv.growl) growl(message, {title: title, name: name, image: image});
-  message =
-    colors ?
-    ('[' + name + '] ' + title.bold + ' ' + message)[type] :
-    '[' + name + '] ' + title + ' ' + message;
+  message = ('[' + name + '] ' + title.bold + ' ' + message)[type];
   if (type === 'error') return util.error(message);
   if (argv.verbose) util.log(message);
 };
@@ -87,24 +73,27 @@ var alert = function (title, message, type) {
 var save = function () {
   var input = argv._[0];
   var output = argv.output;
-  var start = new Date();
   alert(input, "Building...", 'info');
-  var done = function (er) {
+  var cb = function (er) {
+    var end = new Date();
+    var duration = (end - start) / 1000;
     if (er) return alert(er.asset ? er.asset.abs : input, er.message, 'error');
-    var duration = (new Date() - start) / 1000;
     alert(output || 'stdout', 'Built in ' + duration + 's.', 'success');
   };
-  if (output) return xl8.saveAs(input, output, done);
+  var start = new Date();
+  if (output) return xl8.saveAs(input, output, cb);
   xl8.asset(input, function (er, asset) {
-    if (er) return done(er);
+    if (er) return cb(er);
     asset.build(function (er) {
-      if (er) return done(er);
+      if (er) return cb(er);
       process.stdout.write(asset.toString());
-      done();
+      cb();
     });
   });
 };
+
 xl8.addPaths(argv.path.split(','));
+
 if (argv.options) {
   var options = JSON.parse(argv.options);
   for (var steps in options) {
@@ -115,13 +104,16 @@ if (argv.options) {
     obj[steps[i]] = val;
   }
 }
+
 if (argv.compress) {
   xl8.compressors.js = new xl8.UglifyJs();
   xl8.compressors.css = new xl8.CleanCss();
 }
+
 save();
-if (watchr) {
-  watchr.watch({
+
+if (argv.watch) {
+  require('watchr').watch({
     ignoreHiddenFiles: true,
     paths: argv.watch.split(','),
     listener: save
