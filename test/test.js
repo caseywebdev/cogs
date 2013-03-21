@@ -2,22 +2,22 @@ var _ = require('underscore');
 var async = require('async');
 var fs = require('fs');
 require('chai').should();
-var xl8 = require('..');
+var cogs = require('..');
 
 var describe = global.describe;
 var it = global.it;
 
 describe('Env Setup', function () {
   it('should add new paths', function () {
-    xl8.addPaths('test/cases');
+    cogs.addPaths('test/cases');
   });
 
   it('should get the base of a filename with dots', function () {
-    xl8.split('/a/b.html.jade.html.jade').base.should.equal('b.html.jade');
+    cogs.split('/a/b.html.jade.html.jade').base.should.equal('b.html.jade');
   });
 
   it('should get the extensions of a filename with dots', function () {
-    xl8.split('/a/b.html.coffee.html.jade').exts.should.eql(['html', 'jade']);
+    cogs.split('/a/b.html.coffee.html.jade').exts.should.eql(['html', 'jade']);
   });
 });
 
@@ -30,7 +30,7 @@ describe('Expected/Actual Comparisons', function () {
         {file: '/a', method: 'build', property: 'built'},
         {file: '/expected', method: 'update', property: 'raw'}
       ], function (obj, cb) {
-        xl8.asset(dir + obj.file, function (er, asset) {
+        cogs.asset(dir + obj.file, function (er, asset) {
           if (er) return cb(er);
           asset[obj.method](function (er) {
             if (er) return cb(er);

@@ -1,15 +1,15 @@
 {
-  "name": "xl8",
-  "version": "0.6.5",
+  "name": "cogs",
+  "version": "0.7.0",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
   "repository": {
     "type": "git",
-    "url": "https://github.com/caseywebdev/xl8"
+    "url": "https://github.com/caseywebdev/cogs"
   },
   "bin": {
-    "xl8": "bin/xl8"
+    "cogs": "bin/cogs"
   },
   "dependencies": {
     "async": "x",

@@ -52,10 +52,10 @@ var argv = optimist
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var growl = require('growl');
 var util = require('util');
-var xl8 = require('..');
+var cogs = require('..');
 
 var alert = function (title, message, type) {
-  var name = 'xl8';
+  var name = 'cogs';
   var image = (function () {
     switch (type) {
     case 'success':
@@ -81,8 +81,8 @@ var save = function () {
     alert(output || 'stdout', 'Built in ' + duration + 's.', 'success');
   };
   var start = new Date();
-  if (output) return xl8.saveAs(input, output, cb);
-  xl8.asset(input, function (er, asset) {
+  if (output) return cogs.saveAs(input, output, cb);
+  cogs.asset(input, function (er, asset) {
     if (er) return cb(er);
     asset.build(function (er) {
       if (er) return cb(er);
@@ -92,22 +92,22 @@ var save = function () {
   });
 };
 
-xl8.addPaths(argv.path.split(','));
+cogs.addPaths(argv.path.split(','));
 
 if (argv.options) {
   var options = JSON.parse(argv.options);
   for (var steps in options) {
     var val = options[steps];
     steps = steps.split('.');
-    var obj = xl8;
+    var obj = cogs;
     for (var i = 0, l = steps.length - 1; i < l; ++i) obj = obj[steps[i]];
     obj[steps[i]] = val;
   }
 }
 
 if (argv.compress) {
-  xl8.compressors.js = new xl8.UglifyJs();
-  xl8.compressors.css = new xl8.CleanCss();
+  cogs.compressors.js = new cogs.UglifyJs();
+  cogs.compressors.css = new cogs.CleanCss();
 }
 
 save();
