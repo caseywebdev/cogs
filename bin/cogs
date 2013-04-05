@@ -51,7 +51,6 @@ var argv = optimist
 
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var growl = require('growl');
-var util = require('util');
 var cogs = require('..');
 
 var alert = function (title, message, type) {
@@ -66,8 +65,8 @@ var alert = function (title, message, type) {
   })();
   if (argv.growl) growl(message, {title: title, name: name, image: image});
   message = ('[' + name + '] ' + title.bold + ' ' + message)[type];
-  if (type === 'error') return util.error(message);
-  if (argv.verbose) util.log(message);
+  if (type === 'error') return console.error(message);
+  if (argv.verbose) console.log(message);
 };
 
 var save = function () {
