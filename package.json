@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -19,7 +19,7 @@
     "optimist": "x",
     "underscore": "x",
     "underscore-inherit": "x",
-    "watchr": "git://github.com/caseywebdev/watchr#pre-bug"
+    "watchr": "2.3.3"
   },
   "devDependencies": {
     "chai": "x",
