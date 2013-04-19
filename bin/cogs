@@ -11,7 +11,7 @@ var argv = optimist
     },
     path: {
       alias: 'p',
-      'default': process.cwd(),
+      default: process.cwd(),
       type: 'string',
       desc: 'An environment path or comma-separated paths.'
     },
@@ -22,24 +22,34 @@ var argv = optimist
     },
     compress: {
       alias: 'c',
-      'default': false,
+      default: false,
       type: 'boolean',
-      desc: 'Compress using UglifyJS and CleanCss.'
+      desc: 'Compress using UglifyJS and CleanCss (can be changed with -O).'
     },
     watch: {
       alias: 'w',
       type: 'string',
       desc: 'A path or comma-separated paths to watch.'
     },
+    'ignore-paths': {
+      alias: 'i',
+      type: 'string',
+      desc: 'A path or comma-separated paths to ignore when watching.'
+    },
+    'ignore-basenames': {
+      alias: 'I',
+      type: 'string',
+      desc: 'A basename regex to ignore when watching (ie \\.css$).'
+    },
     verbose: {
       alias: 'v',
-      'default': false,
+      default: false,
       type: 'boolean',
       desc: 'Log build starts, errors and completes in stdout.'
     },
     growl: {
       alias: 'g',
-      'default': false,
+      default: false,
       type: 'boolean',
       desc: 'Use growl notifications for build starts and completes.'
     }
@@ -115,6 +125,9 @@ if (argv.watch) {
   require('watchr').watch({
     ignoreHiddenFiles: true,
     paths: argv.watch.split(','),
+    ignorePaths: argv['ignore-paths'] && argv['ignore-paths'].split(','),
+    ignoreCustomPatterns: argv['ignore-basenames'] &&
+      new RegExp(argv['ignore-basenames'], 'i'),
     listener: save
   });
 }
