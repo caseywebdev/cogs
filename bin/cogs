@@ -87,6 +87,7 @@ var watchr = require('watchr');
 var alert = function (title, message, type) {
   var name = 'cogs';
   var image = __dirname + '/../gfx/' + type + '.png';
+  message = message.toString();
   if (config.growl) growl(message, {title: title, name: name, image: image});
   message = ('[' + name + '] ' + title.bold + ' ' + message)[type];
   if (type === 'error') return console.error(message);
@@ -99,7 +100,7 @@ var save = function (input, output) {
   var cb = function (er) {
     var end = new Date();
     var duration = (end - start) / 1000;
-    if (er) return alert(title, er.message, 'error');
+    if (er) return alert(title, er, 'error');
     alert(title, 'Built in ' + duration + 's.', 'success');
   };
   var start = new Date();
@@ -143,8 +144,11 @@ if (config.watch) {
     paths: _.map(config.watch, function (p) { return path.resolve(p); }),
     listener: function (__, file) {
       _.each(config.targets, function (output, input) {
+        var title = input + ' -> ' + (output || 'stdout');
         cogs.asset(input, function (er, asset) {
+          if (er) return alert(title, er, 'error');
           asset.dependencies(function (er, dependencies) {
+            if (er) return alert(title, er, 'error');
             if (_.contains(_.pluck(dependencies, 'abs'), file)) {
               save(input, output);
             }
