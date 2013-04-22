@@ -2,21 +2,16 @@
 
 var optimist = require('optimist');
 var argv = optimist
-  .usage('Usage: $0 input [-o output][-p path][-w watch][-O options][-cvCg]')
+  .usage('Usage: $0 input:output [-p paths][-w paths][-o json][-C file][-cvCg]')
   .options({
-    output: {
-      alias: 'o',
-      type: 'string',
-      desc: 'The output file. If not specified result is sent to stdout.'
-    },
-    path: {
+    paths: {
       alias: 'p',
       default: process.cwd(),
       type: 'string',
       desc: 'An environment path or comma-separated paths.'
     },
     options: {
-      alias: 'O',
+      alias: 'o',
       type: 'string',
       desc: 'JSON for options to be passed to processors and compressors.'
     },
@@ -52,16 +47,42 @@ var argv = optimist
       default: false,
       type: 'boolean',
       desc: 'Use growl notifications for build starts and completes.'
+    },
+    config: {
+      alias: 'C',
+      default: 'cogs.json',
+      type: 'string',
+      desc: 'A config file specifying command line options.'
     }
-  })
-  .check(function () {
-    if (!optimist.argv._[0]) throw new Error('Please specify an input file.');
-  })
-  .argv;
+  }).argv;
+
+var _ = require('underscore');
+var config = {};
+optimist.check(function () {
+  try { config = require(process.cwd() + '/' + argv.config); }
+  catch (er) { config = {}; }
+  argv.paths = config.paths || argv.paths.split(',');
+  if (argv.watch) argv.watch = argv.watch.split(',');
+  if (argv.options) argv.options = JSON.parse(argv.options);
+  _.each(argv, function (val, key) { if (!val) delete argv[key]; });
+  config = _.extend({targets: {}}, config, argv);
+  if (argv._[0]) {
+    var targets = config.targets;
+    _.each(argv._[0].split(','), function (target) {
+      var split = target.split(':');
+      targets[split[0]] = split[1];
+    });
+  }
+  if (!_.size(config.targets)) {
+    throw new Error('Please specify an input file.');
+  }
+}).argv;
 
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var growl = require('growl');
 var cogs = require('..');
+var path = require('path');
+var watchr = require('watchr');
 
 var alert = function (title, message, type) {
   var name = 'cogs';
@@ -73,21 +94,20 @@ var alert = function (title, message, type) {
       return 'node_modules/mocha/images/error.png';
     }
   })();
-  if (argv.growl) growl(message, {title: title, name: name, image: image});
+  if (config.growl) growl(message, {title: title, name: name, image: image});
   message = ('[' + name + '] ' + title.bold + ' ' + message)[type];
   if (type === 'error') return console.error(message);
-  if (argv.verbose) console.log(message);
+  if (config.verbose) console.log(message);
 };
 
-var save = function () {
-  var input = argv._[0];
-  var output = argv.output;
-  alert(input, "Building...", 'info');
+var save = function (input, output) {
+  var title = input + ' -> ' + (output || 'stdout');
+  alert(title, "Building...", 'info');
   var cb = function (er) {
     var end = new Date();
     var duration = (end - start) / 1000;
-    if (er) return alert(er.asset ? er.asset.abs : input, er.message, 'error');
-    alert(output || 'stdout', 'Built in ' + duration + 's.', 'success');
+    if (er) return alert(title, er.message, 'error');
+    alert(title, 'Built in ' + duration + 's.', 'success');
   };
   var start = new Date();
   if (output) return cogs.saveAs(input, output, cb);
@@ -101,10 +121,10 @@ var save = function () {
   });
 };
 
-cogs.addPaths(argv.path.split(','));
+cogs.addPaths(config.paths);
 
-if (argv.options) {
-  var options = JSON.parse(argv.options);
+if (config.options) {
+  var options = config.options;
   for (var steps in options) {
     var val = options[steps];
     steps = steps.split('.');
@@ -114,20 +134,30 @@ if (argv.options) {
   }
 }
 
-if (argv.compress) {
+if (config.compress) {
   cogs.compressors.js = new cogs.UglifyJs();
   cogs.compressors.css = new cogs.CleanCss();
 }
 
-save();
+_.each(config.targets, function (output, input) { save(input, output); });
 
-if (argv.watch) {
-  require('watchr').watch({
+if (config.watch) {
+  watchr.watch({
     ignoreHiddenFiles: true,
-    paths: argv.watch.split(','),
-    ignorePaths: argv['ignore-paths'] && argv['ignore-paths'].split(','),
-    ignoreCustomPatterns: argv['ignore-basenames'] &&
-      new RegExp(argv['ignore-basenames'], 'i'),
-    listener: save
+    ignorePaths: config['ignore-paths'] && config['ignore-paths'].split(','),
+    ignoreCustomPatterns: config['ignore-basenames'] &&
+      new RegExp(config['ignore-basenames'], 'i'),
+    paths: _.map(config.watch, function (p) { return path.resolve(p); }),
+    listener: function (__, file) {
+      _.each(config.targets, function (output, input) {
+        cogs.asset(input, function (er, asset) {
+          asset.dependencies(function (er, dependencies) {
+            if (_.contains(_.pluck(dependencies, 'abs'), file)) {
+              save(input, output);
+            }
+          });
+        });
+      });
+    }
   });
 }
