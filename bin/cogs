@@ -77,7 +77,6 @@ optimist.check(function () {
   }
 }).argv;
 
-var async = require('async');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var growl = require('growl');
 var cogs = require('..');
@@ -94,23 +93,22 @@ var alert = function (title, message, type) {
   if (config.verbose) console.log(message);
 };
 
-var save = function (input, output, cb) {
+var save = function (input, output) {
   var title = input + ' -> ' + (output || 'stdout');
   alert(title, "Building...", 'info');
-  var done = function (er) {
+  var cb = function (er) {
     var end = new Date();
     var duration = (end - start) / 1000;
     alert(title, er || 'Built in ' + duration + 's.', er ? 'error' : 'success');
-    if (cb) cb();
   };
   var start = new Date();
-  if (output) return cogs.saveAs(input, output, done);
+  if (output) return cogs.saveAs(input, output, cb);
   cogs.asset(input, function (er, asset) {
-    if (er) return done(er);
+    if (er) return cb(er);
     asset.build(function (er) {
-      if (er) return done(er);
+      if (er) return cb(er);
       process.stdout.write(asset.toString());
-      done();
+      cb();
     });
   });
 };
@@ -133,8 +131,9 @@ if (config.compress) {
   cogs.compressors.css = new cogs.CleanCss();
 }
 
+_.each(config.targets, function (output, input) { save(input, output); });
+
 if (config.watch) {
-  _.each(config.targets, function (output, input) { save(input, output); });
   watchr.watch({
     ignoreHiddenFiles: true,
     ignorePaths: config['ignore-paths'] && config['ignore-paths'].split(','),
@@ -156,8 +155,4 @@ if (config.watch) {
       });
     }
   });
-} else {
-  async.each(_.pairs(config.targets), function (io, cb) {
-    save(io[0], io[1], cb);
-  }, _.bind(cogs.end, cogs));
 }
