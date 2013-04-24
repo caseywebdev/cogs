@@ -60,7 +60,6 @@ var _ = require('underscore');
 var config = {};
 optimist.check(function () {
   try { config = require(process.cwd() + '/' + argv.config); } catch (er) {}
-  console.log(process.cwd() + '/' + argv.config);
   argv.paths = config.paths || argv.paths.split(',');
   if (argv.watch) argv.watch = argv.watch.split(',');
   if (argv.options) argv.options = JSON.parse(argv.options);
@@ -78,6 +77,7 @@ optimist.check(function () {
   }
 }).argv;
 
+var async = require('async');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var growl = require('growl');
 var cogs = require('..');
@@ -94,23 +94,23 @@ var alert = function (title, message, type) {
   if (config.verbose) console.log(message);
 };
 
-var save = function (input, output) {
+var save = function (input, output, cb) {
   var title = input + ' -> ' + (output || 'stdout');
   alert(title, "Building...", 'info');
-  var cb = function (er) {
+  var done = function (er) {
     var end = new Date();
     var duration = (end - start) / 1000;
-    if (er) return alert(title, er, 'error');
-    alert(title, 'Built in ' + duration + 's.', 'success');
+    alert(title, er || 'Built in ' + duration + 's.', er ? 'error' : 'success');
+    if (cb) cb();
   };
   var start = new Date();
-  if (output) return cogs.saveAs(input, output, cb);
+  if (output) return cogs.saveAs(input, output, done);
   cogs.asset(input, function (er, asset) {
-    if (er) return cb(er);
+    if (er) return done(er);
     asset.build(function (er) {
-      if (er) return cb(er);
+      if (er) return done(er);
       process.stdout.write(asset.toString());
-      cb();
+      done();
     });
   });
 };
@@ -133,9 +133,8 @@ if (config.compress) {
   cogs.compressors.css = new cogs.CleanCss();
 }
 
-_.each(config.targets, function (output, input) { save(input, output); });
-
 if (config.watch) {
+  _.each(config.targets, function (output, input) { save(input, output); });
   watchr.watch({
     ignoreHiddenFiles: true,
     ignorePaths: config['ignore-paths'] && config['ignore-paths'].split(','),
@@ -157,4 +156,8 @@ if (config.watch) {
       });
     }
   });
+} else {
+  async.each(_.pairs(config.targets), function (io, cb) {
+    save(io[0], io[1], cb);
+  }, _.bind(cogs.end, cogs));
 }
