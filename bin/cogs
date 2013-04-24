@@ -139,8 +139,7 @@ var save = function (input, output) {
 
 var saveAll = function (__, file) {
   _.each(config.targets, function (output, input) {
-    if (file && !_.contains(dependencies[input], file)) return;
-    save(input, output);
+    if (!file || _.contains(dependencies[input], file)) save(input, output);
   });
 };
 

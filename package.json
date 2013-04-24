@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
