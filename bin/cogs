@@ -19,7 +19,7 @@ var argv = optimist
       alias: 'c',
       default: false,
       type: 'boolean',
-      desc: 'Compress using UglifyJS and CleanCss (can be changed with -O).'
+      desc: 'Compress using UglifyJS and CSSO.'
     },
     watch: {
       alias: 'w',
@@ -128,7 +128,7 @@ if (config.options) {
 
 if (config.compress) {
   cogs.compressors.js = new cogs.UglifyJs();
-  cogs.compressors.css = new cogs.CleanCss();
+  cogs.compressors.css = new cogs.Csso();
 }
 
 _.each(config.targets, function (output, input) { save(input, output); });

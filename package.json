@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -25,6 +25,7 @@
     "chai": "x",
     "clean-css": "x",
     "coffee-script": "x",
+    "csso": "x",
     "eco": "x",
     "jade": "x",
     "marked": "x",
