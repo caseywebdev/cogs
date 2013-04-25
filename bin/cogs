@@ -13,7 +13,7 @@ var config = {};
 var dependencies = {};
 
 var argv = optimist
-  .usage('Usage: $0 input:output [-p paths][-w paths][-o json][-C file][-cvCg]')
+  .usage('Usage: $0 input:dir [-p paths][-w paths][-o json][-C file][-cvCg]')
   .options({
     paths: {
       alias: 'p',
@@ -64,6 +64,11 @@ var argv = optimist
       default: 'cogs.json',
       type: 'string',
       desc: 'A config file specifying command line options.'
+    },
+    fingerprint: {
+      alias: 'f',
+      type: 'string',
+      desc: 'Specify an algorithm (md5, sha1, etc...) to fingerprint files.'
     }
   }).argv;
 
@@ -115,9 +120,9 @@ var alert = function (title, message, type) {
 };
 
 
-var save = function (input, output, cb) {
-  var title = input + ' -> ' + (output || 'stdout');
-  alert(title, "Building...", 'info');
+var save = function (input, dir, cb) {
+  var title = input + ' -> ' + (dir || 'stdout');
+  alert(input, "Building...", 'info');
   var done = function (er) {
     var message = er || 'Built in ' + ((new Date() - start) / 1000);
     alert(title, message, er ? 'error' : 'success');
@@ -130,11 +135,15 @@ var save = function (input, output, cb) {
     asset.build(function (er) {
       if (er) return done(er);
       dependencies[input] = _.pluck(asset.dependencies, 'abs');
-      if (!output) {
+      if (!dir) {
         process.stdout.write(asset.toString());
         return done();
       }
-      fs.writeFile(path.resolve(process.cwd(), output), asset.toString(), done);
+      fs.writeFile(
+        path.resolve(process.cwd(), dir, asset.filename(config.fingerprint)),
+        asset.toString(),
+        done
+      );
     });
   });
 };
@@ -144,8 +153,8 @@ var saveAll = function (__, file) {
     config.watch ?
     function () {} :
     _.after(_.size(config.targets), _.bind(cogs.end, cogs));
-  _.each(config.targets, function (output, input) {
-    if (!file || _.contains(dependencies[input], file)) save(input, output, cb);
+  _.each(config.targets, function (dir, input) {
+    if (!file || _.contains(dependencies[input], file)) save(input, dir, cb);
   });
 };
 
