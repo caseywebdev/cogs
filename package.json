@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.9.11",
+  "version": "0.10.0",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "main": "lib",
@@ -16,6 +16,7 @@
     "colors": "x",
     "glob": "x",
     "growl": "x",
+    "mkdirp": "x",
     "optimist": "x",
     "underscore": "x",
     "underscore-inherit": "x",

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 var _ = require('underscore');
+var async = require('async');
 var cogs = require('..');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
-var fs = require('fs');
+var glob = require('glob');
 var growl = require('growl');
 var optimist = require('optimist');
 var path = require('path');
@@ -13,7 +14,7 @@ var config = {};
 var dependencies = {};
 
 var argv = optimist
-  .usage('Usage: $0 input:dir [-p paths][-w paths][-o json][-C file][-cvCg]')
+  .usage('Usage: $0 glob:dir [-p paths][-w paths][-o json][-C file][-cvCg]')
   .options({
     paths: {
       alias: 'p',
@@ -120,42 +121,42 @@ var alert = function (title, message, type) {
 };
 
 
-var save = function (input, dir, cb) {
-  var title = input + ' -> ' + (dir || 'stdout');
-  alert(input, "Building...", 'info');
+var save = function (file, src, dir, cb) {
+  var title = path.relative('.', file);
+  alert(title, 'Building...', 'info');
   var done = function (er) {
     var message = er || 'Built in ' + ((new Date() - start) / 1000);
     alert(title, message, er ? 'error' : 'success');
     cb(er);
   };
   var start = new Date();
-  cogs.asset(input, function (er, asset) {
-    if (!dependencies[input]) dependencies[input] = [asset.abs];
+  cogs.asset(file, function (er, asset) {
+    if (!dependencies[file]) dependencies[file] = [asset.abs];
     if (er) return done(er);
     asset.build(function (er) {
       if (er) return done(er);
-      dependencies[input] = _.pluck(asset.dependencies, 'abs');
+      dependencies[file] = _.pluck(asset.dependencies, 'abs');
       if (!dir) {
         process.stdout.write(asset.toString());
         return done();
       }
-      fs.writeFile(
-        path.resolve(process.cwd(), dir, asset.filename(config.fingerprint)),
-        asset.toString(),
-        done
-      );
+      asset.saveToDir(src, dir, config.fingerprint, done);
     });
   });
 };
 
-var saveAll = function (__, file) {
-  var cb =
-    config.watch ?
-    function () {} :
-    _.after(_.size(config.targets), _.bind(cogs.end, cogs));
-  _.each(config.targets, function (dir, input) {
-    if (!file || _.contains(dependencies[input], file)) save(input, dir, cb);
-  });
+var saveAll = function (__, change) {
+  var targets = config.targets;
+  async.each(_.keys(targets), function (src, cb) {
+    var dir = targets[src];
+    glob(src, function (er, files) {
+      async.each(files, function (file, cb) {
+        file = path.resolve('.', file);
+        if (change && !_.contains(dependencies[file], change)) return;
+        save(file, src, dir, cb);
+      }, cb);
+    });
+  }, function () { if (!config.watch) cogs.end(); });
 };
 
 saveAll();
