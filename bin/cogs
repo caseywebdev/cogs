@@ -125,7 +125,7 @@ var save = function (file, src, dir, cb) {
   var title = path.relative('.', file);
   alert(title, 'Building...', 'info');
   var done = function (er) {
-    var message = er || 'Built in ' + ((new Date() - start) / 1000);
+    var message = er || 'Built in ' + ((new Date() - start) / 1000) + 's';
     alert(title, message, er ? 'error' : 'success');
     cb(er);
   };
