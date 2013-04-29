@@ -4,6 +4,7 @@ var _ = require('underscore');
 var async = require('async');
 var cogs = require('..');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
+var fs = require('fs');
 var glob = require('glob');
 var growl = require('growl');
 var optimist = require('optimist');
@@ -70,6 +71,11 @@ var argv = optimist
       alias: 'f',
       type: 'string',
       desc: 'Specify an algorithm (md5, sha1, etc...) to fingerprint files.'
+    },
+    'export-fingerprints': {
+      alias: 'F',
+      type: 'string',
+      desc: 'Save a JSON file fingerprinted name mappings.'
     }
   }).argv;
 
@@ -156,7 +162,13 @@ var saveAll = function (__, change) {
         save(file, src, dir, cb);
       }, cb);
     });
-  }, function () { if (!config.watch) cogs.end(); });
+  }, function () {
+    if (config['export-fingerprints']) {
+      var json = JSON.stringify(cogs.fingerprints, null, '  ');
+      fs.writeFileSync(config['export-fingerprints'], json);
+    }
+    if (!config.watch) cogs.end();
+  });
 };
 
 saveAll();
