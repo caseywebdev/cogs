@@ -1,16 +1,16 @@
-// test/cases/coffee/b.js
-(function() {
-  var b;
-
-  b = 2;
-
-}).call(this);
-
 // test/cases/coffee/c.coffee
 (function() {
   var c;
 
   c = 3;
+
+}).call(this);
+
+// test/cases/coffee/b.js
+(function() {
+  var b;
+
+  b = 2;
 
 }).call(this);
 
