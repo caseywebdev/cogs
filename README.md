@@ -88,5 +88,6 @@ Still a WIP, check the tests for some examples.
 ```bash
 git clone git@github.com:caseywebdev/cogs
 cd cogs
+npm install
 make test
 ```
