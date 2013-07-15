@@ -67,6 +67,8 @@ simple.
 # require ./a
 # requireSelf
 # require ./b
+
+sayHi = -> console.log 'Hello!'
 ```
 
 Now assuming `a.coffee` and `b.coffee` exist in the same directory as `index.coffee`, we can run
