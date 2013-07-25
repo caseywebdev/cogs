@@ -8,7 +8,6 @@ var cogs = require('..');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var fs = require('fs');
 var glob = require('glob');
-var growl = require('growl');
 var optimist = require('optimist');
 var path = require('path');
 var watchr = require('watchr');
@@ -50,18 +49,6 @@ var argv = optimist
       alias: 'I',
       type: 'string',
       desc: 'A basename regex to ignore when watching (ie \\.css$).'
-    },
-    verbose: {
-      alias: 'v',
-      default: false,
-      type: 'boolean',
-      desc: 'Log build starts, errors and completes in stdout.'
-    },
-    growl: {
-      alias: 'g',
-      default: false,
-      type: 'boolean',
-      desc: 'Use growl notifications for build starts and completes.'
     },
     config: {
       alias: 'C',
@@ -120,13 +107,8 @@ if (config.compress) {
 }
 
 var alert = function (title, message, type) {
-  var name = 'cogs';
-  var image = __dirname + '/../gfx/' + type + '.png';
-  message = message.toString();
-  if (config.growl) growl(message, {title: title, name: name, image: image});
-  message = ('[' + name + '] ' + title.bold + ' ' + message)[type];
-  if (type === 'error') return console.error(message);
-  if (config.verbose) console.log(message);
+  message = ('[cogs] ' + title.bold + ' ' + message.toString())[type];
+  console[type === 'error' ? 'error' : 'log'](message);
 };
 
 

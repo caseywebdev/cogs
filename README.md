@@ -33,7 +33,7 @@ npm install [-g] uglify-js csso
 Cogs comes with a handy command line interface.
 
 ```bash
-Usage: /usr/local/share/npm/bin/cogs glob:dir [-p paths][-w paths][-o json][-C file][-cvCg]
+Usage: cogs glob:dir [-p paths][-w paths][-o json][-C file][-cC]
 
 Options:
   --paths, -p                An environment path or comma-separated paths.                 [default: "/Users/casey/projects/cogs"]
@@ -42,11 +42,11 @@ Options:
   --watch, -w                A path or comma-separated paths to watch.
   --ignore-paths, -i         A path or comma-separated paths to ignore when watching.
   --ignore-basenames, -I     A basename regex to ignore when watching (ie \.css$).
-  --verbose, -v              Log build starts, errors and completes in stdout.             [default: false]
-  --growl, -g                Use growl notifications for build starts and completes.       [default: false]
   --config, -C               A config file specifying command line options.                [default: "cogs.json"]
   --fingerprint, -f          Fingerprint files with their env.algorithm value.             [default: false]
   --export-fingerprints, -F  Save a JSON file fingerprinted name mappings.
+
+[Error: Please specify an input file.]
 ```
 
 Generally, you'll want to put your options in a `cogs.json` or similar for each project.
