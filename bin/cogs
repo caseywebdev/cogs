@@ -16,7 +16,7 @@ var config = {};
 var dependencies = {};
 
 var argv = optimist
-  .usage('Usage: $0 glob:dir [-p paths][-w paths][-o json][-C file][-cvCg]')
+  .usage('Usage: $0 glob:dir [-p paths][-w paths][-C file]')
   .options({
     paths: {
       alias: 'p',

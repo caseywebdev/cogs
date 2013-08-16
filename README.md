@@ -2,7 +2,10 @@
 
 [![Build Status](https://secure.travis-ci.org/caseywebdev/cogs.png)](http://travis-ci.org/caseywebdev/cogs)
 
-> George Jetson's workweek is typical of his era: an hour a day, two days a week. His boss is Cosmo Spacely, the diminutive yet bombastic owner of Spacely Space Sprockets. Spacely has a competitor, H. G. Cogswell, owner of the rival company Cogswell Cogs (sometimes known as Cogswell's Cosmic Cogs).
+> George Jetson's workweek is typical of his era: an hour a day, two days a
+> week. His boss is Cosmo Spacely, the diminutive yet bombastic owner of Spacely
+> Space Sprockets. Spacely has a competitor, H. G. Cogswell, owner of the rival
+> company Cogswell Cogs (sometimes known as Cogswell's Cosmic Cogs).
 
 ##Install
 
@@ -33,23 +36,21 @@ npm install [-g] uglify-js csso
 Cogs comes with a handy command line interface.
 
 ```bash
-Usage: cogs glob:dir [-p paths][-w paths][-o json][-C file][-cC]
+Usage: cogs glob:dir [-p paths][-w paths][-C file]
 
 Options:
   --paths, -p                An environment path or comma-separated paths.                 [default: "/Users/casey/projects/cogs"]
   --options, -o              JSON for options to be passed to processors and compressors.
   --compress, -c             Compress using UglifyJS and CSSO.                             [default: false]
   --watch, -w                A path or comma-separated paths to watch.
-  --ignore-paths, -i         A path or comma-separated paths to ignore when watching.
-  --ignore-basenames, -I     A basename regex to ignore when watching (ie \.css$).
+  --ignore, -i               A regex of file paths to ignore.                              [default: "/\\."]
   --config, -C               A config file specifying command line options.                [default: "cogs.json"]
   --fingerprint, -f          Fingerprint files with their env.algorithm value.             [default: false]
   --export-fingerprints, -F  Save a JSON file fingerprinted name mappings.
-
-[Error: Please specify an input file.]
 ```
 
-Generally, you'll want to put your options in a `cogs.json` or similar for each project.
+Generally, you'll want to put your options in a `cogs.json` or similar for each
+project.
 
 Here is an example of watching all CoffeeScript files in the `src` directory and
 exporting their compiled JavaScript results to the `dist` directory everytime
@@ -71,13 +72,15 @@ simple.
 sayHi = -> console.log 'Hello!'
 ```
 
-Now assuming `a.coffee` and `b.coffee` exist in the same directory as `index.coffee`, we can run
+Now assuming `a.coffee` and `b.coffee` exist in the same directory as
+`index.coffee`, we can run
 
 ```bash
 cogs -vw src src/index.coffee:dist
 ```
 
-And notice that whenever a change is made to `index.coffee`, `a.coffee`, or `b.coffee` the resulting `dist/index.js` is updated.
+And notice that whenever a change is made to `index.coffee`, `a.coffee`, or
+`b.coffee` the resulting `dist/index.js` is updated.
 
 ### Node API
 
