@@ -10,7 +10,7 @@ var fs = require('fs');
 var glob = require('glob');
 var optimist = require('optimist');
 var path = require('path');
-var watchr = require('watchr');
+var chokidar = require('chokidar');
 
 var config = {};
 var dependencies = {};
@@ -40,15 +40,11 @@ var argv = optimist
       type: 'string',
       desc: 'A path or comma-separated paths to watch.'
     },
-    'ignore-paths': {
+    ignore: {
       alias: 'i',
+      default: '/\\.',
       type: 'string',
-      desc: 'A path or comma-separated paths to ignore when watching.'
-    },
-    'ignore-basenames': {
-      alias: 'I',
-      type: 'string',
-      desc: 'A basename regex to ignore when watching (ie \\.css$).'
+      desc: 'A regex of file paths to ignore.'
     },
     config: {
       alias: 'C',
@@ -111,7 +107,6 @@ var alert = function (title, message, type) {
   console[type === 'error' ? 'error' : 'log'](message);
 };
 
-
 var save = function (file, src, dir, cb) {
   var title = path.relative('.', file);
   alert(title, 'Building...', 'info');
@@ -136,14 +131,14 @@ var save = function (file, src, dir, cb) {
   });
 };
 
-var saveAll = function (__, change) {
+var saveAll = function (changed) {
   var targets = config.targets;
   async.each(_.keys(targets), function (src, cb) {
     var dir = targets[src];
     glob(src, function (er, files) {
       async.each(files, function (file, cb) {
-        file = path.resolve('.', file);
-        if (change && !_.contains(dependencies[file], change)) return;
+        file = path.resolve(file);
+        if (changed && !_.contains(dependencies[file], changed)) return;
         save(file, src, dir, cb);
       }, cb);
     });
@@ -159,12 +154,14 @@ var saveAll = function (__, change) {
 saveAll();
 
 if (config.watch) {
-  watchr.watch({
-    ignoreHiddenFiles: true,
-    ignorePaths: config['ignore-paths'] && config['ignore-paths'].split(','),
-    ignoreCustomPatterns: config['ignore-basenames'] &&
-      new RegExp(config['ignore-basenames'], 'i'),
-    paths: _.map(config.watch, function (p) { return path.resolve(p); }),
-    listener: saveAll
-  });
+  var watcher = chokidar
+    .watch(_.map(config.watch, function (p) { return path.resolve(p); }), {
+      ignored: new RegExp(config.ignore),
+      ignoreInitial: true,
+      persistent: true
+    })
+    .on('change', saveAll)
+    .on('unlink', saveAll);
+  process.on('SIGTERM', _.bind(watcher.close, watcher));
+  process.on('SIGTERM', _.bind(cogs.end, cogs));
 }
