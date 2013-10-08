@@ -65,9 +65,9 @@ simple.
 
 **index.coffee**
 ```coffee
-# require ./a
-# requireSelf
-# require ./b
+#= require ./a
+#= requireSelf
+#= require ./b
 
 sayHi = -> console.log 'Hello!'
 ```
