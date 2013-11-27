@@ -2,14 +2,9 @@
 .box {
   border-radius: red; }
 
-/* test/cases/sass/b.sass */
 .box {
-  border-radius: red; }
+  border-radius: white; }
 
 /* test/cases/sass/c.sass */
 .box {
-  border-radius: red; }
-
-/* test/cases/sass/d.sass */
-.box {
-  border-radius: red; }
+  border-radius: blue; }
