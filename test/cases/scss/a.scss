@@ -1,3 +1,7 @@
+//= requireSelf
+//= require ./b
+//= require ./c
+//= require ./d
 $color: red;
 .box {
   border-radius: $color;
