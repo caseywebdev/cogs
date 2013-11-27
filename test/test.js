@@ -27,7 +27,7 @@ describe('Env Setup', function () {
 describe('Asset', function () {
   before(function (done) {
     var self = this;
-    cogs.asset('coffee/a', function (er, asset) {
+    cogs.asset('coffee-script/a', function (er, asset) {
       if (er) return done(er);
       self.asset = asset;
       asset.build(function (er) {

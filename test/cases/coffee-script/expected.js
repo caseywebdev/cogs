@@ -1,4 +1,4 @@
-// test/cases/coffee/c.coffee
+// test/cases/coffee-script/c.coffee
 (function() {
   var c;
 
@@ -6,7 +6,7 @@
 
 }).call(this);
 
-// test/cases/coffee/b.js
+// test/cases/coffee-script/b.js
 (function() {
   var b;
 
@@ -14,7 +14,7 @@
 
 }).call(this);
 
-// test/cases/coffee/b.c.coffee
+// test/cases/coffee-script/b.c.coffee
 (function() {
   var b;
 
@@ -22,7 +22,7 @@
 
 }).call(this);
 
-// test/cases/coffee/a/a.coffee
+// test/cases/coffee-script/a/a.coffee
 (function() {
   var a;
 
@@ -30,7 +30,7 @@
 
 }).call(this);
 
-// test/cases/coffee/a.coffee
+// test/cases/coffee-script/a.coffee
 (function() {
   var a;
 
