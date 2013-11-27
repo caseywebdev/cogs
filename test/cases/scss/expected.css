@@ -2,14 +2,9 @@
 .box {
   border-radius: red; }
 
-/* test/cases/scss/b.scss */
 .box {
-  border-radius: red; }
+  border-radius: white; }
 
 /* test/cases/scss/c.scss */
 .box {
-  border-radius: red; }
-
-/* test/cases/scss/d.scss */
-.box {
-  border-radius: red; }
+  border-radius: blue; }

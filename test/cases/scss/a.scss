@@ -1,8 +1,10 @@
 //= requireSelf
-//= require ./b
 //= require ./c
-//= require ./d
-$color: red;
+
+@import 'b';
+
+$color: white;
+
 .box {
   border-radius: $color;
 }
