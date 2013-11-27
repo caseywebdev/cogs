@@ -9,6 +9,11 @@ var describe = global.describe;
 var it = global.it;
 var before = global.before;
 
+cogs.processors.rwk.options.whitespace = true;
+cogs.processors.rwk.options.plugins = [
+  'rework-variant'
+];
+
 describe('Env Setup', function () {
   it('adds new paths', function () {
     cogs.addPaths('test/cases');

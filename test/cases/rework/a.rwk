@@ -1,0 +1,5 @@
+$colors
+  red: #f00
+
+.box
+  color: $colors.red

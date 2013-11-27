@@ -24,6 +24,7 @@
     "chai": "x",
     "clean-css": "x",
     "coffee-script": "x",
+    "css-whitespace": "x",
     "csso": "x",
     "eco": "x",
     "jade": "x",
@@ -32,6 +33,8 @@
     "mocha": "x",
     "nib": "x",
     "request": "x",
+    "rework": "x",
+    "rework-variant": "x",
     "stylus": "x",
     "uglify-js": "x"
   },
