@@ -11,11 +11,9 @@ var fs = require('fs');
 var glob = require('glob');
 var optimist = require('optimist');
 var path = require('path');
-var tty = require('tty');
 
 var config = {};
 var dependencies = {};
-var useColors = tty.isatty(1);
 
 var argv = optimist
   .usage('Usage: $0 glob:dir [-w paths][-C config-file]')
@@ -64,6 +62,12 @@ var argv = optimist
       type: 'boolean',
       desc: 'Silence build info, errors will still output to stderr.',
       default: false
+    },
+    'no-color': {
+      alias: 'n',
+      type: 'boolean',
+      desc: 'Do not color output.',
+      default: false
     }
   }).argv;
 
@@ -104,9 +108,9 @@ if (config.compress) {
 var alert = function (title, message, type) {
   if (config.silence && type !== 'error') return;
   message =
-    useColors ?
-    ('[cogs] ' + title.bold + ' ' + message.toString())[type] :
-    '[cogs] ' + title + ' ' + message.toString();
+    config['no-color'] ?
+    '[cogs] ' + title + ' ' + message.toString() :
+    ('[cogs] ' + title.bold + ' ' + message.toString())[type];
   console[type === 'error' ? 'error' : 'log'](message);
 };
 
