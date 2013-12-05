@@ -1,4 +1,4 @@
-//= require ./c
+//= require ./c.coffee
 (function() {
   var b;
 

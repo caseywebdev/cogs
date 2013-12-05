@@ -4,26 +4,22 @@
 
 var _ = require('underscore');
 var async = require('async');
+var chokidar = require('chokidar');
 var cogs = require('..');
 require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var fs = require('fs');
 var glob = require('glob');
 var optimist = require('optimist');
 var path = require('path');
-var chokidar = require('chokidar');
+var tty = require('tty');
 
 var config = {};
 var dependencies = {};
+var useColors = tty.isatty(1);
 
 var argv = optimist
-  .usage('Usage: $0 glob:dir [-p paths][-w paths][-C file]')
+  .usage('Usage: $0 glob:dir [-w paths][-C config-file]')
   .options({
-    paths: {
-      alias: 'p',
-      default: process.cwd(),
-      type: 'string',
-      desc: 'An environment path or comma-separated paths.'
-    },
     options: {
       alias: 'o',
       type: 'string',
@@ -31,9 +27,9 @@ var argv = optimist
     },
     compress: {
       alias: 'c',
-      default: false,
       type: 'boolean',
-      desc: 'Compress using UglifyJS and CSSO.'
+      desc: 'Compress using UglifyJS and CSSO.',
+      default: false
     },
     watch: {
       alias: 'w',
@@ -42,32 +38,37 @@ var argv = optimist
     },
     ignore: {
       alias: 'i',
-      default: '/\\.',
       type: 'string',
-      desc: 'A regex of file paths to ignore.'
+      desc: 'A regex of file paths to ignore.',
+      default: '/\\.'
     },
     config: {
       alias: 'C',
-      default: 'cogs.json',
       type: 'string',
-      desc: 'A config file specifying command line options.'
+      desc: 'A config file (JS or JSON) specifying command line options.',
+      default: 'cogs'
     },
     fingerprint: {
       alias: 'f',
-      default: false,
       type: 'boolean',
-      desc: 'Fingerprint files with their env.algorithm value.'
+      desc: 'Fingerprint files with their env.algorithm value.',
+      default: false
     },
     'export-fingerprints': {
       alias: 'F',
       type: 'string',
       desc: 'Save a JSON file fingerprinted name mappings.'
+    },
+    silence: {
+      alias: 's',
+      type: 'boolean',
+      desc: 'Silence build info, errors will still output to stderr.',
+      default: false
     }
   }).argv;
 
 optimist.check(function () {
   try { config = require(process.cwd() + '/' + argv.config); } catch (er) {}
-  argv.paths = config.paths || argv.paths.split(',');
   if (argv.watch) argv.watch = argv.watch.split(',');
   if (argv.options) argv.options = JSON.parse(argv.options);
   _.each(argv, function (val, key) { if (!val) delete argv[key]; });
@@ -83,8 +84,6 @@ optimist.check(function () {
     throw new Error('Please specify an input file.');
   }
 }).argv;
-
-cogs.addPaths(config.paths);
 
 if (config.options) {
   var options = config.options;
@@ -103,7 +102,11 @@ if (config.compress) {
 }
 
 var alert = function (title, message, type) {
-  message = ('[cogs] ' + title.bold + ' ' + message.toString())[type];
+  if (config.silence && type !== 'error') return;
+  message =
+    useColors ?
+    ('[cogs] ' + title.bold + ' ' + message.toString())[type] :
+    '[cogs] ' + title + ' ' + message.toString();
   console[type === 'error' ? 'error' : 'log'](message);
 };
 
@@ -116,18 +119,16 @@ var save = function (file, src, dir, cb) {
     cb(er);
   };
   var start = new Date();
-  cogs.asset(file, function (er, asset) {
-    if (!dependencies[file]) dependencies[file] = [asset.abs];
+  var asset = cogs.asset(file);
+  if (!dependencies[file]) dependencies[file] = [asset.abs];
+  asset.build(function (er) {
     if (er) return done(er);
-    asset.build(function (er) {
-      if (er) return done(er);
-      dependencies[file] = _.pluck(asset.dependencies, 'abs');
-      if (!dir) {
-        process.stdout.write(asset.toString());
-        return done();
-      }
-      asset.saveToDir(src, dir, config.fingerprint, done);
-    });
+    dependencies[file] = _.pluck(asset.dependencies, 'abs');
+    if (!dir) {
+      process.stdout.write(asset.toString());
+      return done();
+    }
+    asset.saveToDir(src, dir, config.fingerprint, done);
   });
 };
 
@@ -147,7 +148,6 @@ var saveAll = function (changed) {
       var json = JSON.stringify(cogs.fingerprints, null, '  ');
       fs.writeFileSync(config['export-fingerprints'], json);
     }
-    if (!config.watch) cogs.end();
   });
 };
 

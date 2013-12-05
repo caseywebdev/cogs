@@ -1,9 +1,11 @@
 var _ = require('underscore');
 var async = require('async');
-var crypto = require('crypto');
-var fs = require('fs');
-var expect = require('chai').expect;
 var cogs = require('..');
+var crypto = require('crypto');
+var expect = require('chai').expect;
+var fs = require('fs');
+var glob = require('glob');
+var path = require('path');
 
 var describe = global.describe;
 var it = global.it;
@@ -15,10 +17,6 @@ cogs.processors.rwk.options.plugins = [
 ];
 
 describe('Env Setup', function () {
-  it('adds new paths', function () {
-    cogs.addPaths('test/cases');
-  });
-
   it('gets the base of a filename with dots', function () {
     expect(cogs.split('/a/b.html.jade.html.jade').base).to.equal('b.html.jade');
   });
@@ -32,15 +30,13 @@ describe('Env Setup', function () {
 describe('Asset', function () {
   before(function (done) {
     var self = this;
-    cogs.asset('coffee-script/a', function (er, asset) {
+    this.asset =
+      cogs.asset(path.join('test', 'cases', 'coffee-script', 'a.coffee'));
+    this.asset.build(function (er) {
       if (er) return done(er);
-      self.asset = asset;
-      asset.build(function (er) {
-        if (er) return done(er);
-        var str = asset.toString();
-        self.md5 = crypto.createHash('md5').update(str).digest('hex');
-        done();
-      });
+      var str = self.asset.toString();
+      self.md5 = crypto.createHash('md5').update(str).digest('hex');
+      done();
     });
   });
 
@@ -55,16 +51,17 @@ describe('Asset', function () {
 });
 
 describe('Expected/Actual Comparisons', function () {
-  var dirs = fs.readdirSync(__dirname + '/cases');
+  var dirs = fs.readdirSync(path.resolve('.', 'test', 'cases'));
   _.each(dirs, function (dir) {
     if (dir[0] === '.') return;
     it(dir, function (done) {
+      var prefix = 'test/cases/' + dir;
       async.map([
-        {file: '/a', method: 'build', property: 'built'},
-        {file: '/expected', method: 'update', property: 'raw'}
+        {file: prefix + '/a.*', method: 'build', property: 'built'},
+        {file: prefix + '/expected.*', method: 'update', property: 'raw'}
       ], function (obj, cb) {
-        cogs.asset(dir + obj.file, function (er, asset) {
-          if (er) return cb(er);
+        glob(obj.file, function (er, files) {
+          var asset = cogs.asset(files[0]);
           asset[obj.method](function (er) {
             if (er) return cb(er);
             cb(null, asset[obj.property].trim().replace(/\n\s*/g, '\n'));

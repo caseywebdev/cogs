@@ -36,15 +36,14 @@ npm install [-g] uglify-js csso
 Cogs comes with a handy command line interface.
 
 ```bash
-Usage: cogs glob:dir [-p paths][-w paths][-C file]
+Usage: node ./bin/cogs glob:dir [-w paths][-C config-file]
 
 Options:
-  --paths, -p                An environment path or comma-separated paths.                 [default: "/Users/casey/projects/cogs"]
   --options, -o              JSON for options to be passed to processors and compressors.
   --compress, -c             Compress using UglifyJS and CSSO.                             [default: false]
   --watch, -w                A path or comma-separated paths to watch.
   --ignore, -i               A regex of file paths to ignore.                              [default: "/\\."]
-  --config, -C               A config file specifying command line options.                [default: "cogs.json"]
+  --config, -C               A config file (JS or JSON) specifying command line options.   [default: "cogs"]
   --fingerprint, -f          Fingerprint files with their env.algorithm value.             [default: false]
   --export-fingerprints, -F  Save a JSON file fingerprinted name mappings.
 ```
