@@ -58,7 +58,7 @@ describe('Expected/Actual Comparisons', function () {
       var prefix = 'test/cases/' + dir;
       async.map([
         {file: prefix + '/a.*', method: 'build', property: 'built'},
-        {file: prefix + '/expected.*', method: 'update', property: 'raw'}
+        {file: prefix + '/expected.*', method: 'update', property: 'source'}
       ], function (obj, cb) {
         glob(obj.file, function (er, files) {
           var asset = cogs.asset(files[0]);

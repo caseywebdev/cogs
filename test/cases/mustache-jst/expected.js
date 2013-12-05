@@ -8,5 +8,12 @@
     (root.JST || (root.JST = {}))['test/cases/mustache-jst/a'] = factory();
   }
 })(this, function () {
-  return function (data) { return Mustache.render("<h1>hello {{{name}}}</h1>\n", data); };
+  return (function () {
+    var source = "<h1>hello {{{name}}}</h1>\n";
+    var fn = function (data, partials) {
+      return Mustache.render(source, data, partials);
+    };
+    fn.source = source;
+    return fn;
+  })();
 });
