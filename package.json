@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "repository": {
@@ -31,6 +31,7 @@
     "less": "x",
     "marked": "x",
     "mocha": "x",
+    "mustache": "x",
     "nib": "x",
     "node-sass": "x",
     "request": "x",
