@@ -167,5 +167,4 @@ if (config.watch) {
     .on('change', saveAll)
     .on('unlink', saveAll);
   process.on('SIGTERM', _.bind(watcher.close, watcher));
-  process.on('SIGTERM', _.bind(cogs.end, cogs));
 }
