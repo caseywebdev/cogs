@@ -1,5 +1,5 @@
-// test/cases/es6/a.js.es6
-define("test/cases/es6/a",
+// test/cases/es6-module-transpiler/a.js.es6
+define("test/cases/es6-module-transpiler/a",
 ["jquery","exports"],
 function(__dependency1__, __exports__) {
   "use strict";
