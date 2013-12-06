@@ -64,7 +64,7 @@ describe('Expected/Actual Comparisons', function () {
           var asset = cogs.asset(files[0]);
           asset[obj.method](function (er) {
             if (er) return cb(er);
-            cb(null, asset[obj.property].trim().replace(/\n\s*/g, '\n'));
+            cb(null, asset[obj.property].trim().replace(/\s*\n\s*/g, '\n'));
           });
         });
       }, function (er, result) {
