@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "repository": {
@@ -27,6 +27,7 @@
     "css-whitespace": "x",
     "csso": "x",
     "eco": "x",
+    "es6-module-transpiler": "x",
     "jade": "x",
     "less": "x",
     "marked": "x",
