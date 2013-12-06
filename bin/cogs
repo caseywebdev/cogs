@@ -72,7 +72,7 @@ var argv = optimist
   }).argv;
 
 optimist.check(function () {
-  try { config = require(process.cwd() + '/' + argv.config); } catch (er) {}
+  try { config = require(path.resolve(argv.config)); } catch (er) {}
   if (argv.watch) argv.watch = argv.watch.split(',');
   if (argv.options) argv.options = JSON.parse(argv.options);
   _.each(argv, function (val, key) { if (!val) delete argv[key]; });

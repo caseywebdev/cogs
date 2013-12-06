@@ -51,7 +51,7 @@ describe('Asset', function () {
 });
 
 describe('Expected/Actual Comparisons', function () {
-  var dirs = fs.readdirSync(path.resolve('.', 'test', 'cases'));
+  var dirs = fs.readdirSync(path.resolve('test', 'cases'));
   _.each(dirs, function (dir) {
     if (dir[0] === '.') return;
     it(dir, function (done) {
