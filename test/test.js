@@ -15,6 +15,7 @@ cogs.processors.rwk.options.whitespace = true;
 cogs.processors.rwk.options.plugins = [
   'rework-variant'
 ];
+cogs.processors.es6.options.basePath = 'test/cases/es6-module-transpiler';
 
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {
