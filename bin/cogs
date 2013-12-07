@@ -136,15 +136,16 @@ var save = function (file, src, dir, cb) {
   });
 };
 
-var saveAll = function (changed) {
+var saveAll = function (ev, changed) {
   var targets = config.targets;
   async.each(_.keys(targets), function (src, cb) {
     var dir = targets[src];
     glob(src, function (er, files) {
       async.each(files, function (file, cb) {
         file = path.resolve(file);
-        if (changed && !_.contains(dependencies[file], changed)) return;
-        save(file, src, dir, cb);
+        var isFirst = !dependencies[file];
+        var isDependency = _.contains(dependencies[file], changed);
+        if (isFirst || isDependency) save(file, src, dir, cb);
       }, cb);
     });
   }, function () {
@@ -164,7 +165,6 @@ if (config.watch) {
       ignoreInitial: true,
       persistent: true
     })
-    .on('change', saveAll)
-    .on('unlink', saveAll);
+    .on('all', saveAll);
   process.on('SIGTERM', _.bind(watcher.close, watcher));
 }
