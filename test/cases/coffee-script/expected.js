@@ -14,7 +14,7 @@
 
 }).call(this);
 
-// test/cases/coffee-script/b.c.coffee
+// test/cases/coffee-script/b.c.js.coffee
 (function() {
   var b;
 

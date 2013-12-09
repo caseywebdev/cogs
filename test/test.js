@@ -20,11 +20,15 @@ cogs.processors.es6.options.basePath = 'test/cases/es6-module-transpiler';
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {
     expect(cogs.split('/a/b.html.jade.html.jade').base).to.equal('b.html.jade');
+    expect(cogs.split('/a/b.png').base).to.equal('b');
+    expect(cogs.split('/a/b').base).to.equal('b');
   });
 
   it('gets the extensions of a filename with dots', function () {
     expect(cogs.split('/a/b.html.coffee.html.jade').exts)
       .to.eql(['html', 'jade']);
+    expect(cogs.split('/a/b.png').exts).to.eql(['png']);
+    expect(cogs.split('/a/b').exts).to.eql([]);
   });
 });
 
