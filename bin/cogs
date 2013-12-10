@@ -62,7 +62,7 @@ var argv = optimist
       type: 'string',
       desc: 'Save a JSON file fingerprinted name mappings.'
     },
-    silence: {
+    silent: {
       alias: 's',
       type: 'boolean',
       desc: 'Silence build info, errors will still output to stderr.',
@@ -113,7 +113,7 @@ if (config.compress) {
 chalk.enabled = !config['no-color'];
 
 var alert = function (title, message, type) {
-  if (config.silence && type !== 'error') return;
+  if (config.silent && type !== 'error') return;
   message = colors[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
   console[type === 'error' ? 'error' : 'log'](message);
 };
