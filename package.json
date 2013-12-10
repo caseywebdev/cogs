@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.15.4",
+  "version": "0.15.5",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "repository": {
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "async": "x",
+    "chalk": "x",
     "chokidar": "x",
-    "colors": "x",
     "glob": "x",
     "herit": "x",
     "mkdirp": "x",

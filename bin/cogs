@@ -4,9 +4,9 @@
 
 var _ = require('underscore');
 var async = require('async');
+var chalk = require('chalk');
 var chokidar = require('chokidar');
 var cogs = require('..');
-require('colors').setTheme({info: 'grey', error: 'red', success: 'green'});
 var fs = require('fs');
 var glob = require('glob');
 var optimist = require('optimist');
@@ -14,6 +14,11 @@ var path = require('path');
 
 var config = {};
 var dependencies = {};
+var colors = {
+  info: chalk.grey,
+  success: chalk.green,
+  error: chalk.red
+};
 
 var argv = optimist
   .usage('Usage: $0 glob:dir [-w paths][-C config-file]')
@@ -105,12 +110,11 @@ if (config.compress) {
   cogs.compressors.css = new cogs.Csso();
 }
 
+chalk.enabled = !config['no-color'];
+
 var alert = function (title, message, type) {
   if (config.silence && type !== 'error') return;
-  message =
-    config['no-color'] ?
-    '[cogs] ' + title + ' ' + message.toString() :
-    ('[cogs] ' + title.bold + ' ' + message.toString())[type];
+  message = colors[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
   console[type === 'error' ? 'error' : 'log'](message);
 };
 
