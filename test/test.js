@@ -16,6 +16,11 @@ cogs.processors.rwk.options.plugins = [
   'rework-variant'
 ];
 cogs.processors.es6.options.basePath = 'test/cases/es6-module-transpiler';
+cogs.processors.jst.options.dependencies = [
+  {module: 'jade', variable: 'jade'},
+  {module: 'mustache', variable: 'Mustache'},
+  {module: 'underscore', variable: '_'}
+];
 
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {

@@ -1,12 +1,13 @@
 // test/cases/eco-jst/a.jst.eco
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('test/cases/eco-jst/a', [], factory);
-  } else if (typeof exports !== 'undefined') {
-    module.exports = factory();
+    define('test/cases/eco-jst/a', ['jade', 'mustache', 'underscore'], factory);
   }
-  (root.JST || (root.JST = {}))['test/cases/eco-jst/a'] = factory();
-})(this, function () {
+  if (typeof exports !== 'undefined') {
+    module.exports = factory(require('jade'), require('mustache'), require('underscore'));
+  }
+  (root.JST || (root.JST = {}))['test/cases/eco-jst/a'] = factory(root['jade'], root['Mustache'], root['_']);
+})(this, function (jade, Mustache, _) {
   return function(__obj) {
 if (!__obj) __obj = {};
 var __out = [], __capture = function(callback) {

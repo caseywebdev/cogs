@@ -1,12 +1,13 @@
 // test/cases/mustache-jst/a.jst.mustache
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('test/cases/mustache-jst/a', [], factory);
-  } else if (typeof exports !== 'undefined') {
-    module.exports = factory();
+    define('test/cases/mustache-jst/a', ['jade', 'mustache', 'underscore'], factory);
   }
-  (root.JST || (root.JST = {}))['test/cases/mustache-jst/a'] = factory();
-})(this, function () {
+  if (typeof exports !== 'undefined') {
+    module.exports = factory(require('jade'), require('mustache'), require('underscore'));
+  }
+  (root.JST || (root.JST = {}))['test/cases/mustache-jst/a'] = factory(root['jade'], root['Mustache'], root['_']);
+})(this, function (jade, Mustache, _) {
   return (function () {
     var source = "<h1>hello {{{name}}}</h1>\n";
     var fn = function (data, partials) {
