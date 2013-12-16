@@ -4,9 +4,8 @@
     define('test/cases/jade-jst/a', [], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports = factory();
-  } else {
-    (root.JST || (root.JST = {}))['test/cases/jade-jst/a'] = factory();
   }
+  (root.JST || (root.JST = {}))['test/cases/jade-jst/a'] = factory();
 })(this, function () {
   return function anonymous(locals) {
 var buf = [];

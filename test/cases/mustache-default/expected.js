@@ -4,9 +4,8 @@
     define('test/cases/mustache-default/a', [], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports = factory();
-  } else {
-    (root.JST || (root.JST = {}))['test/cases/mustache-default/a'] = factory();
   }
+  (root.JST || (root.JST = {}))['test/cases/mustache-default/a'] = factory();
 })(this, function () {
   return (function () {
     var source = "<h1>hello {{{name}}}</h1>\n";

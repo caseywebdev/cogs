@@ -4,9 +4,8 @@
     define('test/cases/eco-default/a', [], factory);
   } else if (typeof exports !== 'undefined') {
     module.exports = factory();
-  } else {
-    (root.JST || (root.JST = {}))['test/cases/eco-default/a'] = factory();
   }
+  (root.JST || (root.JST = {}))['test/cases/eco-default/a'] = factory();
 })(this, function () {
   return function(__obj) {
 if (!__obj) __obj = {};
