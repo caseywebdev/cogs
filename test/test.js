@@ -11,11 +11,11 @@ var describe = global.describe;
 var it = global.it;
 var before = global.before;
 
+cogs.basePath = 'test/cases';
 cogs.processors.rwk.options.whitespace = true;
 cogs.processors.rwk.options.plugins = [
   'rework-variant'
 ];
-cogs.processors.es6.options.basePath = 'test/cases/es6-module-transpiler';
 cogs.processors.jst.options.dependencies = [
   {module: 'jade', variable: 'jade'},
   {module: 'mustache', variable: 'Mustache'},
