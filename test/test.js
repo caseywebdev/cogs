@@ -16,11 +16,11 @@ cogs.processors.rwk.options.whitespace = true;
 cogs.processors.rwk.options.plugins = [
   'rework-variant'
 ];
-cogs.processors.jst.options.dependencies = [
-  {module: 'jade', variable: 'jade'},
-  {module: 'mustache', variable: 'Mustache'},
-  {module: 'underscore', variable: '_'}
-];
+cogs.processors.jst.options.dependencies = {
+  jade: 'jade',
+  mustache: 'Mustache',
+  underscore: '_'
+};
 
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {
