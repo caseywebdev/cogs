@@ -21,6 +21,8 @@ cogs.processors.jst.options.dependencies = {
   mustache: 'Mustache',
   underscore: '_'
 };
+cogs.processors.jst.options.anonymous = false;
+cogs.processors.es6.options.anonymous = false;
 
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {
