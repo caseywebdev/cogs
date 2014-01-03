@@ -2,11 +2,11 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define('underscore-default/a', ['jade', 'mustache', 'underscore'], factory);
-  }
-  if (typeof exports !== 'undefined') {
+  } else if (typeof exports !== 'undefined') {
     module.exports = factory(require('jade'), require('mustache'), require('underscore'));
+  } else {
+    (root.JST || (root.JST = {}))['underscore-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
   }
-  (root.JST || (root.JST = {}))['underscore-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
 })(this, function (jade, Mustache, _) {
   return (function(obj){
   var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};

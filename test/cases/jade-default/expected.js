@@ -1,12 +1,12 @@
 // test/cases/jade-default/a.jade
 (function (root, factory) {
-if (typeof define === 'function' && define.amd) {
-define('jade-default/a', ['jade', 'mustache', 'underscore'], factory);
-}
-if (typeof exports !== 'undefined') {
-module.exports = factory(require('jade'), require('mustache'), require('underscore'));
-}
-(root.JST || (root.JST = {}))['jade-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
+  if (typeof define === 'function' && define.amd) {
+    define('jade-default/a', ['jade', 'mustache', 'underscore'], factory);
+  } else if (typeof exports !== 'undefined') {
+    module.exports = factory(require('jade'), require('mustache'), require('underscore'));
+  } else {
+    (root.JST || (root.JST = {}))['jade-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
+  }
 })(this, function (jade, Mustache, _) {
 return (function template(locals) {
 var buf = [];

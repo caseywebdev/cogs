@@ -2,11 +2,11 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define('eco-jst/a', ['jade', 'mustache', 'underscore'], factory);
-  }
-  if (typeof exports !== 'undefined') {
+  } else if (typeof exports !== 'undefined') {
     module.exports = factory(require('jade'), require('mustache'), require('underscore'));
+  } else {
+    (root.JST || (root.JST = {}))['eco-jst/a'] = factory(root['jade'], root['Mustache'], root['_']);
   }
-  (root.JST || (root.JST = {}))['eco-jst/a'] = factory(root['jade'], root['Mustache'], root['_']);
 })(this, function (jade, Mustache, _) {
   return (function(__obj) {
 if (!__obj) __obj = {};
