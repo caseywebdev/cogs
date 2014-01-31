@@ -2,173 +2,20 @@
 
 'use strict';
 
-var _ = require('underscore');
-var async = require('async');
-var chalk = require('chalk');
 var chokidar = require('chokidar');
-var cogs = require('..');
-var fs = require('fs');
-var glob = require('glob');
-var optimist = require('optimist');
+var Cli = require('../lib/cli');
 var path = require('path');
 
-var config = {};
-var dependencies = {};
-var colors = {
-  info: chalk.grey,
-  success: chalk.green,
-  error: chalk.red
-};
+var cli = new Cli();
 
-var argv = optimist
-  .usage('Usage: $0 glob:dir [-w paths][-C config-file]')
-  .options({
-    options: {
-      alias: 'o',
-      type: 'string',
-      desc: 'JSON for options to be passed to processors and compressors.'
-    },
-    compress: {
-      alias: 'c',
-      type: 'boolean',
-      desc: 'Compress using UglifyJS and CSSO.',
-      default: false
-    },
-    watch: {
-      alias: 'w',
-      type: 'string',
-      desc: 'A path or comma-separated paths to watch.'
-    },
-    ignore: {
-      alias: 'i',
-      type: 'string',
-      desc: 'A regex of file paths to ignore.',
-      default: '/\\.'
-    },
-    config: {
-      alias: 'C',
-      type: 'string',
-      desc: 'A config file (JS or JSON) specifying command line options.',
-      default: 'cogs'
-    },
-    fingerprint: {
-      alias: 'f',
-      type: 'boolean',
-      desc: 'Fingerprint files with their env.algorithm value.',
-      default: false
-    },
-    'export-fingerprints': {
-      alias: 'F',
-      type: 'string',
-      desc: 'Save a JSON file fingerprinted name mappings.'
-    },
-    silent: {
-      alias: 's',
-      type: 'boolean',
-      desc: 'Silence build info, errors will still output to stderr.',
-      default: false
-    },
-    'no-color': {
-      alias: 'n',
-      type: 'boolean',
-      desc: 'Do not color output.',
-      default: false
-    }
-  }).argv;
-
-optimist.check(function () {
-  try { config = require(path.resolve(argv.config)); } catch (er) {}
-  if (argv.watch) argv.watch = argv.watch.split(',');
-  if (argv.options) argv.options = JSON.parse(argv.options);
-  _.each(argv, function (val, key) { if (!val) delete argv[key]; });
-  config = _.extend({targets: {}}, config, argv);
-  if (argv._[0]) {
-    var targets = config.targets;
-    _.each(argv._[0].split(','), function (target) {
-      var split = target.split(':');
-      targets[split[0]] = split[1];
-    });
-  }
-  if (!_.size(config.targets)) {
-    throw new Error('Please specify an input file.');
-  }
-}).argv;
-
-if (config.options) {
-  var options = config.options;
-  for (var steps in options) {
-    var val = options[steps];
-    steps = steps.split('.');
-    var obj = cogs;
-    for (var i = 0, l = steps.length - 1; i < l; ++i) obj = obj[steps[i]];
-    obj[steps[i]] = val;
-  }
-}
-
-if (config.compress) {
-  cogs.compressors.js = new cogs.UglifyJs();
-  cogs.compressors.css = new cogs.Csso();
-}
-
-chalk.enabled = !config['no-color'];
-
-var alert = function (title, message, type) {
-  if (config.silent && type !== 'error') return;
-  message = colors[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
-  console[type === 'error' ? 'error' : 'log'](message);
-};
-
-var save = function (file, src, dir, cb) {
-  var title = path.relative('.', file);
-  alert(title, 'Building...', 'info');
-  var done = function (er) {
-    var message = er || 'Built in ' + ((new Date() - start) / 1000) + 's';
-    alert(title, message, er ? 'error' : 'success');
-    cb(er);
-  };
-  var start = new Date();
-  var asset = cogs.asset(file);
-  if (!dependencies[file]) dependencies[file] = [asset.abs];
-  asset.build(function (er) {
-    if (er) return done(er);
-    dependencies[file] = _.pluck(asset.dependencies, 'abs');
-    if (!dir) {
-      process.stdout.write(asset.toString());
-      return done();
-    }
-    asset.saveToDir(src, dir, config.fingerprint, done);
-  });
-};
-
-var saveAll = function (ev, changed) {
-  var targets = config.targets;
-  async.each(_.keys(targets), function (src, cb) {
-    var dir = targets[src];
-    glob(src, function (er, files) {
-      async.each(files, function (file, cb) {
-        file = path.resolve(file);
-        var isFirst = !dependencies[file];
-        var isDependency = _.contains(dependencies[file], changed);
-        if (isFirst || isDependency) save(file, src, dir, cb);
-      }, cb);
-    });
-  }, function () {
-    if (config['export-fingerprints']) {
-      var json = JSON.stringify(cogs.fingerprints, null, '  ');
-      fs.writeFileSync(config['export-fingerprints'], json);
-    }
-  });
-};
-
-saveAll();
-
-if (config.watch) {
+if (cli.watch) {
   var watcher = chokidar
-    .watch(_.map(config.watch, function (p) { return path.resolve(p); }), {
-      ignored: new RegExp(config.ignore),
+    .watch(path.resolve(cli.config), {
       ignoreInitial: true,
       persistent: true
-    })
-    .on('all', saveAll);
-  process.on('SIGTERM', _.bind(watcher.close, watcher));
+    }).on('all', function () {
+      cli.close();
+      cli = new Cli();
+    });
+  process.on('SIGTERM', watcher.close.bind(watcher));
 }
