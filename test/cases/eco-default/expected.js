@@ -5,10 +5,10 @@
   } else if (typeof exports !== 'undefined') {
     module.exports = factory(require('jade'), require('mustache'), require('underscore'));
   } else {
-    (root.JST || (root.JST = {}))['eco-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
+    root['eco-default/a'] = factory(root['jade'], root['Mustache'], root['_']);
   }
 })(this, function (jade, Mustache, _) {
-  return (function(__obj) {
+return function(__obj) {
 if (!__obj) __obj = {};
 var __out = [], __capture = function(callback) {
 var out = __out, result;
@@ -52,5 +52,4 @@ __out.push('<h1>hello</h1>\n');
 }).call(__obj);
 __obj.safe = __objSafe, __obj.escape = __escape;
 return __out.join('');
-});
-});
+}});
