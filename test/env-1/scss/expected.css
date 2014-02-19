@@ -1,0 +1,10 @@
+/* test/env-1/scss/a.scss */
+.box {
+  border-radius: red; }
+
+.box {
+  border-radius: white; }
+
+/* test/env-1/scss/c.scss */
+.box {
+  border-radius: blue; }

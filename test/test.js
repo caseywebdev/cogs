@@ -11,18 +11,40 @@ var describe = global.describe;
 var it = global.it;
 var before = global.before;
 
-cogs.basePath = 'test/cases';
-cogs.processors.rwk.options.whitespace = true;
-cogs.processors.rwk.options.plugins = [
+var envs = [];
+
+// Environment 1
+var env = new cogs.Env({amd: {basePath: 'test/env-1'}});
+env.processors.rwk.options.whitespace = true;
+env.processors.rwk.options.plugins = [
   'rework-variant'
 ];
-cogs.processors.jst.options.dependencies = {
+env.processors.jst.options.dependencies = {
   jade: 'jade',
   mustache: 'Mustache',
   underscore: '_'
 };
-cogs.processors.jst.options.anonymous = false;
-cogs.processors.es6.options.anonymous = false;
+env.processors.jst.options.anonymous = false;
+env.processors.es6.options.anonymous = false;
+envs.push(env);
+
+// Environment 2
+envs.push(new cogs.Env({
+  amd: {
+    basePath: 'test/env-2',
+    concat: true,
+    names: {
+      fib: 'test/env-2/amd/fib.coffee',
+      memoize: 'test/vendor/memoize.es6'
+    },
+    shims: {
+      fib: {
+        global: 'Fib',
+        dependencies: ['memoize']
+      }
+    }
+  }
+}));
 
 describe('Env Setup', function () {
   it('gets the base of a filename with dots', function () {
@@ -43,7 +65,7 @@ describe('Asset', function () {
   before(function (done) {
     var self = this;
     this.asset =
-      cogs.asset(path.join('test', 'cases', 'coffee-script', 'a.coffee'));
+      envs[0].asset(path.join('test', 'env-1', 'coffee-script', 'a.coffee'));
     this.asset.build(function (er) {
       if (er) return done(er);
       var str = self.asset.toString();
@@ -63,26 +85,36 @@ describe('Asset', function () {
 });
 
 describe('Expected/Actual Comparisons', function () {
-  var dirs = fs.readdirSync(path.resolve('test', 'cases'));
-  _.each(dirs, function (dir) {
-    if (dir[0] === '.') return;
-    it(dir, function (done) {
-      var prefix = 'test/cases/' + dir;
-      async.map([
-        {file: prefix + '/a.*', method: 'build', property: 'built'},
-        {file: prefix + '/expected.*', method: 'update', property: 'source'}
-      ], function (obj, cb) {
-        glob(obj.file, function (er, files) {
-          var asset = cogs.asset(files[0]);
-          asset[obj.method](function (er) {
-            if (er) return cb(er);
-            cb(null, asset[obj.property].trim().replace(/\s*\n\s*/g, '\n'));
+  _.each(envs, function (env, i) {
+    describe('Environment ' + (i + 1), function () {
+      var envDir = path.resolve('test', 'env-' + (i + 1));
+      var dirs = fs.readdirSync(envDir);
+      _.each(dirs, function (dir) {
+        if (dir[0] === '.') return;
+        it(dir, function (done) {
+          var prefix = path.join(envDir, dir);
+          async.map([{
+            file: path.join(prefix, 'a.*'),
+            method: 'build',
+            property: 'built'
+          }, {
+            file: path.join(prefix, 'expected.*'),
+            method: 'update',
+            property: 'source'
+          }], function (obj, cb) {
+            glob(obj.file, function (er, files) {
+              var asset = env.asset(files[0]);
+              asset[obj.method](function (er) {
+                if (er) return cb(er);
+                cb(null, asset[obj.property].trim().replace(/\s*\n\s*/g, '\n'));
+              });
+            });
+          }, function (er, results) {
+            if (er) return done(er);
+            expect(results[0]).to.equal(results[1]);
+            done();
           });
         });
-      }, function (er, result) {
-        if (er) return done(er);
-        expect(result[0]).to.equal(result[1]);
-        done();
       });
     });
   });
