@@ -36,16 +36,18 @@ npm install [-g] uglify-js csso
 Cogs comes with a handy command line interface.
 
 ```bash
-Usage: node ./bin/cogs glob:dir [-w paths][-C config-file]
+Usage: node ./bin/cogs [options] target-glob:destination-dir
 
 Options:
   --options, -o              JSON for options to be passed to processors and compressors.
   --compress, -c             Compress using UglifyJS and CSSO.                             [default: false]
   --watch, -w                A path or comma-separated paths to watch.
   --ignore, -i               A regex of file paths to ignore.                              [default: "/\\."]
-  --config, -C               A config file (JS or JSON) specifying command line options.   [default: "cogs"]
+  --config, -C               A config file (JS or JSON) specifying command line options.   [default: "cogs.json"]
   --fingerprint, -f          Fingerprint files with their env.algorithm value.             [default: false]
   --export-fingerprints, -F  Save a JSON file fingerprinted name mappings.
+  --silent, -s               Silence build info, errors will still output to stderr.       [default: false]
+  --no-color, -n             Do not color output.                                          [default: false]
 ```
 
 Generally, you'll want to put your options in a `cogs.json` or similar for each
@@ -56,7 +58,7 @@ exporting their compiled JavaScript results to the `dist` directory everytime
 there is a change.
 
 ```bash
-cogs -vw src src/**/*.coffee:dist
+cogs -w src src/**/*:dist
 ```
 
 You can also use Sprockets-like directives in your files to make concatenation
