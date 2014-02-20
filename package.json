@@ -28,6 +28,7 @@
     "csso": "x",
     "eco": "x",
     "es6-module-transpiler": "x",
+    "istanbul": "x",
     "jade": "x",
     "less": "x",
     "marked": "x",

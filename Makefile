@@ -1,7 +1,8 @@
 BIN=node_modules/.bin/
-MOCHA=$(BIN)mocha
+ISTANBUL=$(BIN)istanbul
+MOCHA=$(BIN)_mocha
 
 test:
-	$(MOCHA) --reporter spec
+	$(ISTANBUL) cover $(MOCHA) -- -R spec
 
 .PHONY: test
