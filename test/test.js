@@ -34,8 +34,11 @@ envs.push(new cogs.Env({
     basePath: 'test/env-2',
     concat: true,
     names: {
+      'double-define': 'test/vendor/double-define.js',
       fib: 'test/env-2/amd/fib.coffee',
-      memoize: 'test/vendor/memoize.es6'
+      memoize: 'test/vendor/memoize.es6',
+      'good-name': 'test/vendor/rename.js',
+      'good-name-2': 'test/vendor/rename-2.js'
     },
     shims: {
       fib: {
