@@ -85,6 +85,17 @@ describe('Asset', function () {
     expect(this.asset.filename()).to.equal('a.js');
     expect(this.asset.filename(true)).to.equal('a-' + this.md5 + '.js');
   });
+
+  it('throws errors after subsequent builds', function (done) {
+    var asset = cogs.asset('test/broke/requirer.coffee');
+    asset.build(function (er) {
+      expect(er).to.be.an.instanceOf(Error);
+      asset.build(function (er) {
+        expect(er).to.be.an.instanceOf(Error);
+        done();
+      });
+    });
+  });
 });
 
 describe('Expected/Actual Comparisons', function () {
