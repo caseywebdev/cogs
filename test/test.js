@@ -114,6 +114,23 @@ describe('Asset', function () {
       });
     });
   });
+
+  it('should not crash on bad dependencies', function (done) {
+    var env = new cogs.Env({
+      amd: {
+        basePath: 'test/broke',
+        concat: true
+      }
+    });
+    var asset = env.asset('test/broke/bad-deps.es6');
+    asset.build(function (er) {
+      expect(er).to.be.an.instanceOf(Error);
+      asset.build(function (er) {
+        expect(er).to.be.an.instanceOf(Error);
+        done();
+      });
+    });
+  });
 });
 
 describe('Expected/Actual Comparisons', function () {
