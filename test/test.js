@@ -96,6 +96,24 @@ describe('Asset', function () {
       });
     });
   });
+
+  it('handles file exists, then does not, then does', function (done) {
+    var asset = cogs.asset('test/dne');
+    fs.writeFileSync('test/dne');
+    asset.build(function (er) {
+      expect(er).to.be.undefined;
+      fs.unlinkSync('test/dne');
+      asset.build(function (er) {
+        expect(er).to.be.an.instanceOf(Error);
+        fs.writeFileSync('test/dne');
+        asset.build(function (er) {
+          expect(er).to.be.undefined;
+          fs.unlinkSync('test/dne');
+          done();
+        });
+      });
+    });
+  });
 });
 
 describe('Expected/Actual Comparisons', function () {
