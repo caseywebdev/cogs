@@ -1,5 +1,7 @@
-$colors
-  red: #f00
+:root {
+  var-red: #f00;
+}
 
-.box
-  color: $colors.red
+.box {
+  color: var(red);
+}

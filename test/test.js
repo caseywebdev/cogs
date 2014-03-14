@@ -15,9 +15,8 @@ var envs = [];
 
 // Environment 1
 var env = new cogs.Env({amd: {basePath: 'test/env-1'}});
-env.processors.rwk.options.whitespace = true;
 env.processors.rwk.options.plugins = [
-  'rework-variant'
+  'rework-vars'
 ];
 env.processors.jst.options.dependencies = {
   jade: 'jade',
