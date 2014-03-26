@@ -11,5 +11,5 @@
 return {
   "this": "is",
   "some": ["json"]
-}
+};
 });
