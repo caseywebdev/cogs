@@ -1,4 +1,4 @@
 #= require ./b.js
 #= require ./b.c.js.coffee
-#= requiretree ./a
+#= require ./a/**/*
 a = 1
