@@ -1,4 +1,4 @@
 #= require ./b.js
-#= require ./b.c.js.coffee
+#= require test/env-1/coffee-script/b.c.js.coffee
 #= require ./a/**/*
 a = 1
