@@ -1,16 +1,16 @@
-// test/env-1/coffee-script/c.coffee
-(function() {
-  var c;
-
-  c = 3;
-
-}).call(this);
-
 // test/env-1/coffee-script/b.js
 (function() {
   var b;
 
   b = 2;
+
+}).call(this);
+
+// test/env-1/coffee-script/c.coffee
+(function() {
+  var c;
+
+  c = 3;
 
 }).call(this);
 
