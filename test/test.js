@@ -14,7 +14,7 @@ var before = global.before;
 var envs = [];
 
 // Environment 1
-var env = new cogs.Env({amd: {basePath: 'test/env-1'}});
+var env = new cogs.Env({basePath: 'test/env-1'});
 env.processors.rwk.options.plugins = [
   'rework-vars'
 ];
@@ -29,21 +29,19 @@ envs.push(env);
 
 // Environment 2
 envs.push(new cogs.Env({
-  amd: {
-    basePath: 'test/env-2',
-    concat: true,
-    names: {
-      'double-define': 'test/vendor/double-define.js',
-      fib: 'test/env-2/amd/fib.coffee',
-      memoize: 'test/vendor/memoize.es6',
-      'good-name': 'test/vendor/rename.js',
-      'good-name-2': 'test/vendor/rename-2.js'
-    },
-    shims: {
-      fib: {
-        global: 'Fib',
-        dependencies: ['memoize']
-      }
+  basePath: 'test/env-2',
+  concatAmd: true,
+  names: {
+    'double-define': 'test/vendor/double-define.js',
+    fib: 'test/env-2/amd/fib.coffee',
+    memoize: 'test/vendor/memoize.es6',
+    'good-name': 'test/vendor/rename.js',
+    'good-name-2': 'test/vendor/rename-2.js'
+  },
+  shims: {
+    fib: {
+      global: 'Fib',
+      dependencies: ['memoize']
     }
   }
 }));
@@ -116,10 +114,8 @@ describe('Asset', function () {
 
   it('should not crash on bad dependencies', function (done) {
     var env = new cogs.Env({
-      amd: {
-        basePath: 'test/broke',
-        concat: true
-      }
+      basePath: 'test/broke',
+      concatAmd: true
     });
     var asset = env.asset('test/broke/bad-deps.es6');
     asset.build(function (er) {
