@@ -21,11 +21,14 @@ return fib(n - 1) + fib(n - 2);
 }
 });
 }).call(this);
-define('fib', ['memoize'], (function (root) {
-return function () {
-return root['Fib'];
-};
-})(this));
+(function (root) {
+var value = root['Fib'];
+if (typeof define === 'function' && define.amd) {
+define('fib', ['memoize'], function () { return value; });
+} else if (typeof exports !== 'undefined') {
+module.exports = value;
+}
+})(this);
 // test/env-2/amd/sum.es6
 define(
 'amd/sum', ["exports"],
