@@ -7,4 +7,4 @@ var HelloMessage = React.createClass({displayName: 'HelloMessage',
   }
 });
 
-React.renderComponent(HelloMessage( {name:"John"} ), mountNode);
+React.renderComponent(HelloMessage({name: "John"}), mountNode);
