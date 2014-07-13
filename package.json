@@ -27,7 +27,7 @@
     "css-whitespace": "x",
     "csso": "x",
     "eco": "x",
-    "es6-module-transpiler": "x",
+    "es6-module-transpiler": "0.4.0",
     "istanbul": "x",
     "jade": "x",
     "less": "x",
