@@ -77,7 +77,7 @@ Now assuming `a.coffee` and `b.coffee` exist in the same directory as
 `index.coffee`, we can run
 
 ```bash
-cogs -vw src src/index.coffee:dist
+cogs -cw src src/index.coffee:dist
 ```
 
 And notice that whenever a change is made to `index.coffee`, `a.coffee`, or
