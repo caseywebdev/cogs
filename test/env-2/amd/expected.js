@@ -1,55 +1,72 @@
 // test/vendor/memoize.es6
-define(
-'memoize', ["exports"],
-function(__exports__) {
-"use strict";
-__exports__["default"] = function (fn) {
-var cache = {};
-return function (arg) {
-if (arg in cache) return cache[arg];
-return fn.apply(this, arguments);
-};
-}
+(function (factory) {
+  if (typeof define === "function" && define.amd) {
+    define('memoize', ["exports"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports);
+  }
+})(function (exports) {
+  "use strict";
+  exports["default"] = function (fn) {
+    var cache = {};
+    return function (arg) {
+      if (arg in cache) return cache[arg];
+      return fn.apply(this, arguments);
+    };
+  };
 });
 // test/env-2/amd/fib.coffee
 (function() {
-this.Fib = memoize(function(n) {
-if (n < 2) {
-return 1;
-} else {
-return fib(n - 1) + fib(n - 2);
-}
-});
+  this.Fib = memoize(function(n) {
+    if (n < 2) {
+      return 1;
+    } else {
+      return fib(n - 1) + fib(n - 2);
+    }
+  });
 }).call(this);
 (function (root) {
-var value = root['Fib'];
-if (typeof define === 'function' && define.amd) {
-define('fib', ['memoize'], function () { return value; });
-} else if (typeof exports !== 'undefined') {
-module.exports = value;
-}
+  var value = root['Fib'];
+  if (typeof define === 'function' && define.amd) {
+    define('fib', ['memoize'], function () { return value; });
+  } else if (typeof exports !== 'undefined') {
+    module.exports = value;
+  }
 })(this);
 // test/env-2/amd/sum.es6
-define(
-'amd/sum', ["exports"],
-function(__exports__) {
-"use strict";
-__exports__["default"] = function () {
-return [].reduce.call(arguments, function (sum, n) { return sum + n; }, 0);
-}
+(function (factory) {
+  if (typeof define === "function" && define.amd) {
+    define('amd/sum', ["exports"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports);
+  }
+})(function (exports) {
+  "use strict";
+  exports["default"] = function () {
+    return [].reduce.call(arguments, function (sum, n) {
+      return sum + n;
+    }, 0);
+  };
 });
 // test/env-2/amd/just-the-factory.js
 var Factory = function () {};
 define('amd/just-the-factory', Factory);
 // test/env-2/amd/a.es6
-define(
-'amd/a', ["fib","amd/sum","amd/just-the-factory","exports"],
-function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-"use strict";
-var fib = __dependency1__["default"];
-var sum = __dependency2__["default"];
-var jtf = __dependency3__["default"];
-__exports__.fib = fib;
-__exports__.sum = sum;
-__exports__.jtf = jtf;
+(function (factory) {
+  if (typeof define === "function" && define.amd) {
+    define('amd/a', ["exports", "fib", "amd/sum", "amd/just-the-factory"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports, require("fib"), require("amd/sum"), require("amd/just-the-factory"));
+  }
+})(function (exports, _fib, _amdSum, _amdJustTheFactory) {
+  "use strict";
+  var _interopRequire = function (obj) {
+    return obj && (obj["default"] || obj);
+  };
+  var fib = _interopRequire(_fib);
+  var sum = _interopRequire(_amdSum);
+  var jtf = _interopRequire(_amdJustTheFactory);
+  exports.fib = fib;
+  exports.sum = sum;
+  exports.jtf = jtf;
 });

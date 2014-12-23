@@ -21,13 +21,13 @@
     "underscore": "x"
   },
   "devDependencies": {
+    "6to5": "6to5/6to5#2.0.0",
     "chai": "x",
     "clean-css": "x",
     "coffee-script": "x",
     "css-whitespace": "x",
     "csso": "x",
     "eco": "x",
-    "es6-module-transpiler": "0.4.0",
     "istanbul": "x",
     "jade": "x",
     "less": "x",
