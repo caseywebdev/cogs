@@ -21,7 +21,7 @@
     "underscore": "x"
   },
   "devDependencies": {
-    "6to5": "6to5/6to5#2.0.0",
+    "6to5": "x",
     "chai": "x",
     "clean-css": "x",
     "coffee-script": "x",
