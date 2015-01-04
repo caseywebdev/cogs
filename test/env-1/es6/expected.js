@@ -1,4 +1,5 @@
 // test/env-1/es6/a.es6
+"use strict";
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     define(["exports", "jquery", "react"], factory);
@@ -6,7 +7,6 @@
     factory(exports, require("jquery"), require("react"));
   }
 })(function (exports, _jquery, _react) {
-  "use strict";
   var _interopRequire = function (obj) {
     return obj && (obj["default"] || obj);
   };
