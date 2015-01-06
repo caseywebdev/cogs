@@ -14,7 +14,6 @@ define("good-name-2", ["good-name", "double-define"], function () {
   // I need a good name also;
 });
 // test/env-2/rename/a.es6
-"use strict";
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     define('rename/a', ["exports", "good-name-2"], factory);
@@ -22,6 +21,7 @@ define("good-name-2", ["good-name", "double-define"], function () {
     factory(exports, require("good-name-2"));
   }
 })(function (exports, _goodName2) {
+  "use strict";
   var _interopRequire = function (obj) {
     return obj && (obj["default"] || obj);
   };

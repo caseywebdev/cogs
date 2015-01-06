@@ -1,5 +1,4 @@
 // test/vendor/memoize.es6
-"use strict";
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     define('memoize', ["exports"], factory);
@@ -7,6 +6,7 @@
     factory(exports);
   }
 })(function (exports) {
+  "use strict";
   exports["default"] = function (fn) {
     var cache = {};
     return function (arg) {
@@ -34,7 +34,6 @@
   }
 })(this);
 // test/env-2/amd/sum.es6
-"use strict";
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     define('amd/sum', ["exports"], factory);
@@ -42,6 +41,7 @@
     factory(exports);
   }
 })(function (exports) {
+  "use strict";
   exports["default"] = function () {
     return [].reduce.call(arguments, function (sum, n) {
       return sum + n;
@@ -52,7 +52,6 @@
 var Factory = function () {};
 define('amd/just-the-factory', Factory);
 // test/env-2/amd/a.es6
-"use strict";
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     define('amd/a', ["exports", "fib", "amd/sum", "amd/just-the-factory"], factory);
@@ -60,6 +59,7 @@ define('amd/just-the-factory', Factory);
     factory(exports, require("fib"), require("amd/sum"), require("amd/just-the-factory"));
   }
 })(function (exports, _fib, _amdSum, _amdJustTheFactory) {
+  "use strict";
   var _interopRequire = function (obj) {
     return obj && (obj["default"] || obj);
   };
