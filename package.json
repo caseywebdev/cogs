@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.27.1",
+  "version": "0.27.2",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "repository": {
@@ -11,14 +11,14 @@
     "cogs": "bin/cogs"
   },
   "dependencies": {
-    "async": "x",
-    "chalk": "x",
-    "chokidar": "x",
-    "glob": "x",
-    "herit": "x",
-    "mkdirp": "x",
-    "optimist": "x",
-    "underscore": "x"
+    "async": "^0.9.0",
+    "chalk": "^0.5.1",
+    "chokidar": "^0.12.6",
+    "glob": "^4.3.2",
+    "herit": "^2.2.2",
+    "mkdirp": "^0.5.0",
+    "optimist": "^0.6.1",
+    "underscore": "^1.7.0"
   },
   "devDependencies": {
     "6to5": "x",
