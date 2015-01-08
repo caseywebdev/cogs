@@ -1,11 +1,11 @@
 // test/env-1/es6/a.es6
 (function (factory) {
   if (typeof define === "function" && define.amd) {
-    define(["exports", "jquery", "react"], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports, require("jquery"), require("react"));
+    define(["exports", "module", "jquery", "react"], factory);
+  } else if (typeof exports !== "undefined" && typeof module !== "undefined") {
+    factory(exports, module, require("jquery"), require("react"));
   }
-})(function (exports, _jquery, _react) {
+})(function (exports, module, _jquery, _react) {
   "use strict";
   var _interopRequire = function (obj) {
     return obj && (obj["default"] || obj);
@@ -19,5 +19,5 @@
   };
   $(app.init);
   React.createElement("div", null);
-  exports["default"] = app;
+  module.exports = app;
 });

@@ -1,13 +1,13 @@
 // test/vendor/memoize.es6
 (function (factory) {
   if (typeof define === "function" && define.amd) {
-    define('memoize', ["exports"], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports);
+    define('memoize', ["exports", "module"], factory);
+  } else if (typeof exports !== "undefined" && typeof module !== "undefined") {
+    factory(exports, module);
   }
-})(function (exports) {
+})(function (exports, module) {
   "use strict";
-  exports["default"] = function (fn) {
+  module.exports = function (fn) {
     var cache = {};
     return function (arg) {
       if (arg in cache) return cache[arg];
@@ -36,13 +36,13 @@
 // test/env-2/amd/sum.es6
 (function (factory) {
   if (typeof define === "function" && define.amd) {
-    define('amd/sum', ["exports"], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports);
+    define('amd/sum', ["exports", "module"], factory);
+  } else if (typeof exports !== "undefined" && typeof module !== "undefined") {
+    factory(exports, module);
   }
-})(function (exports) {
+})(function (exports, module) {
   "use strict";
-  exports["default"] = function () {
+  module.exports = function () {
     return [].reduce.call(arguments, function (sum, n) {
       return sum + n;
     }, 0);
