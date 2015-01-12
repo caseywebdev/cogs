@@ -45,7 +45,7 @@ Options:
   --ignore, -i               A regex of file paths to ignore.                              [default: "/\\."]
   --config, -C               A config file (JS or JSON) specifying command line options.   [default: "cogs.json"]
   --fingerprint, -f          Fingerprint files with their env.algorithm value.             [default: false]
-  --export-fingerprints, -F  Save a JSON file fingerprinted name mappings.
+  --export-file-map, -F      Save a JSON file with file mappings.
   --silent, -s               Silence build info, errors will still output to stderr.       [default: false]
   --no-color, -n             Do not color output.                                          [default: false]
 ```
