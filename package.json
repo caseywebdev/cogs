@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.28.3",
+  "version": "0.29.0",
   "author": "Casey Foster <c@sey.me>",
   "licence": "MIT",
   "repository": {
@@ -11,40 +11,40 @@
     "cogs": "bin/cogs"
   },
   "dependencies": {
-    "async": "^0.9.0",
-    "chalk": "^0.5.1",
-    "chokidar": "^0.12.6",
-    "glob": "^4.3.2",
-    "herit": "^2.2.2",
-    "mkdirp": "^0.5.0",
-    "optimist": "^0.6.1",
-    "underscore": "^1.7.0"
+    "6to5": "2.12.3",
+    "async": "0.9.0",
+    "chalk": "0.5.1",
+    "chokidar": "0.12.6",
+    "clean-css": "3.0.4",
+    "coffee-script": "1.8.0",
+    "css-whitespace": "1.1.0",
+    "csso": "1.3.11",
+    "eco": "1.1.0-rc-3",
+    "glob": "4.3.4",
+    "herit": "2.2.2",
+    "jade": "1.9.0",
+    "less": "2.2.0",
+    "marked": "0.3.2",
+    "mkdirp": "0.5.0",
+    "mustache": "1.0.0",
+    "nib": "1.0.4",
+    "node-sass": "2.0.0-beta",
+    "optimist": "0.6.1",
+    "react-tools": "0.12.2",
+    "rework": "1.0.1",
+    "rework-vars": "3.1.1",
+    "stylus": "0.49.3",
+    "uglify-js": "2.4.16",
+    "underscore": "1.7.0"
   },
   "devDependencies": {
-    "6to5": "x",
-    "chai": "x",
-    "clean-css": "x",
-    "coffee-script": "x",
-    "css-whitespace": "x",
-    "csso": "x",
-    "eco": "x",
-    "istanbul": "x",
-    "jade": "x",
-    "less": "x",
-    "marked": "x",
-    "mocha": "x",
-    "mustache": "x",
-    "nib": "x",
-    "node-sass": "x",
-    "react-tools": "x",
-    "rework": "x",
-    "rework-vars": "x",
-    "stylus": "x",
-    "uglify-js": "x"
+    "chai": "1.10.0",
+    "istanbul": "0.3.5",
+    "mocha": "2.1.0"
   },
   "engines": {
-    "node": "x",
-    "npm": "x"
+    "node": "0.10.35",
+    "npm": "2.1.18"
   },
   "scripts": {
     "test": "make test"
