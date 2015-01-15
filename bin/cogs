@@ -3,5 +3,5 @@
 'use strict';
 
 var Cli = require('../lib/cli');
-
-new Cli();
+var cli = new Cli();
+process.on('SIGTERM', cli.close.bind(cli));
