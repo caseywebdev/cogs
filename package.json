@@ -42,10 +42,6 @@
     "istanbul": "0.3.5",
     "mocha": "2.1.0"
   },
-  "engines": {
-    "node": "0.10.35",
-    "npm": "2.1.18"
-  },
   "scripts": {
     "test": "make test"
   }
