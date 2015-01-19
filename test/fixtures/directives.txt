@@ -1,0 +1,21 @@
+//= require slash-comment
+
+/* multi-line slash comment
+= requireself
+*/
+
+#= depend hash-comment
+
+###
+multi-line hash comment
+= require multi-line-hash-comment
+###
+
+<!--
+= require html-comment
+-->
+
+This is not a comment, and therefore anything below should **not** be a
+directive.
+
+//= require nope

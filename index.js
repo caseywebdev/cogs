@@ -1,3 +1,3 @@
-'use strict';
+var getFile = require('./lib/get-file');
 
-module.exports = require('./lib');
+module.exports = getFile;

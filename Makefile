@@ -1,8 +1,15 @@
 BIN=node_modules/.bin/
 ISTANBUL=$(BIN)istanbul
-MOCHA=$(BIN)_mocha
+MOCHA=$(BIN)mocha
+_MOCHA=$(BIN)_mocha
 
 test:
-	$(ISTANBUL) cover $(MOCHA) -- -R spec
+	$(MOCHA) -R spec -c test/lib/**/*.js
+
+test-w:
+	watchy -w lib,test -- exec make test
+
+cover:
+	$(ISTANBUL) cover $(_MOCHA) -- -R spec -c
 
 .PHONY: test
