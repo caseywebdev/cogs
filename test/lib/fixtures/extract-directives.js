@@ -53,7 +53,7 @@ describe('extractDirectives(file, config, cb)', function () {
   it('prepends links', function () {
     expect(this.afterFile.links).to.deep.equal([[
       'package.json',
-      '2f4ae7201cbf3d398cc44a54dd872aed'
+      getHash(fs.readFileSync('package.json'))
     ]]);
   });
 
