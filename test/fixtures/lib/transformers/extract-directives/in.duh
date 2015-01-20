@@ -1,10 +1,10 @@
-//= require slash-comment
+//= link package.json
 
 /* multi-line slash comment
 = requireself
 */
 
-#= depend hash-comment
+#= link hash-comment
 
 ###
 multi-line hash comment
@@ -12,7 +12,7 @@ multi-line hash comment
 ###
 
 <!--
-= require html-comment
+= require ./deps/**/*
 -->
 
 This is not a comment, and therefore anything below should **not** be a

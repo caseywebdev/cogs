@@ -1,63 +1,19 @@
 cogs('scripts/index.es6', {
-  concatAmd: true,
-  in: {
-    es6: {
-      out: 'js',
-      steps: [
-        '6to5'
-      ]
-      name: '6to5',
-      options: {
-
-      }
-    }],
-
-    scss: 'scss',
-    vert: 'txt',
-    frag: 'txt'
-  },
-  compressors: {
-    js: {
-      name: 'uglify-js',
-      options: {
-        ignore: [
-          'ckeditor'
-        ]
-      }
-    }
-  }
-}, cb);
-
-var CACHE = {};
-
-var cogs = function (file, options, cb) {
-  var abs = path.resolve(file);
-};
-
-var getTargetDir = function (source) {
-
-};
-
-//cogs.json
-{
-  client: {
-
-  },
-  server: {
-
-  }
-}
-
-cogs('scripts/index.es6', {
   manifest: {
-    __COGS_VERSION__: require('./package.json').version,
-    __CONFIG__: '123abc',
+    __VERSION__: require('./package.json').version,
+    __IN__: {},
     'scripts/index.es6': {
-      target: 'public/index.js'
-      hashes: {
+      target: 'public/index.js',
+      hash: '123abc',
+      includes: {
+        'bower_components': '123123'
+      },
+      links: {
 
+      },
+      globs: {
+        'blah/blah/**/*': 'hash'
       }
-
     }
   },
   in: {
@@ -81,3 +37,12 @@ cogs('scripts/index.es6', {
     }
   }
 });
+
+Use cached if
+ - manifest[source] exists
+ - __COGS_VERSION__ matches
+ - __CONFIG__ _.isEqual
+ - target matches
+ - target file exists and matches hash
+ - every dependency hash matches
+ - every glob entry matches

@@ -9,7 +9,7 @@ describe('getTargetDir(filePath, sourceGlob, targetDir)', function () {
   it('works for the simple case', function () {
     expect(
       getTargetDir(
-        path.resolve('lib/file.es6'),
+        'lib/file.es6',
         'lib/file.es6',
         'public/js'
       )
@@ -19,7 +19,7 @@ describe('getTargetDir(filePath, sourceGlob, targetDir)', function () {
   it('works with **/* globs', function () {
     expect(
       getTargetDir(
-        path.resolve('lib/a/b/c/file.es6'),
+        'lib/a/b/c/file.es6',
         'lib/**/*',
         'public/js'
       )
@@ -29,7 +29,7 @@ describe('getTargetDir(filePath, sourceGlob, targetDir)', function () {
   it('works with {} globs', function () {
     expect(
       getTargetDir(
-        path.resolve('lib/a/b/c/file.es6'),
+        'lib/a/b/c/file.es6',
         'lib/{a}/**/*',
         'public/js'
       )

@@ -39,23 +39,23 @@ describe('getTransformers(ext, options)', function () {
 
   it('works with one transformer', function () {
     expect(getTransformers('es6', options)).to.deep.equal([{
-      transformer: require('../../lib/transformers/6to5'),
+      name: '6to5',
       options: {}
     }]);
   });
 
   it('works with chained transformers', function () {
     expect(getTransformers('a', options)).to.deep.equal([{
-      transformer: require('../../lib/transformers/6to5'),
+      name: '6to5',
       options: {}
     }, {
-      transformer: require('../../lib/transformers/6to5'),
+      name: '6to5',
       options: {foo: 'bar'}
     }, {
-      transformer: require('../../lib/transformers/6to5'),
+      name: '6to5',
       options: {buzz: 'baz'}
     }, {
-      transformer: require('../../lib/transformers/concat-amd'),
+      name: 'concat-amd',
       options: {foo: 'bar'}
     }]);
   });

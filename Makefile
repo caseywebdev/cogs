@@ -4,7 +4,7 @@ MOCHA=$(BIN)mocha
 _MOCHA=$(BIN)_mocha
 
 test:
-	$(MOCHA) -R spec -c test/lib/**/*.js
+	$(MOCHA) -R spec -c 'test/lib/**/*.js'
 
 test-w:
 	watchy -w lib,test -- exec make test

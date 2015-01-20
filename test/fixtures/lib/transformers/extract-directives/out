@@ -1,0 +1,21 @@
+
+
+/* multi-line slash comment
+
+*/
+
+
+
+###
+multi-line hash comment
+
+###
+
+<!--
+
+-->
+
+This is not a comment, and therefore anything below should **not** be a
+directive.
+
+//= require nope

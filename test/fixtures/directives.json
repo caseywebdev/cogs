@@ -1,8 +1,0 @@
-[
-  ["require", "slash-comment"],
-  ["requireself"],
-  ["depend", "hash-comment"],
-  ["require", "multi-line-hash-comment"],
-  ["require", "html-comment"],
-  ["requireself"]
-]
