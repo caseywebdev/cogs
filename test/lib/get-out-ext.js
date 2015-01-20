@@ -4,8 +4,8 @@ var getOutExt = require('../../lib/get-out-ext');
 var describe = global.describe;
 var it = global.it;
 
-describe('getOutExt(ext, options)', function () {
-  var options = {
+describe('getOutExt(ext, config)', function () {
+  var config = {
     in: {
       es6: {
         out: 'foo'
@@ -17,18 +17,18 @@ describe('getOutExt(ext, options)', function () {
   };
 
   it('works for files without an extension', function () {
-    expect(getOutExt('', options)).to.equal('');
+    expect(getOutExt('', config)).to.equal('');
   });
 
   it('works for file with one extension through one transform', function () {
-    expect(getOutExt('foo', options)).to.equal('js');
+    expect(getOutExt('foo', config)).to.equal('js');
   });
 
   it('works for file with one through two transforms extension', function () {
-    expect(getOutExt('es6', options)).to.equal('js');
+    expect(getOutExt('es6', config)).to.equal('js');
   });
 
   it('passes untransformed extensions through', function () {
-    expect(getOutExt('png', options)).to.equal('png');
+    expect(getOutExt('png', config)).to.equal('png');
   });
 });

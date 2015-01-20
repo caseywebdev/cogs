@@ -7,7 +7,7 @@ var before = global.before;
 var describe = global.describe;
 var it = global.it;
 
-describe('extractDirectives(file, options, cb)', function () {
+describe('extractDirectives(file, config, cb)', function () {
   var inPath = 'test/fixtures/lib/transformers/extract-directives/in';
   var outPath = 'test/fixtures/lib/transformers/extract-directives/out';
   var inBuffer = fs.readFileSync(inPath);

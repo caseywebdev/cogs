@@ -4,8 +4,8 @@ var getTransformers = require('../../lib/get-transformers');
 var describe = global.describe;
 var it = global.it;
 
-describe('getTransformers(ext, options)', function () {
-  var options = {
+describe('getTransformers(ext, config)', function () {
+  var config = {
     in: {
       es6: {
         transformers: '6to5'
@@ -34,18 +34,18 @@ describe('getTransformers(ext, options)', function () {
   };
 
   it('works with no transformers', function () {
-    expect(getTransformers('png', options)).to.deep.equal([]);
+    expect(getTransformers('png', config)).to.deep.equal([]);
   });
 
   it('works with one transformer', function () {
-    expect(getTransformers('es6', options)).to.deep.equal([{
+    expect(getTransformers('es6', config)).to.deep.equal([{
       name: '6to5',
       options: {}
     }]);
   });
 
   it('works with chained transformers', function () {
-    expect(getTransformers('a', options)).to.deep.equal([{
+    expect(getTransformers('a', config)).to.deep.equal([{
       name: '6to5',
       options: {}
     }, {
