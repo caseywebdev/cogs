@@ -1,0 +1,12 @@
+{
+  "in": {
+    "coffee": {
+      "transformers": {
+        "name": "coffee-script",
+        "options": {
+          "bare": true
+        }
+      }
+    }
+  }
+}

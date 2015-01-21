@@ -2,9 +2,10 @@ BIN=node_modules/.bin/
 ISTANBUL=$(BIN)istanbul
 MOCHA=$(BIN)mocha
 _MOCHA=$(BIN)_mocha
+WATCHY=$(BIN)watchy
 
 test-w:
-	watchy -w lib,test -- exec make test
+	$(WATCHY) -w lib,test -- make test
 
 test:
 	$(MOCHA) -R spec -c 'test/lib/**/*.js'

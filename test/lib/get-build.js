@@ -21,8 +21,7 @@ describe('Integration Tests', function () {
     it(name, function (done) {
       getBuild(fileName, config, function (er, build) {
         if (er) return done(er);
-        expect(build.buffer.toString().trim())
-          .to.equal(expected.toString().trim());
+        expect(build.buffer).to.deep.equal(expected);
         done();
       });
     });

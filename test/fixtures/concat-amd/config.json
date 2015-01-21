@@ -1,0 +1,21 @@
+{
+  "in": {
+    "es6": {
+      "out": "js",
+      "transformers": {
+        "name": "6to5",
+        "options": {
+          "modules": "amd"
+        }
+      }
+    },
+    "js": {
+      "transformers": {
+        "name": "concat-amd",
+        "options": {
+          "base": "test/fixtures/concat-amd"
+        }
+      }
+    }
+  }
+}
