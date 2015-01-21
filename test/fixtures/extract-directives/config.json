@@ -1,0 +1,7 @@
+{
+  "in": {
+    "txt": {
+      "transformers": "extract-directives"
+    }
+  }
+}
