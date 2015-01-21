@@ -1,10 +1,9 @@
-/* test/env-1/scss/a.scss */
+/* test/fixtures/sass/a.scss */
 .box {
   border-radius: red; }
 
 .box {
   border-radius: white; }
-
-/* test/env-1/scss/c.scss */
+/* test/fixtures/sass/c.scss */
 .box {
   border-radius: blue; }

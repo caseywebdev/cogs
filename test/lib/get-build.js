@@ -20,7 +20,7 @@ describe('Integration Tests', function () {
 
     it(name, function (done) {
       getBuild(fileName, config, function (er, build) {
-        if (er) done(er);
+        if (er) return done(er);
         expect(build.buffer.toString().trim())
           .to.equal(expected.toString().trim());
         done();

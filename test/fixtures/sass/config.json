@@ -1,0 +1,13 @@
+{
+  "in": {
+    "scss": {
+      "transformers": ["extract-directives", "sass", {
+        "name": "prepend-path",
+        "options": {
+          "before": "/* ",
+          "after": " */"
+        }
+      }]
+    }
+  }
+}
