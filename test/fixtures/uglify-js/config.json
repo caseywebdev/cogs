@@ -1,0 +1,19 @@
+{
+  "in": {
+    "js": {
+      "transformers": ["extract-directives", {
+        "name": "uglify-js",
+        "options": {
+          "ignore": [
+            "test/fixtures/uglify-js/b.js"
+          ]
+        }
+      }, {
+        "name": "prepend-path",
+        "options": {
+          "before": "// "
+        }
+      }]
+    }
+  }
+}
