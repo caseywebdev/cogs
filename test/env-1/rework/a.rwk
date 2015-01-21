@@ -1,7 +1,0 @@
-:root {
-  --red: #f00;
-}
-
-.box {
-  color: var(--red);
-}

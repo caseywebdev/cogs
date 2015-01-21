@@ -1,5 +1,0 @@
-var Foo = function () {
-  // foo does stuff
-};
-
-return Foo;
