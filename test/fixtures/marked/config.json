@@ -1,0 +1,13 @@
+{
+  "in": {
+    "md": {
+      "transformers": ["marked", {
+        "name": "prepend-path",
+        "options": {
+          "before": "<!-- ",
+          "after": " -->"
+        }
+      }]
+    }
+  }
+}
