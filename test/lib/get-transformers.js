@@ -4,7 +4,7 @@ var getTransformers = require('../../lib/get-transformers');
 var describe = global.describe;
 var it = global.it;
 
-describe('getTransformers(ext, config)', function () {
+describe('getTransformers(filePath, config)', function () {
   var config = {
     in: {
       es6: {
@@ -18,15 +18,17 @@ describe('getTransformers(ext, config)', function () {
         out: 'c',
         transformers: {
           name: '6to5',
+          only: ['only.a'],
           options: {foo: 'bar'}
         }
       },
       c: {
         transformers: [{
           name: '6to5',
-          options: {buzz: 'baz'}
+          options: {buz: 'baz'}
         }, {
           name: 'concat-amd',
+          except: ['except.a'],
           options: {foo: 'bar'}
         }]
       }
@@ -34,29 +36,55 @@ describe('getTransformers(ext, config)', function () {
   };
 
   it('works with no transformers', function () {
-    expect(getTransformers('png', config)).to.deep.equal([]);
+    expect(getTransformers('file.png', config)).to.deep.equal([]);
   });
 
   it('works with one transformer', function () {
-    expect(getTransformers('es6', config)).to.deep.equal([{
+    expect(getTransformers('file.es6', config)).to.deep.equal([{
       name: '6to5',
       options: {}
     }]);
   });
 
   it('works with chained transformers', function () {
-    expect(getTransformers('a', config)).to.deep.equal([{
+    expect(getTransformers('file.a', config)).to.deep.equal([{
       name: '6to5',
       options: {}
     }, {
       name: '6to5',
+      options: {buz: 'baz'}
+    }, {
+      name: 'concat-amd',
+      except: ['except.a'],
+      options: {foo: 'bar'}
+    }]);
+  });
+
+  it('respects `only` arrays', function () {
+    expect(getTransformers('only.a', config)).to.deep.equal([{
+      name: '6to5',
+      options: {}
+    }, {
+      name: '6to5',
+      only: ['only.a'],
       options: {foo: 'bar'}
     }, {
       name: '6to5',
-      options: {buzz: 'baz'}
+      options: {buz: 'baz'}
     }, {
       name: 'concat-amd',
+      except: ['except.a'],
       options: {foo: 'bar'}
+    }]);
+  });
+
+  it('respects `except` arrays', function () {
+    expect(getTransformers('except.a', config)).to.deep.equal([{
+      name: '6to5',
+      options: {}
+    }, {
+      name: '6to5',
+      options: {buz: 'baz'}
     }]);
   });
 });

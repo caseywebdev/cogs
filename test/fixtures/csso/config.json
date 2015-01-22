@@ -3,11 +3,9 @@
     "css": {
       "transformers": ["extract-directives", {
         "name": "csso",
-        "options": {
-          "ignore": [
-            "test/fixtures/csso/b.css"
-          ]
-        }
+        "except": [
+          "test/fixtures/csso/b.css"
+        ]
       }]
     }
   }

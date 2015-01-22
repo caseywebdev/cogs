@@ -3,11 +3,9 @@
     "js": {
       "transformers": ["extract-directives", {
         "name": "uglify-js",
-        "options": {
-          "ignore": [
-            "test/fixtures/uglify-js/b.js"
-          ]
-        }
+        "except": [
+          "test/fixtures/uglify-js/b.js"
+        ]
       }, {
         "name": "prepend-path",
         "options": {
