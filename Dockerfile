@@ -13,8 +13,8 @@ RUN ln -s /usr/local/src/bin/cogs /usr/local/bin/
 COPY . /usr/local/src
 
 # Set default envvars.
-ENV ROOT_DIR /assets
-ENV CONFIG cogs.json
+ENV COGS_DIR /src
+ENV COGS_CONFIG cogs.json
 
 # Run cogs in the given directory with the given config file.
-CMD cd $ROOT_DIR && exec cogs -C $CONFIG
+CMD [ "cogs" ]
