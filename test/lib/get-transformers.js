@@ -28,7 +28,7 @@ describe('getTransformers(filePath, config)', function () {
           options: {buz: 'baz'}
         }, {
           name: 'concat-amd',
-          except: ['except.a'],
+          except: 'except.a',
           options: {foo: 'bar'}
         }]
       }
@@ -55,7 +55,7 @@ describe('getTransformers(filePath, config)', function () {
       options: {buz: 'baz'}
     }, {
       name: 'concat-amd',
-      except: ['except.a'],
+      except: 'except.a',
       options: {foo: 'bar'}
     }]);
   });
@@ -73,7 +73,7 @@ describe('getTransformers(filePath, config)', function () {
       options: {buz: 'baz'}
     }, {
       name: 'concat-amd',
-      except: ['except.a'],
+      except: 'except.a',
       options: {foo: 'bar'}
     }]);
   });
