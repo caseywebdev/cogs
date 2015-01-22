@@ -5,6 +5,7 @@ var config = require('./config');
 var fs = require('fs');
 var glob = require('glob');
 var memoize = require('./memoize');
+var minimatch = require('minimatch');
 var optimist = require('optimist');
 var path = require('path');
 var saveBuild = require('./save-build');
@@ -62,7 +63,27 @@ var closeWatcher = function () {
   watcher = null;
 };
 
-var save = function (__, changedPath) {
+var shouldSave = function (changedPath, filePath) {
+  var build = config.get().manifest[filePath];
+  return !changedPath || !build ||
+    _.chain(build.includes.concat(build.links).concat(build.globs))
+      .map('path')
+      .any(_.partial(minimatch, changedPath))
+      .value();
+};
+
+var save = function (changedPath, filePath, sourceGlob, targets) {
+  if (!shouldSave(changedPath, filePath)) return;
+  alert('info', filePath, 'Building...');
+  var start = Date.now();
+  saveBuild(filePath, sourceGlob, targets, function (er) {
+    if (er) return alert('error', filePath, er);
+    var seconds = (Date.now() - start) / 1000;
+    alert('success', filePath, 'Built in ' + seconds + 's');
+  });
+};
+
+var saveAll = function (__, changedPath) {
   if (changedPath) {
     changedPath = path.relative('.', changedPath);
     memoize.bust(changedPath);
@@ -70,15 +91,7 @@ var save = function (__, changedPath) {
   }
   _.each(config.get().builds, function (targets, sourceGlob) {
     glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      _.each(filePaths, function (filePath) {
-        alert('info', filePath, 'Building...');
-        var start = Date.now();
-        saveBuild(filePath, sourceGlob, targets, function (er) {
-          if (er) return alert('error', filePath, er);
-          var seconds = (Date.now() - start) / 1000;
-          alert('success', filePath, 'Built in ' + seconds + 's');
-        });
-      });
+      _.each(filePaths, _.partial(save, changedPath, _, sourceGlob, targets));
     });
   });
 };
@@ -91,7 +104,7 @@ var initWatcher = function () {
   if (_.isArray(watch)) watch = {paths: watch};
   var options = _.extend(WATCH_DEFAULTS, watch.options);
   var paths = [CONFIG_PATH].concat(_.map(watch.paths, resolve));
-  watcher = chokidar.watch(paths, options).on('all', save);
+  watcher = chokidar.watch(paths, options).on('all', saveAll);
 };
 
 var loadConfig = function () {
@@ -105,7 +118,7 @@ var loadConfig = function () {
     return argvError("Unable to load '" + CONFIG_PATH + "'\n" + er);
   }
   config.get().watch ? initWatcher() : closeWatcher();
-  save();
+  saveAll();
 };
 
 module.exports = function () {
