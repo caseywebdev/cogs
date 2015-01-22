@@ -16,12 +16,13 @@ describe('Integration Tests', function () {
     var dir = path.dirname(configPath);
     var config = require(path.resolve(configPath));
     var fileName = glob.sync(path.join(dir, 'a.*'))[0];
-    var expected = fs.readFileSync(glob.sync(path.join(dir, 'expected.*'))[0]);
+    var expected =
+      fs.readFileSync(glob.sync(path.join(dir, 'expected.*'))[0], 'utf8');
 
     it(name, function (done) {
       getBuild(fileName, config, function (er, build) {
         if (er) return done(er);
-        expect(build.buffer).to.deep.equal(expected);
+        expect(build.source).to.deep.equal(expected);
         done();
       });
     });
