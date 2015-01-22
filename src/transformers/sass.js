@@ -9,8 +9,6 @@ var DEFAULTS = {
   indentedSyntax: false
 };
 
-var getRelative = function (filePath) { return path.relative('.', filePath); };
-
 module.exports = function (file, options, cb) {
   options = _.extend({}, DEFAULTS, options);
   sass.render(_.extend({}, options, {
@@ -18,9 +16,10 @@ module.exports = function (file, options, cb) {
     includePaths: options.includePaths.concat(path.dirname(file.path)),
     success: function (res) {
       var links = _.chain(res.stats.includedFiles)
-        .map(getRelative)
-        .unique()
-        .zip()
+        .map(function (filePath) {
+          return {path: path.relative('.', filePath)};
+        })
+        .unique('path')
         .value();
       async.waterfall([
         _.partial(getDependencyHashes, {links: links}),

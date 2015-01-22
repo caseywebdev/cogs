@@ -39,7 +39,7 @@ var WATCH_DEFAULTS = {
 
 var VERSION = require('../package').version;
 if (process.env.COGS_DIR) process.chdir(process.env.COGS_DIR);
-var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG || 'cogs.json';
+var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG_PATH || 'cogs.json';
 var RESOLVED_CONFIG_PATH = path.resolve(CONFIG_PATH);
 
 var alert = function (type, title, message) {

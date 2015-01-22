@@ -6,16 +6,21 @@ var it = global.it;
 
 describe('pruneDependencies(file)', function () {
   var file = {
-    includes: [['a', 1]],
-    links: [['a', 2], ['b', 1]],
-    globs: [['a', 3], ['b', 2], ['c', 1], ['c', 2]]
+    includes: [{path: 'a', hash: 1}],
+    links: [{path: 'a', hash: 2}, {path: 'b', hash: 1}],
+    globs: [
+      {path: 'a', hash: 3},
+      {path: 'b', hash: 2},
+      {path: 'c', hash: 1},
+      {path: 'c', hash: 2}
+    ]
   };
 
   it('uniques and favors includes, links then globs', function () {
     expect(pruneDependencies(file)).to.deep.equal({
-      includes: [['a', 1]],
-      links: [['b', 1]],
-      globs: [['c', 1]]
+      includes: [{path: 'a', hash: 1}],
+      links: [{path: 'b', hash: 1}],
+      globs: [{path: 'c', hash: 1}]
     });
   });
 });

@@ -3,18 +3,18 @@ var async = require('async');
 var getGlobHash = require('./get-glob-hash');
 var getFileHash = require('./get-file-hash');
 
-var zip = function (paths, cb, er, hashes) {
-  cb(er, _.zip(paths, hashes));
-};
-
-var mapPaths = function (paths, iterator, cb) {
-  async.map(paths, iterator, _.partial(zip, paths, cb));
+var mapPaths = function (paths, getHash, cb) {
+  async.map(paths, function (filePath, cb) {
+    getHash(filePath, function (hash) {
+      cb(null, {path: filePath, hash: hash});
+    });
+  }, cb);
 };
 
 module.exports = function (file, cb) {
   async.parallel({
-    includes: _.partial(mapPaths, _.map(file.includes, 0), getFileHash),
-    links: _.partial(mapPaths, _.map(file.links, 0), getFileHash),
-    globs: _.partial(mapPaths, _.map(file.globs, 0), getGlobHash)
+    includes: _.partial(mapPaths, _.map(file.includes, 'path'), getFileHash),
+    links: _.partial(mapPaths, _.map(file.links, 'path'), getFileHash),
+    globs: _.partial(mapPaths, _.map(file.globs, 'path'), getGlobHash)
   }, cb);
 };

@@ -12,7 +12,7 @@ module.exports = function (filePath, type, cb, visited) {
       var dependencies = file[type];
       if (type === 'links') dependencies = file.includes.concat(dependencies);
       async.map(
-        _.map(dependencies, 0),
+        _.map(dependencies, 'path'),
         _.partial(module.exports, _, type, _, visited),
         cb
       );

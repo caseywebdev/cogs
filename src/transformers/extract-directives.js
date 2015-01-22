@@ -47,14 +47,16 @@ var directiveGlob = function (pattern, file, type, cb) {
   glob(pattern, {nodir: true}, function (er, paths) {
     if (er) return cb(er);
     if (!paths.length) return cb(new Error("No files match '" + pattern + "'"));
-    var obj = {globs: [[pattern]]};
-    obj[type] = _.zip(paths);
+    var obj = {globs: [{path: pattern}]};
+    obj[type] = _.map(paths, function (filePath) { return {path: filePath}; });
     cb(null, obj);
   });
 };
 
 var DIRECTIVES = {
-  requireself: function (__, file, cb) { cb(null, {includes: [[file.path]]}); },
+  requireself: function (__, file, cb) {
+    cb(null, {includes: [{path: file.path}]});
+  },
   require: _.partial(directiveGlob, _, _, 'includes'),
   link: _.partial(directiveGlob, _, _, 'links')
 };

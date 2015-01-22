@@ -60,7 +60,7 @@ var getDependencies = function (defines, options, cb) {
               })
               .value();
             if (!match) return cb(new Error("Cannot find module '" + id + "'"));
-            cb(null, [path.relative('.', match)]);
+            cb(null, {path: path.relative('.', match)});
           }
         ], cb);
       }, cb);
@@ -87,12 +87,13 @@ module.exports = function (file, options, cb) {
     _.partial(getDependencies, getDefines(source), options),
     getDependencyHashes,
     function (hashes, cb) {
-      var i = _.indexOf(file.includes, _.find(file.includes, {0: file.path}));
+      var selfInclude = _.find(file.includes, _.pick(file, 'path'));
+      var selfIndex = _.indexOf(file.includes, selfInclude);
       cb(null, {
         source: source,
-        includes: file.includes.slice(0, i)
+        includes: file.includes.slice(0, selfIndex)
           .concat(hashes.includes)
-          .concat(file.includes.slice(i))
+          .concat(file.includes.slice(selfIndex))
       });
     }
   ], cb);

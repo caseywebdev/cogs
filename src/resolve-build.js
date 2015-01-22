@@ -4,9 +4,7 @@ var getHash = require('./get-hash');
 var pruneDependencies = require('./prune-dependencies');
 var resolveDependencies = require('./resolve-dependencies');
 
-var zipFile = function (file) {
-  return [file.path, file.hash];
-};
+var pick = _.partial(_.pick, _, 'path', 'hash');
 
 module.exports = function (filePath, cb) {
   async.waterfall([
@@ -24,9 +22,9 @@ module.exports = function (filePath, cb) {
         path: filePath,
         source: source,
         hash: getHash(source),
-        includes: _.map(includes, zipFile),
-        links: _.map(links, zipFile),
-        globs: _.flatten(_.map(includes.concat(links), 'globs'), true)
+        includes: _.map(includes, pick),
+        links: _.map(links, pick),
+        globs: _.flatten(_.map(includes.concat(links), 'globs'))
       }));
     }
   ], cb);

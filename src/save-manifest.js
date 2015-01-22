@@ -25,7 +25,7 @@ module.exports = function (cb) {
     _.partial(
       fs.writeFile,
       manifestPath,
-      JSON.stringify(pruneManifest(config.get().manifest), null, 2)
+      JSON.stringify(pruneManifest(config.get().manifest))
     ),
     function () {
       _.each(memoize.caches, function (cache) {

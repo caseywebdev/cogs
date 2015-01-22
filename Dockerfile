@@ -14,7 +14,7 @@ COPY . /usr/local/src
 
 # Set default envvars.
 ENV COGS_DIR /src
-ENV COGS_CONFIG cogs.json
+ENV COGS_CONFIG_PATH cogs.json
 
 # Run cogs in the given directory with the given config file.
 CMD [ "cogs" ]
