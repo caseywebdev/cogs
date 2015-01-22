@@ -1,6 +1,6 @@
-var config = require('../../lib/config');
+var config = require('../../src/config');
 var expect = require('chai').expect;
-var getOutExt = require('../../lib/get-out-ext');
+var getOutExt = require('../../src/get-out-ext');
 
 var before = global.before;
 var describe = global.describe;

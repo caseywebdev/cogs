@@ -8,7 +8,7 @@ test-w:
 	$(WATCHY) -w lib,test -- make test
 
 test:
-	$(MOCHA) -R spec -c 'test/lib/**/*.js'
+	$(MOCHA) -R spec -c 'test/src/**/*.js'
 
 cover:
 	$(ISTANBUL) cover $(_MOCHA) -- -R spec -c

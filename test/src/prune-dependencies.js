@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var pruneDependencies = require('../../lib/prune-dependencies');
+var pruneDependencies = require('../../src/prune-dependencies');
 
 var describe = global.describe;
 var it = global.it;

@@ -1,6 +1,6 @@
-var config = require('../../lib/config');
+var config = require('../../src/config');
 var expect = require('chai').expect;
-var getTargetPath = require('../../lib/get-target-path');
+var getTargetPath = require('../../src/get-target-path');
 
 var before = global.before;
 var describe = global.describe;
@@ -20,8 +20,8 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('works for the simple case', function () {
     expect(
       getTargetPath(
-        {path: 'lib/file.es6'},
-        'lib/file.es6',
+        {path: 'src/file.es6'},
+        'src/file.es6',
         'public/js'
       )
     ).to.equal('public/js/file.js');
@@ -30,7 +30,7 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('works without a sourceGlob', function () {
     expect(
       getTargetPath(
-        {path: 'lib/file.es6'},
+        {path: 'src/file.es6'},
         null,
         {dir: 'public/js'}
       )
@@ -40,8 +40,8 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('works with **/* globs', function () {
     expect(
       getTargetPath(
-        {path: 'lib/a/b/c/file.es6'},
-        'lib/**/*',
+        {path: 'src/a/b/c/file.es6'},
+        'src/**/*',
         'public/js'
       )
     ).to.equal('public/js/a/b/c/file.js');
@@ -50,8 +50,8 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('works with {} globs', function () {
     expect(
       getTargetPath(
-        {path: 'lib/a/b/c/file.es6'},
-        'lib/{a}/**/*',
+        {path: 'src/a/b/c/file.es6'},
+        'src/{a}/**/*',
         'public/js'
       )
     ).to.equal('public/js/a/b/c/file.js');
@@ -60,8 +60,8 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('fingerprints when appropriate', function () {
     expect(
       getTargetPath(
-        {path: 'lib/a/b/c/file.es6', hash: '123abc'},
-        'lib/{a}/**/*',
+        {path: 'src/a/b/c/file.es6', hash: '123abc'},
+        'src/{a}/**/*',
         {dir: 'public/js', fingerprint: true}
       )
     ).to.equal('public/js/a/b/c/file-123abc.js');
@@ -70,8 +70,8 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
   it('fingerprints files without extensions', function () {
     expect(
       getTargetPath(
-        {path: 'lib/a/b/c/Makefile', hash: '123abc'},
-        'lib/{a}/**/*',
+        {path: 'src/a/b/c/Makefile', hash: '123abc'},
+        'src/{a}/**/*',
         {dir: 'public/', fingerprint: true}
       )
     ).to.equal('public/a/b/c/Makefile-123abc');

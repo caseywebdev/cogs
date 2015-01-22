@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var getHash = require('../../lib/get-hash');
+var getHash = require('../../src/get-hash');
 
 var describe = global.describe;
 var it = global.it;

@@ -1,8 +1,8 @@
 var _ = require('underscore');
-var config = require('../../lib/config');
+var config = require('../../src/config');
 var expect = require('chai').expect;
 var glob = require('glob');
-var getBuild = require('../../lib/get-build');
+var getBuild = require('../../src/get-build');
 var path = require('path');
 var fs = require('fs');
 

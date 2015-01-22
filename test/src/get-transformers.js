@@ -1,6 +1,6 @@
-var config = require('../../lib/config');
+var config = require('../../src/config');
 var expect = require('chai').expect;
-var getTransformers = require('../../lib/get-transformers');
+var getTransformers = require('../../src/get-transformers');
 
 var before = global.before;
 var describe = global.describe;
