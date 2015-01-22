@@ -1,6 +1,6 @@
 # Cogs
 
-[![Build Status](https://secure.travis-ci.org/caseywebdev/cogs.png)](http://travis-ci.org/caseywebdev/cogs)
+The fast file transform pipeline. [![Build Status](https://secure.travis-ci.org/caseywebdev/cogs.png)](http://travis-ci.org/caseywebdev/cogs)
 
 > George Jetson's workweek is typical of his era: an hour a day, two days a
 > week. His boss is Cosmo Spacely, the diminutive yet bombastic owner of Spacely

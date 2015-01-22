@@ -14,11 +14,17 @@ var USAGE = [
   'Usage: $0 [options] config-path',
   '',
   'Environment:',
-  "  COGS_CONFIG_PATH  JavaScript or JSON, defaults to 'cogs.json'",
-  '  COGS_DIR          Run in another directory, defaults to current directory'
+  '  COGS_CONFIG_PATH  JS or JSON config file.   [default: "cogs.json"]',
+  '  COGS_DIR          Run in another directory. [default: "."]'
 ].join('\n');
 
 var OPTIONS = {
+  dir: {
+    alias: 'd',
+    type: 'string',
+    desc: 'Run in another directory.',
+    default: '.'
+  },
   'no-color': {
     alias: 'n',
     type: 'boolean',
@@ -45,6 +51,8 @@ var COLORS = {
   error: chalk.red
 };
 
+var watcher;
+
 var alert = function (type, title, message) {
   var isError = type === 'error';
   message = COLORS[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
@@ -55,7 +63,6 @@ var alert = function (type, title, message) {
 var argvError = function (message) {
   optimist.showHelp();
   alert('error', 'Whoops!', message);
-  process.exit(1);
 };
 
 var VERSION = require('../package').version;
@@ -63,10 +70,10 @@ if (ARGV.version) return alert('info', 'Version', VERSION);
 
 if (ARGV.help) return optimist.showHelp();
 
-var COGS_DIR = process.env.COGS_DIR;
-if (COGS_DIR) {
-  try { process.chdir(COGS_DIR); }
-  catch (er) { argvError("Unable to chdir '" + COGS_DIR + "'\n" + er); }
+var COGS_DIR = ARGV.dir || process.env.COGS_DIR || '.';
+try { process.chdir(COGS_DIR); }
+catch (er) {
+  argvError("Unable to change to directory '" + COGS_DIR + "'\n" + er);
 }
 
 var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG_PATH || 'cogs.json';
@@ -107,13 +114,6 @@ var saveAll = function (__, changedPath) {
   });
 };
 
-var watcher;
-
-var WATCH_DEFAULTS = {
-  ignoreInitial: true,
-  persistent: true
-};
-
 var closeWatcher = function () {
   if (!watcher) return;
   watcher.close();
@@ -121,6 +121,11 @@ var closeWatcher = function () {
 };
 
 process.on('SIGTERM', closeWatcher);
+
+var WATCH_DEFAULTS = {
+  ignoreInitial: true,
+  persistent: true
+};
 
 var resolve = function (filePath) { return path.resolve(filePath); };
 
@@ -140,7 +145,9 @@ var loadConfig = function () {
     }
     delete require.cache[RESOLVED_CONFIG_PATH];
     config.set(require(RESOLVED_CONFIG_PATH));
-  } catch (er) { argvError("Unable to load '" + CONFIG_PATH + "'\n" + er); }
+  } catch (er) {
+    return argvError("Unable to load '" + CONFIG_PATH + "'\n" + er);
+  }
   config.get().watch ? initWatcher() : closeWatcher();
   saveAll();
 };
