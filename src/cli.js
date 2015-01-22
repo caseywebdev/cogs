@@ -10,9 +10,20 @@ var optimist = require('optimist');
 var path = require('path');
 var saveBuild = require('./save-build');
 
-var USAGE = "Usage: $0 [options] config-path (defaults to 'cogs.json')";
+var USAGE = [
+  'Usage: $0 [options] config-path',
+  '',
+  'Environment:',
+  "  COGS_CONFIG_PATH  JavaScript or JSON, defaults to 'cogs.json'",
+  '  COGS_DIR          Run in another directory, defaults to current directory'
+].join('\n');
 
 var OPTIONS = {
+  'no-color': {
+    alias: 'n',
+    type: 'boolean',
+    desc: 'Disable colored output.'
+  },
   version: {
     alias: 'v',
     type: 'boolean',
@@ -27,21 +38,12 @@ var OPTIONS = {
 
 var ARGV = optimist.usage(USAGE).options(OPTIONS).argv;
 
+chalk.enabled = !ARGV['no-color'];
 var COLORS = {
   info: chalk.grey,
   success: chalk.green,
   error: chalk.red
 };
-
-var WATCH_DEFAULTS = {
-  ignoreInitial: true,
-  persistent: true
-};
-
-var VERSION = require('../package').version;
-if (process.env.COGS_DIR) process.chdir(process.env.COGS_DIR);
-var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG_PATH || 'cogs.json';
-var RESOLVED_CONFIG_PATH = path.resolve(CONFIG_PATH);
 
 var alert = function (type, title, message) {
   var isError = type === 'error';
@@ -53,15 +55,22 @@ var alert = function (type, title, message) {
 var argvError = function (message) {
   optimist.showHelp();
   alert('error', 'Whoops!', message);
+  process.exit(1);
 };
 
-var watcher;
+var VERSION = require('../package').version;
+if (ARGV.version) return alert('info', 'Version', VERSION);
 
-var closeWatcher = function () {
-  if (!watcher) return;
-  watcher.close();
-  watcher = null;
-};
+if (ARGV.help) return optimist.showHelp();
+
+var COGS_DIR = process.env.COGS_DIR;
+if (COGS_DIR) {
+  try { process.chdir(COGS_DIR); }
+  catch (er) { argvError("Unable to chdir '" + COGS_DIR + "'\n" + er); }
+}
+
+var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG_PATH || 'cogs.json';
+var RESOLVED_CONFIG_PATH = path.resolve(CONFIG_PATH);
 
 var shouldSave = function (changedPath, filePath) {
   var build = config.get().manifest[filePath];
@@ -98,6 +107,21 @@ var saveAll = function (__, changedPath) {
   });
 };
 
+var watcher;
+
+var WATCH_DEFAULTS = {
+  ignoreInitial: true,
+  persistent: true
+};
+
+var closeWatcher = function () {
+  if (!watcher) return;
+  watcher.close();
+  watcher = null;
+};
+
+process.on('SIGTERM', closeWatcher);
+
 var resolve = function (filePath) { return path.resolve(filePath); };
 
 var initWatcher = function () {
@@ -116,16 +140,9 @@ var loadConfig = function () {
     }
     delete require.cache[RESOLVED_CONFIG_PATH];
     config.set(require(RESOLVED_CONFIG_PATH));
-  } catch (er) {
-    return argvError("Unable to load '" + CONFIG_PATH + "'\n" + er);
-  }
+  } catch (er) { argvError("Unable to load '" + CONFIG_PATH + "'\n" + er); }
   config.get().watch ? initWatcher() : closeWatcher();
   saveAll();
 };
 
-module.exports = function () {
-  process.on('SIGTERM', closeWatcher);
-  if (ARGV.version) return alert('info', 'Version', VERSION);
-  if (ARGV.help) return optimist.showHelp();
-  loadConfig();
-};
+loadConfig();

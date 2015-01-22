@@ -20,7 +20,7 @@ var memoize = module.exports = function (fn, inDependent) {
       _.invoke(queue, 'call', null, er, val);
     }));
   };
-  memoized.cache = {};
+  memoized.cache = cache;
   memoized.inDependent = inDependent;
   allMemoized.push(memoized);
   return memoized;
