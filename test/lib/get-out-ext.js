@@ -1,34 +1,38 @@
+var config = require('../../lib/config');
 var expect = require('chai').expect;
 var getOutExt = require('../../lib/get-out-ext');
 
+var before = global.before;
 var describe = global.describe;
 var it = global.it;
 
-describe('getOutExt(ext, config)', function () {
-  var config = {
-    in: {
-      es6: {
-        out: 'foo'
-      },
-      foo: {
-        out: 'js'
+describe('getOutExt(ext)', function () {
+  before(function () {
+    config.set({
+      in: {
+        es6: {
+          out: 'foo'
+        },
+        foo: {
+          out: 'js'
+        }
       }
-    }
-  };
+    });
+  });
 
   it('works for files without an extension', function () {
-    expect(getOutExt('', config)).to.equal('');
+    expect(getOutExt('')).to.equal('');
   });
 
   it('works for file with one extension through one transform', function () {
-    expect(getOutExt('foo', config)).to.equal('js');
+    expect(getOutExt('foo')).to.equal('js');
   });
 
   it('works for file with one through two transforms extension', function () {
-    expect(getOutExt('es6', config)).to.equal('js');
+    expect(getOutExt('es6')).to.equal('js');
   });
 
   it('passes untransformed extensions through', function () {
-    expect(getOutExt('png', config)).to.equal('png');
+    expect(getOutExt('png')).to.equal('png');
   });
 });
