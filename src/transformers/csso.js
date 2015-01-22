@@ -1,6 +1,8 @@
 var csso = require('csso');
 
 module.exports = function (file, options, cb) {
-  try { cb(null, {source: csso.justDoIt(file.source) + '\n'}); }
-  catch (er) { cb(er); }
+  try {
+    var source = csso.justDoIt(file.buffer.toString()) + '\n';
+    cb(null, {buffer: new Buffer(source)});
+  } catch (er) { cb(er); }
 };

@@ -79,7 +79,9 @@ var save = function (changedPath, filePath, sourceGlob, targets) {
   saveBuild(filePath, sourceGlob, targets, function (er) {
     if (er) return alert('error', filePath, er);
     var seconds = (Date.now() - start) / 1000;
-    alert('success', filePath, 'Built in ' + seconds + 's');
+    var savedTo = config.get().manifest[filePath].targetPaths.join('\n  ');
+    var message = '(' + seconds + 's) Built and saved to\n  ' + savedTo;
+    alert('success', filePath, message);
   });
 };
 

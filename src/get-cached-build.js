@@ -10,7 +10,7 @@ module.exports = function (filePath, cb) {
 
   // First check if the necessary build information is in the manifest.
   var build = config.get().manifest[filePath];
-  if (!build || !(build.source || (build.targetPaths && build.hash))) {
+  if (!build || !(build.buffer || (build.targetPaths && build.hash))) {
     return cb(null, null);
   }
 
@@ -18,16 +18,16 @@ module.exports = function (filePath, cb) {
   async.waterfall([
     function (_cb) {
 
-      // If the build has a source, that means it's already been pulled into
+      // If the build has a buffer, that means it's already been pulled into
       // memory, so it's safe to continue.
-      if (build.source) return _cb();
+      if (build.buffer) return _cb();
 
       // Read the targetPaths and ensure a build exists that matches the
       // hash. If not, the manifest is no good.
       async.map(build.targetPaths, function (targetPath, cb) {
-        readFile(targetPath, function (er, source) {
-          if (er || getHash(source) !== build.hash) return cb();
-          build.source = source;
+        readFile(targetPath, function (er, buffer) {
+          if (er || getHash(buffer) !== build.hash) return cb();
+          build.buffer = buffer;
           cb(null, targetPath);
         });
       }, function (er, targetPaths) {

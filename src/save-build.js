@@ -22,13 +22,13 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
       var notSaved = _.difference(targetPaths, build.targetPaths);
       if (!notSaved.length) return cb(null, build);
 
-      // Save the source to each targetPath that's not in `build.targetPaths`.
+      // Save the buffer to each targetPath that's not in `build.targetPaths`.
       async.series([
         function (cb) {
           async.each(notSaved, function (targetPath, cb) {
             async.series([
               _.partial(mkdirp, path.dirname(targetPath)),
-              _.partial(fs.writeFile, targetPath, build.source)
+              _.partial(fs.writeFile, targetPath, build.buffer)
             ], cb);
           }, cb);
         },

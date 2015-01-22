@@ -71,7 +71,7 @@ var getDependencies = function (defines, options, cb) {
 module.exports = function (file, options, cb) {
   options = _.extend({}, DEFAULTS, options);
   var name = getName(file.path, options);
-  var source = file.source;
+  var source = file.buffer.toString();
   var defines = getDefines(source);
 
   // If the source has one named module in it, rename it to what the user
@@ -90,7 +90,7 @@ module.exports = function (file, options, cb) {
       var selfInclude = _.find(file.includes, _.pick(file, 'path'));
       var selfIndex = _.indexOf(file.includes, selfInclude);
       cb(null, {
-        source: source,
+        buffer: new Buffer(source),
         includes: file.includes.slice(0, selfIndex)
           .concat(hashes.includes)
           .concat(file.includes.slice(selfIndex))

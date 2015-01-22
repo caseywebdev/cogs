@@ -12,7 +12,7 @@ var DEFAULTS = {
 module.exports = function (file, options, cb) {
   options = _.extend({}, DEFAULTS, options);
   sass.render(_.extend({}, options, {
-    data: file.source,
+    data: file.buffer.toString(),
     includePaths: options.includePaths.concat(path.dirname(file.path)),
     success: function (res) {
       var links = _.chain(res.stats.includedFiles)
@@ -25,7 +25,7 @@ module.exports = function (file, options, cb) {
         _.partial(getDependencyHashes, {links: links}),
         function (hashes, cb) {
           cb(null, {
-            source: res.css,
+            buffer: new Buffer(res.css),
             links: file.links.concat(hashes.links)
           });
         }

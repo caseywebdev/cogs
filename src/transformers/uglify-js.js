@@ -7,8 +7,8 @@ var DEFAULTS = {
 
 module.exports = function (file, options, cb) {
   try {
-    console.log(file.path);
     options = _.extend({}, DEFAULTS, options);
-    cb(null, {source: uglifyJs.minify(file.source, options).code + '\n'});
+    var source = uglifyJs.minify(file.buffer.toString(), options).code + '\n';
+    cb(null, {buffer: new Buffer(source)});
   } catch (er) { cb(er); }
 };

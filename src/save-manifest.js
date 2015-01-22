@@ -11,7 +11,7 @@ var pruneManifest = function (manifest) {
     if (key === '__VERSION__' || key === '__IN__') {
       manifest[key] = val;
     } else if (val.targetPaths && val.hash) {
-      manifest[key] = _.omit(val, 'source');
+      manifest[key] = _.omit(val, 'buffer');
     }
     return manifest;
   }, {});

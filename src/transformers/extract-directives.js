@@ -69,7 +69,7 @@ var getDependencies = function (directive, file, cb) {
 };
 
 module.exports = function (file, options, cb) {
-  var extracted = extractDirectives(file.source);
+  var extracted = extractDirectives(file.buffer.toString());
   async.waterfall([
     function (cb) {
       async.map(extracted.directives, function (directive, cb) {
@@ -87,7 +87,7 @@ module.exports = function (file, options, cb) {
     },
     function (hashes, cb) {
       return cb(null, {
-        source: extracted.source,
+        buffer: new Buffer(extracted.source),
         includes: hashes.includes.concat(file.includes),
         links: hashes.links.concat(file.links),
         globs: hashes.globs.concat(file.globs)

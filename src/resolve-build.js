@@ -17,11 +17,11 @@ module.exports = function (filePath, cb) {
     function (dependencies, cb) {
       var includes = dependencies.includes;
       var links = dependencies.links;
-      var source = _.map(includes, 'source').join('');
+      var buffer = Buffer.concat(_.map(includes, 'buffer'));
       cb(null, pruneDependencies({
         path: filePath,
-        source: source,
-        hash: getHash(source),
+        buffer: buffer,
+        hash: getHash(buffer),
         includes: _.map(includes, pick),
         links: _.map(links, pick),
         globs: _.flatten(_.map(includes.concat(links), 'globs'))

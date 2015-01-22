@@ -1,6 +1,7 @@
 var coffee = require('coffee-script');
 
 module.exports = function (file, options, cb) {
-  try { cb(null, {source: coffee.compile(file.source, options)}); }
+  var source = coffee.compile(file.buffer.toString(), options);
+  try { cb(null, {buffer: new Buffer(source)}); }
   catch (er) { cb(er); }
 };

@@ -7,7 +7,7 @@ var DEFAULTS = {
 
 module.exports = function (file, options, cb) {
   options = _.extend({}, DEFAULTS, options);
-  cb(null, {
-    source: options.before + file.path + options.after + '\n' + file.source
-  });
+  var source =  options.before + file.path + options.after + '\n' +
+    file.buffer.toString();
+  cb(null, {buffer: new Buffer(source)});
 };

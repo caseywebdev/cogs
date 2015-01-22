@@ -8,11 +8,11 @@ var readFile = require('./read-file');
 module.exports = memoize(function (filePath, cb) {
   async.waterfall([
     _.partial(readFile, filePath),
-    function (source, cb) {
-      var hash = getHash(source);
+    function (buffer, cb) {
+      var hash = getHash(buffer);
       getTransformed({
         path: filePath,
-        source: source,
+        buffer: buffer,
         hash: hash,
         includes: [{path: filePath, hash: hash}],
         links: [],

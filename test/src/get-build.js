@@ -16,14 +16,13 @@ describe('getBuild(filePath, cb)', function () {
     var name = configPath.match(/test\/fixtures\/(.*?)\/config.json/)[1];
     var dir = path.dirname(configPath);
     var fileName = glob.sync(path.join(dir, 'a.*'))[0];
-    var expected =
-      fs.readFileSync(glob.sync(path.join(dir, 'expected.*'))[0], 'utf8');
+    var expected = fs.readFileSync(glob.sync(path.join(dir, 'expected.*'))[0]);
 
     it(name, function (done) {
       config.set(require(path.resolve(configPath)));
       getBuild(fileName, function (er, build) {
         if (er) return done(er);
-        expect(build.source).to.deep.equal(expected);
+        expect(build.buffer).to.deep.equal(expected);
         done();
       });
     });
