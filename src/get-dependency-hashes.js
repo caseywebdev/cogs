@@ -5,9 +5,10 @@ var getFileHash = require('./get-file-hash');
 
 var mapPaths = function (paths, getHash, cb) {
   async.map(paths, function (filePath, cb) {
-    getHash(filePath, function (hash) {
-      cb(null, {path: filePath, hash: hash});
-    });
+    async.waterfall([
+      _.partial(getHash, filePath),
+      function (hash, cb) { cb(null, {path: filePath, hash: hash}); }
+    ], cb);
   }, cb);
 };
 
