@@ -76,4 +76,14 @@ describe('getTargetPath(file, sourceGlob, target)', function () {
       )
     ).to.equal('public/a/b/c/Makefile-123abc');
   });
+
+  it('works with extglob', function () {
+    expect(
+      getTargetPath(
+        {path: 'src/a/b/c/Makefile', hash: '123abc'},
+        'src/+(a)/**/*',
+        {dir: 'public/', fingerprint: true}
+      )
+    ).to.equal('public/a/b/c/Makefile-123abc');
+  });
 });
