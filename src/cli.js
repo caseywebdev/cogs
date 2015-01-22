@@ -22,8 +22,7 @@ var OPTIONS = {
   dir: {
     alias: 'd',
     type: 'string',
-    desc: 'Run in another directory.',
-    default: '.'
+    desc: 'Run in another directory.'
   },
   'no-color': {
     alias: 'n',
