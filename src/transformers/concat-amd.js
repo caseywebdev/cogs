@@ -12,7 +12,7 @@ var DEFAULTS = {
 var ADD_NAME = /(define\s*\(\s*)([^\s'"])/;
 var CHANGE_NAME = /(define\s*\(\s*['"]).*?(['"])/;
 var DEFINE =
-  /define\s*\(\s*(?:['"](.*?)['"]\s*,\s*)?(?:\[([\s\S]*?)\])?\s*[^)]/g;
+  /define\s*\(\s*(?:['"](.*?)['"]\s*,\s*)?(?:\[([\s\S]*?)\])?(?!\s*\))/g;
 
 var getName = function (pathName, options) {
   var ext = getExt(pathName);
