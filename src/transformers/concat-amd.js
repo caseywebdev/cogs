@@ -11,7 +11,8 @@ var DEFAULTS = {
 };
 var ADD_NAME = /(define\s*\(\s*)([^\s'"])/;
 var CHANGE_NAME = /(define\s*\(\s*['"]).*?(['"])/;
-var DEFINE = /define\s*\(\s*(?:['"](.*?)['"]\s*,\s*)?(?:\[([\s\S]*?)\])?/g;
+var DEFINE =
+  /define\s*\(\s*(?:['"](.*?)['"]\s*,\s*)?(?:\[([\s\S]*?)\])?\s*[^)]/g;
 
 var getName = function (pathName, options) {
   var ext = getExt(pathName);
@@ -81,7 +82,7 @@ module.exports = function (file, options, cb) {
   source =
     defines.length === 1 && defines[0][1] ?
     source.replace(CHANGE_NAME, '$1' + name + '$2') :
-    source = source.replace(ADD_NAME, "$1'" + name + "', $2");
+    source.replace(ADD_NAME, "$1'" + name + "', $2");
 
   async.waterfall([
     _.partial(getDependencies, getDefines(source), options),
