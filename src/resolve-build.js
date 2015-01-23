@@ -8,12 +8,7 @@ var pick = _.partial(_.pick, _, 'path', 'hash');
 
 module.exports = function (filePath, cb) {
   async.waterfall([
-    function (cb) {
-      async.parallel({
-        includes: _.partial(resolveDependencies, filePath, 'includes'),
-        links: _.partial(resolveDependencies, filePath, 'links')
-      }, cb);
-    },
+    _.partial(resolveDependencies, filePath),
     function (dependencies, cb) {
       var includes = dependencies.includes;
       var links = dependencies.links;
@@ -24,7 +19,7 @@ module.exports = function (filePath, cb) {
         hash: getHash(buffer),
         includes: _.map(includes, pick),
         links: _.map(links, pick),
-        globs: _.flatten(_.map(includes.concat(links), 'globs'))
+        globs: dependencies.globs
       }));
     }
   ], cb);

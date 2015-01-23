@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.31.3",
+  "version": "0.31.4",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
   "licence": "MIT",
