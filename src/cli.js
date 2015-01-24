@@ -18,8 +18,8 @@ argv
   .usage('[options] [source-glob[:target-dir] ...]')
   .option(
     '-c, --config-path [path]',
-    'load config from [path] [default cogs.json]',
-    'cogs.json'
+    'load config from [path] [default cogs.js]',
+    'cogs.js'
   )
   .option('-d, --dir [path]', 'run in [path] instead of current directory')
   .option('-m, --manifest-path [path]', 'load/save build manifest at [path]')
