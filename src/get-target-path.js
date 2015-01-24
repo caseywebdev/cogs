@@ -3,7 +3,7 @@ var path = require('path');
 var getExt = require('./get-ext');
 var getOutExt = require('./get-out-ext');
 
-var GLOB = /([*{]|[+!]\().*/;
+var GLOB = /([*{]|[?+@!]\().*/;
 var DUMMY = 'dummy';
 
 module.exports = function (file, sourceGlob, target) {
