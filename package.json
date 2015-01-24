@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "0.32.2",
+  "version": "0.32.3",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
   "licence": "MIT",
@@ -12,7 +12,7 @@
     "cogs": "bin/cogs"
   },
   "dependencies": {
-    "6to5": "2.13.5",
+    "6to5": "2.13.7",
     "async": "0.9.0",
     "chalk": "0.5.1",
     "chokidar": "0.12.6",
