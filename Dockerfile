@@ -15,9 +15,5 @@ COPY . /usr/local/src
 # Run the tests.
 RUN make test
 
-# Set default envvars.
-ENV COGS_DIR /src
-ENV COGS_CONFIG_PATH cogs.json
-
-# Run cogs in the given directory with the given config file.
-CMD [ "cogs" ]
+# Treat this container like an executable by using ENTRYPOINT.
+ENTRYPOINT [ "cogs" ]

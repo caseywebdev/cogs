@@ -1,82 +1,67 @@
 var _ = require('underscore');
+var argv = require('commander');
 var chalk = require('chalk');
 var chokidar = require('chokidar');
 var config = require('./config');
 var fs = require('fs');
+var getBuild = require('./get-build');
 var glob = require('glob');
 var memoize = require('./memoize');
 var minimatch = require('minimatch');
-var optimist = require('optimist');
 var path = require('path');
 var saveBuild = require('./save-build');
 
-var USAGE = [
-  'Usage: $0 [options] config-path',
-  '',
-  'Environment:',
-  '  COGS_CONFIG_PATH  JS or JSON config file.   [default: "cogs.json"]',
-  '  COGS_DIR          Run in another directory. [default: "."]'
-].join('\n');
+var split = function (str) { return str.split(','); };
 
-var OPTIONS = {
-  dir: {
-    alias: 'd',
-    type: 'string',
-    desc: 'Run in another directory.'
-  },
-  'no-color': {
-    alias: 'n',
-    type: 'boolean',
-    desc: 'Disable colored output.'
-  },
-  version: {
-    alias: 'v',
-    type: 'boolean',
-    desc: 'Display the version.'
-  },
-  help: {
-    alias: 'h',
-    type: 'boolean',
-    desc: 'Display this help message.'
-  }
-};
+argv
+  .version(require('../package').version)
+  .usage('[options] [source-glob[:target-dir] ...]')
+  .option(
+    '-c, --config-path [path]',
+    'load config from [path] [default cogs.json]',
+    'cogs.json'
+  )
+  .option('-d, --dir [path]', 'run in [path] instead of current directory')
+  .option('-m, --manifest-path [path]', 'load/save build manifest at [path]')
+  .option('-w, --watch-paths [paths]', 'rebuild when [paths] change', split)
+  .option('-p, --use-polling', 'use stat polling instead of fsevents')
+  .option('-s, --silent', 'do not output build information, only errors')
+  .option('-C, --no-color', 'disable colored output')
+  .parse(process.argv);
 
-var ARGV = optimist.usage(USAGE).options(OPTIONS).argv;
+if (argv.args.length) {
+  argv.builds = _.reduce(argv.args, function (builds, str) {
+    var split = str.split(':');
+    builds[split[0]] = split[1];
+    return builds;
+  }, {});
+}
 
-chalk.enabled = !ARGV['no-color'];
-var COLORS = {
-  info: chalk.grey,
-  success: chalk.green,
-  error: chalk.red
-};
+chalk.enabled = argv.color;
+
+var COLORS = {info: chalk.grey, success: chalk.green, error: chalk.red};
 
 var watcher;
 
 var alert = function (type, title, message) {
   var isError = type === 'error';
+  if (!isError && argv.silent) return;
   message = COLORS[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
   console[isError ? 'error' : 'log'](message);
   if (isError && !watcher) process.exit(1);
 };
 
 var argvError = function (message) {
-  optimist.showHelp();
+  process.stderr.write(argv.helpInformation());
   alert('error', 'Whoops!', message);
 };
 
-var VERSION = require('../package').version;
-if (ARGV.version) return alert('info', 'Version', VERSION);
-
-if (ARGV.help) return optimist.showHelp();
-
-var COGS_DIR = ARGV.dir || process.env.COGS_DIR || '.';
-try { process.chdir(COGS_DIR); }
-catch (er) {
-  argvError("Unable to change to directory '" + COGS_DIR + "'\n" + er);
+if (argv.dir) {
+  try { process.chdir(argv.dir); }
+  catch (er) {
+    argvError("Unable to change to directory '" + argv.dir + "'\n" + er);
+  }
 }
-
-var CONFIG_PATH = ARGV._[0] || process.env.COGS_CONFIG_PATH || 'cogs.json';
-var RESOLVED_CONFIG_PATH = path.resolve(CONFIG_PATH);
 
 var shouldSave = function (changedPath, filePath) {
   var build = config.get().manifest[filePath];
@@ -90,12 +75,16 @@ var shouldSave = function (changedPath, filePath) {
 var save = function (changedPath, filePath, sourceGlob, targets) {
   if (!shouldSave(changedPath, filePath)) return;
   alert('info', filePath, 'Building...');
+  var buildFn =
+    targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
   var start = Date.now();
-  saveBuild(filePath, sourceGlob, targets, function (er) {
+  buildFn(filePath, function (er, build) {
     if (er) return alert('error', filePath, er);
     var seconds = (Date.now() - start) / 1000;
-    var savedTo = config.get().manifest[filePath].targetPaths.join('\n  ');
-    var message = '(' + seconds + 's) Built and saved to\n  ' + savedTo;
+    var message = '(' + seconds + 's) Built';
+    if (targets) {
+      message += ' and saved to\n  ' + build.targetPaths.join('\n  ');
+    } else process.stdout.write(build.buffer);
     alert('success', filePath, message);
   });
 };
@@ -104,7 +93,7 @@ var saveAll = function (__, changedPath) {
   if (changedPath) {
     changedPath = path.relative('.', changedPath);
     memoize.bust(changedPath);
-    if (changedPath === CONFIG_PATH) return loadConfig();
+    if (changedPath === argv.configPath) return loadConfig();
   }
   _.each(config.get().builds, function (targets, sourceGlob) {
     glob(sourceGlob, {nodir: true}, function (er, filePaths) {
@@ -133,21 +122,42 @@ var initWatcher = function () {
   var watch = config.get().watch;
   if (_.isArray(watch)) watch = {paths: watch};
   var options = _.extend(WATCH_DEFAULTS, watch.options);
-  var paths = [CONFIG_PATH].concat(_.map(watch.paths, resolve));
+  var paths = [argv.configPath].concat(_.map(watch.paths, resolve));
   watcher = chokidar.watch(paths, options).on('all', saveAll);
 };
 
 var loadConfig = function () {
+  var _config;
+
   try {
-    if (!fs.existsSync(CONFIG_PATH)) {
-      throw new Error("'" + RESOLVED_CONFIG_PATH + "' does not exist");
+    var resolvedConfigPath = path.resolve(argv.configPath);
+    if (!fs.existsSync(argv.configPath)) {
+      throw new Error("'" + resolvedConfigPath + "' does not exist");
     }
-    delete require.cache[RESOLVED_CONFIG_PATH];
-    config.set(require(RESOLVED_CONFIG_PATH));
+    delete require.cache[resolvedConfigPath];
+    _config = require(resolvedConfigPath);
   } catch (er) {
-    return argvError("Unable to load '" + CONFIG_PATH + "'\n" + er);
+    return argvError("Unable to load '" + argv.configPath + "'\n" + er);
   }
+
+  if (argv.manifestPath) _config.manifestPath = argv.manifestPath;
+
+  if (argv.builds) _config.builds = argv.builds;
+
+  if (argv.watchPaths) {
+    if (!_config.watch) _config.watch = {};
+    _config.watch.paths = argv.watchPaths;
+  }
+
+  if (_config.watch && argv.usePolling) {
+    if (!_config.watch.options) _config.watch.options = {};
+    _config.watch.options.usePolling = true;
+  }
+
+  config.set(_config);
+
   config.get().watch ? initWatcher() : closeWatcher();
+
   saveAll();
 };
 
