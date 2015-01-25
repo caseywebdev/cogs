@@ -42,6 +42,7 @@ var extractDirectives = function (source) {
 };
 
 var directiveGlob = function (pattern, file, type, cb) {
+  if (!pattern) return cb(new Error("'" + type + "' requires a glob pattern"));
   var base = pattern[0] === '.' ? path.dirname(file.path) : '';
   pattern = path.relative('.', path.resolve(base, pattern));
   glob(pattern, {nodir: true}, function (er, paths) {

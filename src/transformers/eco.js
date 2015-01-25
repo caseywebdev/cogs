@@ -2,9 +2,14 @@ var _ = require('underscore');
 var eco = require('eco');
 var to5 = require('./6to5');
 
+var DEFAULTS = {
+  modules: 'umd'
+};
+
 module.exports = function (file, options, cb) {
-  try {
-    var source = 'export default ' + eco.precompile(file.buffer.toString());
-    to5(_.extend({}, file, {buffer: new Buffer(source)}), {modules: 'umd'}, cb);
-  } catch (er) { cb(er); }
+  var source = file.buffer.toString();
+  options = _.extend({}, DEFAULTS, options);
+  try { source = 'export default ' + eco.precompile(source); }
+  catch (er) { return cb(new Error(er)); }
+  to5(_.extend({}, file, {buffer: new Buffer(source)}), options, cb);
 };

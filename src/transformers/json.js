@@ -1,9 +1,17 @@
 var _ = require('underscore');
 var to5 = require('./6to5');
 
+var DEFAULTS = {
+  modules: 'umd'
+};
+
 module.exports = function (file, options, cb) {
-  try {
-    var source = 'export default ' + file.buffer.toString();
-    to5(_.extend({}, file, {buffer: new Buffer(source)}), {modules: 'umd'}, cb);
-  } catch (er) { cb(er); }
+  var source = file.buffer.toString();
+
+  // Validate JSON.
+  try { JSON.parse(source); } catch (er) { return cb(er); }
+
+  source = 'export default ' + source;
+  options = _.extend({}, DEFAULTS, options);
+  to5(_.extend({}, file, {buffer: new Buffer(source)}), options, cb);
 };

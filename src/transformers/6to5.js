@@ -2,9 +2,9 @@ var _ = require('underscore');
 var to5 = require('6to5');
 
 module.exports = function (file, options, cb) {
-  try {
-    options = _.extend({filename: file.path}, options);
-    var source = to5.transform(file.buffer.toString(), options).code + '\n';
-    cb(null, {buffer: new Buffer(source)});
-  } catch (er) { cb(er); }
+  var source = file.buffer.toString();
+  options = _.extend({filename: file.path}, options);
+  try { source = to5.transform(source, options).code + '\n'; }
+  catch (er) { return cb(er); }
+  cb(null, {buffer: new Buffer(source)});
 };

@@ -31,8 +31,6 @@ module.exports = function (file, options, cb) {
         }
       ], cb);
     },
-    error: function (er) {
-      cb(new Error('Line ' + er.line + ': ' + er.message));
-    }
+    error: function (er) { cb(_.extend(new Error(), er)); }
   }));
 };

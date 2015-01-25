@@ -6,6 +6,7 @@ var getBuild = require('../../src/get-build');
 var path = require('path');
 var fs = require('fs');
 
+var beforeEach = global.beforeEach;
 var describe = global.describe;
 var it = global.it;
 
@@ -16,14 +17,29 @@ describe('getBuild(filePath, cb)', function () {
     var name = configPath.match(/test\/fixtures\/(.*?)\/config.json/)[1];
     var dir = path.dirname(configPath);
     var fileName = glob.sync(path.join(dir, 'a.*'))[0];
+    var invalidFileNames = glob.sync(path.join(dir, 'invalid.*'));
     var expected = fs.readFileSync(glob.sync(path.join(dir, 'expected.*'))[0]);
 
-    it(name, function (done) {
-      config.set(require(path.resolve(configPath)));
-      getBuild(fileName, function (er, build) {
-        if (er) return done(er);
-        expect(build.buffer).to.deep.equal(expected);
-        done();
+    describe(name, function () {
+      beforeEach(function () {
+        config.set(require(path.resolve(configPath)));
+      });
+
+      it('transforms when valid', function (done) {
+        getBuild(fileName, function (er, build) {
+          if (er) return done(er);
+          expect(build.buffer).to.deep.equal(expected);
+          done();
+        });
+      });
+
+      _.each(invalidFileNames, function (invalidFileName) {
+        it('fails when invalid', function (done) {
+          getBuild(invalidFileName, function (er) {
+            expect(er).to.be.an.instanceOf(Error);
+            done();
+          });
+        });
       });
     });
   });
