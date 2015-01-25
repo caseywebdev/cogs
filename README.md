@@ -20,11 +20,19 @@ Cogs leverages a simple command line interface paired with a powerful
 declarative config file.
 
 ```bash
-Usage: node ./bin/cogs [options] config-path (defaults to 'cogs.json')
+Usage: cogs [options] [source-glob[:target-dir] ...]
 
 Options:
-  --version, -v  Display the version.
-  --help, -h     Display this help message.
+
+  -h, --help                  output usage information
+  -V, --version               output the version number
+  -c, --config-path [path]    load config from [path] [default cogs.js]
+  -d, --dir [path]            run in [path] instead of current directory
+  -m, --manifest-path [path]  load/save build manifest at [path]
+  -w, --watch-paths [paths]   rebuild when [paths] change
+  -p, --use-polling           use stat polling instead of fsevents
+  -s, --silent                do not output build information, only errors
+  -C, --no-color              disable colored output
 ```
 
 ## Test
