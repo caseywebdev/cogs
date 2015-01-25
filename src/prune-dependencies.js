@@ -5,16 +5,16 @@ var reject = function (visited, dependency) {
 };
 
 module.exports = function (file) {
-  var includes, links;
+  var requires, links;
   return _.extend({}, file, {
-    includes: includes = _.unique(file.includes, 'path'),
+    requires: requires = _.unique(file.requires, 'path'),
     links: links = _.reject(
       _.unique(file.links, 'path'),
-      _.partial(reject, includes)
+      _.partial(reject, requires)
     ),
     globs: _.reject(
       _.unique(file.globs, 'path'),
-      _.partial(reject, includes.concat(links))
+      _.partial(reject, requires.concat(links))
     )
   });
 };

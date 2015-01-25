@@ -14,7 +14,7 @@ var mapPaths = function (paths, getHash, cb) {
 
 module.exports = function (file, cb) {
   async.parallel({
-    includes: _.partial(mapPaths, _.map(file.includes, 'path'), getFileHash),
+    requires: _.partial(mapPaths, _.map(file.requires, 'path'), getFileHash),
     links: _.partial(mapPaths, _.map(file.links, 'path'), getFileHash),
     globs: _.partial(mapPaths, _.map(file.globs, 'path'), getGlobHash)
   }, cb);

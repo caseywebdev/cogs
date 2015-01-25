@@ -66,7 +66,7 @@ if (argv.dir) {
 var shouldSave = function (changedPath, filePath) {
   var build = config.get().manifest[filePath];
   return !changedPath || !build ||
-    _.chain(build.includes.concat(build.links).concat(build.globs))
+    _.chain(build.requires.concat(build.links).concat(build.globs))
       .map('path')
       .any(_.partial(minimatch, changedPath))
       .value();

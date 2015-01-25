@@ -14,7 +14,7 @@ module.exports = memoize(function (filePath, cb) {
         path: filePath,
         buffer: buffer,
         hash: hash,
-        includes: [{path: filePath, hash: hash}],
+        requires: [{path: filePath, hash: hash}],
         links: [],
         globs: []
       }, cb);

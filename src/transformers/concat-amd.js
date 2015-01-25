@@ -48,7 +48,7 @@ var getRequiredIds = function (defines) {
 var getDependencies = function (defines, options, cb) {
   var ids = getRequiredIds(defines);
   async.parallel({
-    includes: function (cb) {
+    requires: function (cb) {
       async.map(ids, function (id, cb) {
         var pattern = path.join(options.base, id) + '*';
         async.waterfall([
@@ -88,13 +88,13 @@ module.exports = function (file, options, cb) {
     _.partial(getDependencies, getDefines(source), options),
     getDependencyHashes,
     function (hashes, cb) {
-      var selfInclude = _.find(file.includes, _.pick(file, 'path'));
-      var selfIndex = _.indexOf(file.includes, selfInclude);
+      var selfRequire = _.find(file.requires, _.pick(file, 'path'));
+      var selfIndex = _.indexOf(file.requires, selfRequire);
       cb(null, {
         buffer: new Buffer(source),
-        includes: file.includes.slice(0, selfIndex)
-          .concat(hashes.includes)
-          .concat(file.includes.slice(selfIndex))
+        requires: file.requires.slice(0, selfIndex)
+          .concat(hashes.requires)
+          .concat(file.requires.slice(selfIndex))
       });
     }
   ], cb);

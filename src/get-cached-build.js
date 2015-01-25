@@ -45,7 +45,7 @@ module.exports = function (filePath, cb) {
     // aren't equal, the manifest is no good.
     _.partial(getDependencyHashes, build),
     function (hashes, cb) {
-      var cachedHashes = _.pick(build, 'includes', 'links', 'globs');
+      var cachedHashes = _.pick(build, 'requires', 'links', 'globs');
       if (_.isEqual(hashes, cachedHashes)) return cb(null, build);
       delete config.get().manifest[filePath];
       cb(null, null);

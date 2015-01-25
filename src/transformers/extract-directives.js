@@ -56,9 +56,9 @@ var directiveGlob = function (pattern, file, type, cb) {
 
 var DIRECTIVES = {
   requireself: function (__, file, cb) {
-    cb(null, {includes: [{path: file.path}]});
+    cb(null, {requires: [{path: file.path}]});
   },
-  require: _.partial(directiveGlob, _, _, 'includes'),
+  require: _.partial(directiveGlob, _, _, 'requires'),
   link: _.partial(directiveGlob, _, _, 'links')
 };
 
@@ -80,16 +80,16 @@ module.exports = function (file, options, cb) {
     function (dependencies, cb) {
       getDependencyHashes(_.reduce(dependencies, function (a, b) {
         return {
-          includes: a.includes.concat(b.includes || []),
+          requires: a.requires.concat(b.requires || []),
           links: a.links.concat(b.links || []),
           globs: a.globs.concat(b.globs || []),
         };
-      }, {includes: [], links: [], globs: []}), cb);
+      }, {requires: [], links: [], globs: []}), cb);
     },
     function (hashes, cb) {
       return cb(null, {
         buffer: new Buffer(extracted.source),
-        includes: hashes.includes.concat(file.includes),
+        requires: hashes.requires.concat(file.requires),
         links: hashes.links.concat(file.links),
         globs: hashes.globs.concat(file.globs)
       });
