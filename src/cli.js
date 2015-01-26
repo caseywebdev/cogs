@@ -5,6 +5,7 @@ var chokidar = require('chokidar');
 var config = require('./config');
 var fs = require('fs');
 var getBuild = require('./get-build');
+var getFile = require('./get-file');
 var glob = require('glob');
 var memoize = require('./memoize');
 var minimatch = require('minimatch');
@@ -63,13 +64,16 @@ if (argv.dir) {
   }
 }
 
+var hasMatchingDependency = function (file, changedPath) {
+  return _.chain(file.requires.concat(file.links).concat(file.globs))
+    .map('path')
+    .any(_.partial(minimatch, changedPath))
+    .value();
+};
+
 var shouldSave = function (changedPath, filePath) {
   var build = config.get().manifest[filePath];
-  return !changedPath || !build ||
-    _.chain(build.requires.concat(build.links).concat(build.globs))
-      .map('path')
-      .any(_.partial(minimatch, changedPath))
-      .value();
+  return !changedPath || !build || hasMatchingDependency(build, changedPath);
 };
 
 var save = function (changedPath, filePath, sourceGlob, targets) {
@@ -89,10 +93,17 @@ var save = function (changedPath, filePath, sourceGlob, targets) {
   });
 };
 
+var bust = function (changedPath) {
+  memoize.bust(changedPath);
+  _.each(getFile.cache, function (file, filePath) {
+    if (hasMatchingDependency(file, changedPath)) memoize.bust(filePath);
+  });
+};
+
 var saveAll = function (__, changedPath) {
   if (changedPath) {
     changedPath = path.relative('.', changedPath);
-    memoize.bust(changedPath);
+    bust(changedPath);
     if (changedPath === argv.configPath) return loadConfig();
   }
   _.each(config.get().builds, function (targets, sourceGlob) {
