@@ -3,7 +3,7 @@ var minimatch = require('minimatch');
 
 var allMemoized = [];
 
-var memoize = module.exports = function (fn, inDependent) {
+var memoize = module.exports = function (fn) {
   var cache = {};
   var memoized = function () {
     var key = _.first(arguments);
@@ -21,14 +21,12 @@ var memoize = module.exports = function (fn, inDependent) {
     }));
   };
   memoized.cache = cache;
-  memoized.inDependent = inDependent;
   allMemoized.push(memoized);
   return memoized;
 };
 
-memoize.bust = function (filePath, onlyInDependents) {
-  _.each(allMemoized, function (memoized) {
-    if (!memoized.inDependent && onlyInDependents) return;
+memoize.bust = function (filePath, only) {
+  _.each(only || allMemoized, function (memoized) {
     _.each(memoized.cache, function (__, key) {
       if (minimatch(filePath, key)) delete memoized.cache[key];
     });

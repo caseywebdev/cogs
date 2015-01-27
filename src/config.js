@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var fs = require('fs');
+var getFile = require('./get-file');
 var memoize = require('./memoize');
 var VERSION = require('../package').version;
 
@@ -33,5 +34,5 @@ exports.set = function (newConfig) {
   var oldIn = config.in;
   config = newConfig;
   validate();
-  if (!_.isEqual(oldIn, config.in)) memoize.bust('**/*', true);
+  if (!_.isEqual(oldIn, config.in)) memoize.bust('**/*', [getFile]);
 };

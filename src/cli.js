@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var argv = require('commander');
+var async = require('async');
 var chalk = require('chalk');
 var chokidar = require('chokidar');
 var config = require('./config');
@@ -93,22 +94,29 @@ var save = function (changedPath, filePath, sourceGlob, targets) {
   });
 };
 
-var bust = function (changedPath) {
+var bustGetFile = _.partial(memoize.bust, _, [getFile]);
+
+var bust = function (changedPath, cb) {
+  if (!changedPath) return cb();
   memoize.bust(changedPath);
-  _.each(getFile.cache, function (file, filePath) {
-    if (hasMatchingDependency(file, changedPath)) memoize.bust(filePath);
+  async.filter(_.keys(getFile.cache), function (filePath, cb) {
+    getFile(filePath, function (er, file) {
+      cb(!er && hasMatchingDependency(file, changedPath));
+    });
+  }, function (filePaths) {
+    _.each(filePaths, bustGetFile);
+    cb();
   });
 };
 
 var saveAll = function (__, changedPath) {
-  if (changedPath) {
-    changedPath = path.relative('.', changedPath);
-    bust(changedPath);
+  if (changedPath) changedPath = path.relative('.', changedPath);
+  bust(changedPath, function () {
     if (changedPath === argv.configPath) return loadConfig();
-  }
-  _.each(config.get().builds, function (targets, sourceGlob) {
-    glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      _.each(filePaths, _.partial(save, changedPath, _, sourceGlob, targets));
+    _.each(config.get().builds, function (targets, sourceGlob) {
+      glob(sourceGlob, {nodir: true}, function (er, filePaths) {
+        _.each(filePaths, _.partial(save, changedPath, _, sourceGlob, targets));
+      });
     });
   });
 };

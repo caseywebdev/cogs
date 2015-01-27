@@ -20,4 +20,4 @@ module.exports = memoize(function (filePath, cb) {
       }, cb);
     }
   ], cb);
-}, true);
+});
