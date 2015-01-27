@@ -28,11 +28,7 @@ module.exports = function (cb) {
       JSON.stringify(pruneManifest(config.get().manifest))
     ),
     function () {
-      _.each(memoize.caches, function (cache) {
-        _.each(cache, function (__, key) {
-          if (key === manifestPath) delete cache[key];
-        });
-      });
+      memoize.bust(manifestPath);
       cb();
     }
   ], cb);
