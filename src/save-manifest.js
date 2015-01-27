@@ -4,7 +4,6 @@ var config = require('./config');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
-var memoize = require('./memoize');
 
 var pruneManifest = function (manifest) {
   return _.reduce(manifest, function (manifest, val, key) {
@@ -26,10 +25,6 @@ module.exports = function (cb) {
       fs.writeFile,
       manifestPath,
       JSON.stringify(pruneManifest(config.get().manifest))
-    ),
-    function () {
-      memoize.bust(manifestPath);
-      cb();
-    }
+    )
   ], cb);
 };
