@@ -139,7 +139,6 @@ var resolve = function (filePath) { return path.resolve(filePath); };
 var initWatcher = function () {
   closeWatcher();
   var watch = config.get().watch;
-  if (_.isArray(watch)) watch = {paths: watch};
   var options = _.extend(WATCH_DEFAULTS, watch.options);
   var paths = [argv.configPath].concat(_.map(watch.paths, resolve));
   watcher = chokidar.watch(paths, options).on('all', saveAll);
@@ -162,6 +161,12 @@ var loadConfig = function () {
   if (argv.manifestPath) _config.manifestPath = argv.manifestPath;
 
   if (argv.builds) _config.builds = argv.builds;
+
+  if (_.isString(_config.watch)) _config.watch = [_config.watch];
+  if (_.isArray(_config.watch)) _config.watch = {paths: _config.watch};
+  if (_config.watch && _.isString(_.config.watch.path)) {
+    _.config.watch.paths = [_.config.watch.path];
+  }
 
   if (argv.watchPaths) {
     if (!_config.watch) _config.watch = {};
