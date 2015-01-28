@@ -1,9 +1,7 @@
 define('a', ["exports", "b"], function (exports, _b) {
   "use strict";
 
-  var _interopRequire = function (obj) {
-    return obj && (obj["default"] || obj);
-  };
+  var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
   var b = _interopRequire(_b);
 });
