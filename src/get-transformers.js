@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var config = require('./config');
 var getExt = require('./get-ext');
+var minimatch = require('minimatch');
 
 var getTransformer = function (transformer) {
   if (_.isString(transformer)) transformer = {name: transformer};
@@ -12,8 +13,8 @@ var normalize = function (val) { return _.isString(val) ? [val] : val; };
 var filterOnlyExcept = function (filePath, transformer) {
   var only = normalize(transformer.only);
   var except = normalize(transformer.except);
-  return (!only || _.contains(only, filePath)) &&
-    (!except || !_.contains(except, filePath));
+  var match = _.partial(minimatch, filePath);
+  return (!only || _.any(only, match)) && (!except || !_.any(except, match));
 };
 
 module.exports = function (filePath, ext) {

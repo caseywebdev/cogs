@@ -75,7 +75,22 @@ module.exports = {
       // Define transformers to take this extension from `es6` to `js`. See all
       // of the transformers in the Transformers section.
       transformers: [{
+
+        // This is the name of the transformer.
         name: '6to5',
+
+        // [Optional] Only apply this transformer to files that match this/these
+        // glob(s).
+        only: 'my/only/dir/**/*',
+
+        // [Optional] Exclude files that match this/these glob(s) from this
+        // transformer.
+        except: [
+          'skip/this/one',
+          'and/all/of/these/**/*'
+        ],
+
+        // These are the options to be passed to the transformer.
         options: {
           modules: 'umd'
         }
