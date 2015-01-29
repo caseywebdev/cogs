@@ -31,6 +31,11 @@ module.exports = function (file, options, cb) {
         }
       ], cb);
     },
-    error: function (er) { cb(_.extend(new Error(), er)); }
+    error: function (er) {
+      cb(_.extend(new Error(), er, {
+        message: file.path + ': line ' + er.line + ', column ' + er.column +
+          ', ' + er.message
+      }));
+    }
   }));
 };
