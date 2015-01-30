@@ -27,8 +27,8 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
         function (cb) {
           async.parallel([
             function () {
-              var epoch = Date.now() / 1000;
-              async.each(saved, _.partial(fs.utimes, _, epoch, epoch), cb);
+              var now = Date.now() / 1000;
+              async.each(saved, _.partial(fs.utimes, _, now, now), cb);
             },
             function (cb) {
               async.each(notSaved, function (targetPath, cb) {
