@@ -12,6 +12,7 @@ var memoize = require('./memoize');
 var minimatch = require('minimatch');
 var path = require('path');
 var saveBuild = require('./save-build');
+var saveManifest = require('./save-manifest');
 
 var split = function (str) { return str.split(','); };
 
@@ -72,28 +73,6 @@ var hasMatchingDependency = function (file, changedPath) {
     .value();
 };
 
-var shouldSave = function (changedPath, filePath) {
-  var build = config.get().manifest[filePath];
-  return !changedPath || !build || hasMatchingDependency(build, changedPath);
-};
-
-var save = function (changedPath, filePath, sourceGlob, targets) {
-  if (!shouldSave(changedPath, filePath)) return;
-  alert('info', filePath, 'Building...');
-  var buildFn =
-    targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
-  var start = Date.now();
-  buildFn(filePath, function (er, build) {
-    if (er) return alert('error', filePath, er);
-    var seconds = (Date.now() - start) / 1000;
-    var message = '(' + seconds + 's) Built';
-    if (targets) {
-      message += ' and saved to\n  ' + build.targetPaths.join('\n  ');
-    } else process.stdout.write(build.buffer);
-    alert('success', filePath, message);
-  });
-};
-
 var bustGetFile = _.partial(memoize.bust, _, [getFile]);
 
 var bust = function (changedPath, cb) {
@@ -109,15 +88,66 @@ var bust = function (changedPath, cb) {
   });
 };
 
+var shouldSave = function (changedPath, filePath) {
+  var build = config.get().manifest[filePath];
+  return !changedPath || !build || hasMatchingDependency(build, changedPath);
+};
+
+var updateBuild = function (changedPath, filePath, sourceGlob, targets, cb) {
+  if (!shouldSave(changedPath, filePath)) return cb();
+  alert('info', filePath, 'Building...');
+  var buildFn =
+    targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
+  var start = Date.now();
+  buildFn(filePath, function (er, build) {
+    if (er) {
+      alert('error', filePath, er);
+      return cb(er);
+    }
+    var seconds = (Date.now() - start) / 1000;
+    var message = '(' + seconds + 's) Built';
+    if (targets) {
+      message += ' and saved to\n  ' + build.targetPaths.join('\n  ');
+    } else process.stdout.write(build.buffer);
+    alert('success', filePath, message);
+    cb();
+  });
+};
+
+var saveChanged = function (changedPath, cb) {
+  var builds = config.get().builds;
+  async.each(_.keys(builds), function (sourceGlob, cb) {
+    var targets = builds[sourceGlob];
+    glob(sourceGlob, {nodir: true}, function (er, filePaths) {
+      async.each(
+        filePaths,
+        _.partial(updateBuild, changedPath, _, sourceGlob, targets),
+        cb
+      );
+    });
+  }, cb);
+};
+
+var updateManifest = function (cb) {
+  var manifestPath = config.get().manifestPath;
+  if (!manifestPath) return cb();
+  alert('info', manifestPath, 'Saving manifest...');
+  var start = Date.now();
+  saveManifest(function (er) {
+    if (er) {
+      alert('error', manifestPath, er);
+      return cb(er);
+    }
+    var seconds = (Date.now() - start) / 1000;
+    alert('success', manifestPath, '(' + seconds + 's) Manifest saved');
+  });
+};
+
 var saveAll = function (__, changedPath) {
   if (changedPath) changedPath = path.relative('.', changedPath);
   bust(changedPath, function () {
     if (changedPath === argv.configPath) return loadConfig();
-    _.each(config.get().builds, function (targets, sourceGlob) {
-      glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-        _.each(filePaths, _.partial(save, changedPath, _, sourceGlob, targets));
-      });
-    });
+    async.series([_.partial(saveChanged, changedPath), updateManifest]);
   });
 };
 

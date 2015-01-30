@@ -5,7 +5,6 @@ var getBuild = require('./get-build');
 var getTargetPath = require('./get-target-path');
 var mkdirp = require('mkdirp');
 var path = require('path');
-var saveManifest = require('./save-manifest');
 
 module.exports = function (filePath, sourceGlob, targets, cb) {
   async.waterfall([
@@ -19,24 +18,32 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
       // there's nothing to do.
       var iterator = _.partial(getTargetPath, build, sourceGlob);
       var targetPaths = _.map(targets, iterator);
-      var notSaved = _.difference(targetPaths, build.targetPaths);
-      if (!notSaved.length) return cb(null, build);
+      var saved = build.targetPaths || [];
+      var notSaved = _.difference(targetPaths, saved);
 
-      // Save the buffer to each targetPath that's not in `build.targetPaths`.
+      // Save the buffer to each targetPath that's not saved, and update
+      // atime/mtime for each file that is already saved.
       async.series([
         function (cb) {
-          async.each(notSaved, function (targetPath, cb) {
-            async.series([
-              _.partial(mkdirp, path.dirname(targetPath)),
-              _.partial(fs.writeFile, targetPath, build.buffer)
-            ], cb);
-          }, cb);
+          async.parallel([
+            function () {
+              var epoch = Date.now() / 1000;
+              async.each(saved, _.partial(fs.utimes, _, epoch, epoch), cb);
+            },
+            function (cb) {
+              async.each(notSaved, function (targetPath, cb) {
+                async.series([
+                  _.partial(mkdirp, path.dirname(targetPath)),
+                  _.partial(fs.writeFile, targetPath, build.buffer)
+                ], cb);
+              }, cb);
+            }
+          ], cb);
         },
         function (cb) {
           build.targetPaths = targetPaths;
           cb();
         },
-        saveManifest,
         function () { cb(null, build); }
       ], cb);
     }
