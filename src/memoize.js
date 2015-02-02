@@ -25,10 +25,10 @@ var memoize = module.exports = function (fn) {
   return memoized;
 };
 
-memoize.bust = function (filePath, only) {
+memoize.bust = function (pattern, only) {
   _.each(only || allMemoized, function (memoized) {
-    _.each(memoized.cache, function (__, key) {
-      if (minimatch(filePath, key)) delete memoized.cache[key];
+    _.each(memoized.cache, function (__, filePath) {
+      if (minimatch(filePath, pattern)) delete memoized.cache[filePath];
     });
   });
 };
