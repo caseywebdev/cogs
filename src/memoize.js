@@ -28,7 +28,9 @@ var memoize = module.exports = function (fn) {
 memoize.bust = function (pattern, only) {
   _.each(only || allMemoized, function (memoized) {
     _.each(memoized.cache, function (__, filePath) {
-      if (minimatch(filePath, pattern)) delete memoized.cache[filePath];
+      if (minimatch(filePath, pattern) || minimatch(pattern, filePath)) {
+        delete memoized.cache[filePath];
+      }
     });
   });
 };

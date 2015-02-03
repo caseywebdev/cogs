@@ -44,6 +44,12 @@ describe('memoize.bust(pattern, only)', function () {
     expect(fn.cache.key).to.be.not.ok;
   });
 
+  it('removes a glob key that matches a file pattern', function () {
+    fn.cache['**/*'] = true;
+    memoize.bust('anything');
+    expect(fn.cache['**/*']).to.be.not.ok;
+  });
+
   it('removes keys only from the fns specified', function () {
     fn.cache.key = true;
     fn2.cache.key = true;
