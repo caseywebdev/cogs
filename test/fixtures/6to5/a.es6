@@ -7,6 +7,10 @@ let app = {
 
 $(app.init);
 
-<div />;
+<div>
+  foo
+  bar
+  baz
+</div>;
 
 export default app;

@@ -22,7 +22,11 @@
 
   $(app.init);
 
-  React.createElement("div", null);
+  React.createElement(
+    "div",
+    null,
+    "foo bar baz"
+  );
 
   module.exports = app;
 });
