@@ -8,11 +8,11 @@ module.exports = function (filePath, cb) {
   async.waterfall([
     _.partial(getCachedBuild, filePath),
     function (build, cb) {
-      if (build) return cb(null, build);
+      if (build) return cb(null, build, false);
       async.waterfall([
         _.partial(resolveBuild, filePath),
         function (build, cb) {
-          cb(null, config.get().manifest[filePath] = build);
+          cb(null, config.get().manifest[filePath] = build, true);
         }
       ], cb);
     }

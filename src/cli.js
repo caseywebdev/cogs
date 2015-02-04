@@ -99,33 +99,35 @@ var updateBuild = function (changedPath, filePath, sourceGlob, targets, cb) {
   var buildFn =
     targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
   var start = Date.now();
-  buildFn(filePath, function (er, build) {
+  buildFn(filePath, function (er, build, wasUpdated) {
     if (er) {
       alert('error', filePath, er);
       return cb(er);
     }
     var seconds = (Date.now() - start) / 1000;
-    var message = '(' + seconds + 's) Built';
+    var message = '(' + seconds + 's) ';
+    message += wasUpdated ? 'Built' : 'Unchanged';
     if (targets) {
-      message += ' and saved to\n  ' + build.targetPaths.join('\n  ');
+      message += (wasUpdated ? ' and saved to' : ', touched') + '\n  ' +
+        build.targetPaths.join('\n  ');
     } else process.stdout.write(build.buffer);
     alert('success', filePath, message);
-    cb();
+    cb(null, wasUpdated);
   });
 };
 
 var saveChanged = function (changedPath, cb) {
   var builds = config.get().builds;
-  async.each(_.keys(builds), function (sourceGlob, cb) {
+  async.map(_.keys(builds), function (sourceGlob, cb) {
     var targets = builds[sourceGlob];
     glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      async.each(
+      async.map(
         filePaths,
         _.partial(updateBuild, changedPath, _, sourceGlob, targets),
         cb
       );
     });
-  }, cb);
+  }, function (er, wereUpdated) { cb(er, _.flatten(wereUpdated)); });
 };
 
 var updateManifest = function (cb) {
@@ -147,7 +149,10 @@ var saveAll = function (__, changedPath) {
   if (changedPath) changedPath = path.relative('.', changedPath);
   bust(changedPath, function () {
     if (changedPath === argv.configPath) return loadConfig();
-    async.series([_.partial(saveChanged, changedPath), updateManifest]);
+    async.waterfall([
+      _.partial(saveChanged, changedPath),
+      function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
+    ]);
   });
 };
 

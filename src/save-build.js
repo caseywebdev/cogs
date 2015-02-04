@@ -9,7 +9,7 @@ var path = require('path');
 module.exports = function (filePath, sourceGlob, targets, cb) {
   async.waterfall([
     _.partial(getBuild, filePath),
-    function (build, cb) {
+    function (build, wasUpdated, cb) {
 
       // Normalize targets array.
       if (!_.isArray(targets)) targets = [targets];
@@ -20,10 +20,11 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
       var targetPaths = _.map(targets, iterator);
       var saved = build.targetPaths || [];
       var notSaved = _.difference(targetPaths, saved);
+      wasUpdated = notSaved.length > 0;
 
       // Save the buffer to each targetPath that's not saved, and update
       // atime/mtime for each file that is already saved.
-      async.series([
+      async.waterfall([
         function (cb) {
           async.parallel([
             function (cb) {
@@ -40,11 +41,10 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
             }
           ], cb);
         },
-        function (cb) {
+        function (__, cb) {
           build.targetPaths = targetPaths;
-          cb();
-        },
-        function () { cb(null, build); }
+          cb(null, build, wasUpdated);
+        }
       ], cb);
     }
   ], cb);
