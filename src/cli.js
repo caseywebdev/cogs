@@ -148,7 +148,7 @@ var saveAll = _.debounce(function () {
     _.partial(saveChanged, _changedPaths),
     function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
   ]);
-}, 100);
+}, 500);
 
 
 var handleChangedPath = function (__, changedPath) {
