@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var expect = require('chai').expect;
 var memoize = require('../../src/memoize');
+var minimatch = require('minimatch');
 
 var describe = global.describe;
 var it = global.it;
@@ -25,36 +26,5 @@ describe('memoize(fn)', function () {
       sync = true;
     });
     if (!sync) throw new Error('Call was not synchronous');
-  });
-});
-
-describe('memoize.bust(pattern, only)', function () {
-  var fn = memoize(_.noop);
-  var fn2 = memoize(_.noop);
-
-  it('removes an exact key from the cache', function () {
-    fn.cache.key = true;
-    memoize.bust('key');
-    expect(fn.cache.key).to.be.not.ok;
-  });
-
-  it('removes a glob pattern of keys from the cache', function () {
-    fn.cache.key = true;
-    memoize.bust('**/*');
-    expect(fn.cache.key).to.be.not.ok;
-  });
-
-  it('removes a glob key that matches a file pattern', function () {
-    fn.cache['**/*'] = true;
-    memoize.bust('anything');
-    expect(fn.cache['**/*']).to.be.not.ok;
-  });
-
-  it('removes keys only from the fns specified', function () {
-    fn.cache.key = true;
-    fn2.cache.key = true;
-    memoize.bust('key', [fn2]);
-    expect(fn.cache.key).to.be.ok;
-    expect(fn2.cache.key).to.be.not.ok;
   });
 });

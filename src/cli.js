@@ -67,34 +67,27 @@ if (argv.dir) {
 }
 
 var hasMatchingDependency = function (file, changedPath) {
-  return _.chain(file.requires.concat(file.links).concat(file.globs))
-    .map('path')
-    .any(_.partial(minimatch, changedPath))
-    .value();
+  return (
+
+    // Check exact matches on requires and links first.
+    _.any(file.requires.concat(file.links), {path: changedPath}) ||
+
+    // Check globs with minimatch second (minimatch is slow).
+    _.any(
+      file.globs,
+      _.compose(_.partial(minimatch, changedPath), _.property('path'))
+    )
+  );
 };
 
-var bustGetFile = _.partial(memoize.bust, _, [getFile]);
-
-var bust = function (changedPath, cb) {
-  if (!changedPath) return cb();
-  memoize.bust(changedPath);
-  async.filter(_.keys(getFile.cache), function (filePath, cb) {
-    getFile(filePath, function (er, file) {
-      cb(!er && hasMatchingDependency(file, changedPath));
-    });
-  }, function (filePaths) {
-    _.each(filePaths, bustGetFile);
-    cb();
-  });
-};
-
-var shouldSave = function (changedPath, filePath) {
+var shouldSave = function (changedPaths, filePath) {
   var build = config.get().manifest[filePath];
-  return !changedPath || !build || hasMatchingDependency(build, changedPath);
+  return !changedPaths.length || !build ||
+    _.any(changedPaths, _.partial(hasMatchingDependency, build));
 };
 
-var updateBuild = function (changedPath, filePath, sourceGlob, targets, cb) {
-  if (!shouldSave(changedPath, filePath)) return cb();
+var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
+  if (!shouldSave(changedPaths, filePath)) return cb();
   alert('info', filePath, 'Building...');
   var buildFn =
     targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
@@ -116,14 +109,14 @@ var updateBuild = function (changedPath, filePath, sourceGlob, targets, cb) {
   });
 };
 
-var saveChanged = function (changedPath, cb) {
+var saveChanged = function (changedPaths, cb) {
   var builds = config.get().builds;
   async.map(_.keys(builds), function (sourceGlob, cb) {
     var targets = builds[sourceGlob];
     glob(sourceGlob, {nodir: true}, function (er, filePaths) {
       async.map(
         filePaths,
-        _.partial(updateBuild, changedPath, _, sourceGlob, targets),
+        _.partial(updateBuild, changedPaths, _, sourceGlob, targets),
         cb
       );
     });
@@ -145,15 +138,35 @@ var updateManifest = function (cb) {
   });
 };
 
-var saveAll = function (__, changedPath) {
-  if (changedPath) changedPath = path.relative('.', changedPath);
-  bust(changedPath, function () {
-    if (changedPath === argv.configPath) return loadConfig();
-    async.waterfall([
-      _.partial(saveChanged, changedPath),
-      function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
-    ]);
+var changedPaths = [];
+
+var saveAll = _.debounce(function () {
+  var _changedPaths = changedPaths;
+  changedPaths = [];
+  if (_.contains(_changedPaths, argv.configPath)) return loadConfig();
+  async.waterfall([
+    _.partial(saveChanged, _changedPaths),
+    function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
+  ]);
+}, 100);
+
+
+var handleChangedPath = function (__, changedPath) {
+  changedPath = path.relative('.', changedPath);
+
+  // Remove the changed path from all memoized function caches.
+  _.each(memoize.all, function (memoized) {
+    delete memoized.cache[changedPath];
   });
+
+  // Bust any getFile cached file that has a dependency on this changed path.
+  _.each(
+    _.filter(getFile.cache, _.partial(hasMatchingDependency, _, changedPath)),
+    function (file) { delete getFile.cache[file.path]; }
+  );
+
+  changedPaths.push(changedPath);
+  saveAll();
 };
 
 var closeWatcher = function () {
@@ -176,7 +189,7 @@ var initWatcher = function () {
   var watch = config.get().watch;
   var options = _.extend(WATCH_DEFAULTS, watch.options);
   var paths = [argv.configPath].concat(_.map(watch.paths, resolve));
-  watcher = chokidar.watch(paths, options).on('all', saveAll);
+  watcher = chokidar.watch(paths, options).on('all', handleChangedPath);
 };
 
 var loadConfig = function () {
