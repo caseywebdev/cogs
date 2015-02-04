@@ -30,6 +30,12 @@ argv
   .option('-p, --use-polling', 'use stat polling instead of fsevents')
   .option('-s, --silent', 'do not output build information, only errors')
   .option('-C, --no-color', 'disable colored output')
+  .option(
+    '-D, --debounce [ms]',
+    'debounce changes [ms]ms [default 250]',
+    _.partial(parseInt, _, 10),
+    250
+  )
   .parse(process.argv);
 
 if (argv.args.length) {
@@ -140,7 +146,7 @@ var updateManifest = function (cb) {
 
 var changedPaths = [];
 
-var saveAll = _.debounce(function () {
+var saveAll = function () {
   var _changedPaths = changedPaths;
   changedPaths = [];
   if (_.contains(_changedPaths, argv.configPath)) return loadConfig();
@@ -148,8 +154,9 @@ var saveAll = _.debounce(function () {
     _.partial(saveChanged, _changedPaths),
     function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
   ]);
-}, 500);
+};
 
+var debouncedSaveAll = _.debounce(saveAll, argv.debounce);
 
 var handleChangedPath = function (__, changedPath) {
   changedPath = path.relative('.', changedPath);
@@ -166,7 +173,7 @@ var handleChangedPath = function (__, changedPath) {
   );
 
   changedPaths.push(changedPath);
-  saveAll();
+  debouncedSaveAll();
 };
 
 var closeWatcher = function () {
