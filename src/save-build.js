@@ -26,7 +26,7 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
       async.series([
         function (cb) {
           async.parallel([
-            function () {
+            function (cb) {
               var now = Date.now() / 1000;
               async.each(saved, _.partial(fs.utimes, _, now, now), cb);
             },
