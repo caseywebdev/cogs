@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var getTransformers = require('./get-transformers');
+var path = require('path');
 var pruneDependencies = require('./prune-dependencies');
 
 var updateFile = function (file, updatedFile, cb) {
@@ -9,14 +10,15 @@ var updateFile = function (file, updatedFile, cb) {
 
 var getTransformerFn =  function (transformer) {
   return function (file, cb) {
-    var fn;
-    try {
-      fn = require('./transformers/' + transformer.name);
-    } catch (er) {
-      return cb(new Error('Invalid transformer: "' + transformer.name + '"'));
-    }
+    var name = transformer.name;
+    var resolved;
+    try { resolved = require.resolve(path.resolve(name)); } catch (er) {
+    try { resolved = require.resolve('./transformers/' + name); } catch (er) {
+    try { resolved = require.resolve(name); } catch (er) {
+      return cb(new Error("Cannot find transformer '" + name + "'"));
+    }}}
     async.waterfall([
-      _.partial(fn, file, transformer.options),
+      _.partial(require(resolved), file, transformer.options),
       _.partial(updateFile, file)
     ], cb);
   };
