@@ -1,0 +1,12 @@
+{
+  "in": {
+    "svg": {
+      "transformers": {
+        "name": "imagemin",
+        "options": {
+          "plugin":"svgo"
+        }
+      }
+    }
+  }
+}

@@ -33,6 +33,7 @@ Options:
   -p, --use-polling           use stat polling instead of fsevents
   -s, --silent                do not output build information, only errors
   -C, --no-color              disable colored output
+  -D, --debounce [ms]         debounce changes [ms]ms [default 250]
 ```
 
 ## Config
@@ -207,6 +208,14 @@ Convert text to a JavaScript module with the text as the default export.
 Minify JavaScript.
 
 `options` are passed to [uglify-js](https://github.com/mishoo/UglifyJS2).
+
+### imagemin
+
+Compress gif/jpg/png/svg with [Imagemin](https://github.com/imagemin/imagemin).
+
+`options`
+- `plugin` specify which plugin to use (`svgo`, `pngquant`, etc...)
+- `pluginOptions` specify which options (if any) to pass to the plugin
 
 ## Develop
 
