@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var to5 = require('./6to5');
+var to5 = require('cogs-transformer-6to5');
 
 var DEFAULTS = {
   modules: 'umd'
