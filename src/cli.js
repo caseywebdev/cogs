@@ -219,8 +219,8 @@ var loadConfig = function () {
 
   if (_.isString(_config.watch)) _config.watch = [_config.watch];
   if (_.isArray(_config.watch)) _config.watch = {paths: _config.watch};
-  if (_config.watch && _.isString(_.config.watch.path)) {
-    _.config.watch.paths = [_.config.watch.path];
+  if (_config.watch && _.isString(_config.watch.path)) {
+    _config.watch.paths = [_config.watch.path];
   }
 
   if (argv.watchPaths) {
