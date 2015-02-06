@@ -72,15 +72,11 @@ if (argv.dir) {
   }
 }
 
-var hasMatchingDependency = function (file, changedPath) {
+var buildHasDependency = function (build, changedPath) {
   return (
-
-    // Check exact matches on requires and links first.
-    _.any(file.requires.concat(file.links), {path: changedPath}) ||
-
-    // Check globs with minimatch second (minimatch is slow).
+    _.any(build.requires.concat(build.links), {path: changedPath}) ||
     _.any(
-      file.globs,
+      build.globs,
       _.compose(_.partial(minimatch, changedPath), _.property('path'))
     )
   );
@@ -89,7 +85,7 @@ var hasMatchingDependency = function (file, changedPath) {
 var shouldSave = function (changedPaths, filePath) {
   var build = config.get().manifest[filePath];
   return !changedPaths.length || !build ||
-    _.any(changedPaths, _.partial(hasMatchingDependency, build));
+    _.any(changedPaths, _.partial(buildHasDependency, build));
 };
 
 var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
@@ -158,6 +154,13 @@ var saveAll = function () {
 
 var debouncedSaveAll = _.debounce(saveAll, argv.debounce);
 
+var fileHasDependency = function (file, changedPath) {
+  return (
+    _.contains(file.requires.concat(file.links), changedPath) ||
+    _.any(file.globs, _.partial(minimatch, changedPath))
+  );
+};
+
 var handleChangedPath = function (__, changedPath) {
   changedPath = path.relative('.', changedPath);
 
@@ -168,7 +171,7 @@ var handleChangedPath = function (__, changedPath) {
 
   // Bust any getFile cached file that has a dependency on this changed path.
   _.each(
-    _.filter(getFile.cache, _.partial(hasMatchingDependency, _, changedPath)),
+    _.filter(getFile.cache, _.partial(fileHasDependency, _, changedPath)),
     function (file) { delete getFile.cache[file.path]; }
   );
 
