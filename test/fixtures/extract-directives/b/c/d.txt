@@ -1,2 +1,0 @@
-//= link test/fixtures/extract-directives/a.txt
-foo
