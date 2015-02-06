@@ -5,9 +5,11 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
+var META_KEYS = ['__VERSION__', '__IN__', '__TRANSFORMERS__'];
+
 var pruneManifest = function (manifest) {
   return _.reduce(manifest, function (manifest, val, key) {
-    if (key === '__VERSION__' || key === '__IN__') {
+    if (_.include(META_KEYS, key)) {
       manifest[key] = val;
     } else if (val.targetPaths && val.hash) {
       manifest[key] = _.omit(val, 'buffer');
