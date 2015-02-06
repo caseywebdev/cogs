@@ -117,105 +117,11 @@ module.exports = {
 
 ## Transformers
 
-Don't see a transformer you need? Feel free to open an issue or pull request.
+Transformers are generally node modules that can be downloaded from npm.
+Alternatively, you can create your own transformers for your projects and
+reference them in the transformers array.
 
-### 6to5
-
-Convert ES6 to ES5.
-
-`options` are passed to [6to5](https://github.com/6to5/6to5).
-
-### coffee-script
-
-Convert CoffeeScript to JavaScript.
-
-`options` are passed to
-[coffee-script](https://github.com/jashkenas/coffeescript).
-
-### concat-amd
-
-Pull dependencies from `define` statements.
-
-`options`
-- `base` module names are relative to this path
-
-### csso
-
-Minify css with [csso](https://github.com/css/csso).
-
-### eco
-
-Convert an [Eco](https://github.com/sstephenson/eco) template into JavaScript
-template function.
-
-### extract-directives
-
-Extract `require` and `link` directives from a file's initial comments.
-
-In the following example, the file itself will be proceeded by every file in the
-templates directory.
-
-```js
-//= requireself
-//= require ./templates/**/*
-
-var foo = 'bar';
-```
-
-In this example, the file will be prepended with `normalize.css`.
-
-```css
-/*
-= require bower_components/normalize/normalize.css
-*/
-
-.foo {
-  color: blue;
-}
-```
-
-### json
-
-Convert JSON to a JavaScript module with the JSON as the default export.
-
-### marked
-
-Convert Markdown to HTML.
-
-`options` are passed to [marked](https://github.com/chjj/marked).
-
-### prepend-path
-
-Prepend the file with it's path. This is useful for debugging because the
-original file path remains visible even after concatenation.
-
-`options`
-- `before` the string to be prepended before the file path (i.e. `'// '`)
-- `after` the string to be appended after the file path (i.e. `' */'`)
-
-### sass
-
-Convert Sass to CSS.
-
-`options` are passed to [node-sass](https://github.com/sass/node-sass).
-
-### txt
-
-Convert text to a JavaScript module with the text as the default export.
-
-### uglify-js
-
-Minify JavaScript.
-
-`options` are passed to [uglify-js](https://github.com/mishoo/UglifyJS2).
-
-### imagemin
-
-Compress gif/jpg/png/svg with [Imagemin](https://github.com/imagemin/imagemin).
-
-`options`
-- `plugin` specify which plugin to use (`svgo`, `pngquant`, etc...)
-- `pluginOptions` specify which options (if any) to pass to the plugin
+[Here are some transformers to get you started](https://github.com/search?q=cogs-transformers&type=Repositories)
 
 ## Develop
 
