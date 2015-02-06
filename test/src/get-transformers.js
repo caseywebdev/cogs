@@ -6,6 +6,11 @@ var before = global.before;
 var describe = global.describe;
 var it = global.it;
 
+var to5 = require('cogs-transformer-6to5');
+var to5Version = require('cogs-transformer-6to5/package').version;
+var concatAmd = require('cogs-transformer-concat-amd');
+var concatAmdVersion = require('cogs-transformer-concat-amd/package').version;
+
 describe('getTransformers(filePath, config)', function () {
   before(function () {
     config.set({
@@ -47,8 +52,8 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('file.es6')).to.deep.equal([{
       name: '6to5',
       options: {},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }]);
   });
 
@@ -56,19 +61,19 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('file.a')).to.deep.equal([{
       name: '6to5',
       options: {},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: '6to5',
       options: {buz: 'baz'},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: 'concat-amd',
       except: 'except.*',
       options: {foo: 'bar'},
-      fn: require('cogs-transformer-concat-amd'),
-      version: '1.0.1'
+      fn: concatAmd,
+      version: concatAmdVersion
     }]);
   });
 
@@ -76,25 +81,25 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('only.a')).to.deep.equal([{
       name: '6to5',
       options: {},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: '6to5',
       only: ['only.a'],
       options: {foo: 'bar'},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: '6to5',
       options: {buz: 'baz'},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: 'concat-amd',
       except: 'except.*',
       options: {foo: 'bar'},
-      fn: require('cogs-transformer-concat-amd'),
-      version: '1.0.1'
+      fn: concatAmd,
+      version: concatAmdVersion
     }]);
   });
 
@@ -102,13 +107,13 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('except.a')).to.deep.equal([{
       name: '6to5',
       options: {},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }, {
       name: '6to5',
       options: {buz: 'baz'},
-      fn: require('cogs-transformer-6to5'),
-      version: '1.0.0'
+      fn: to5,
+      version: to5Version
     }]);
   });
 });
