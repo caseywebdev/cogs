@@ -233,7 +233,8 @@ var loadConfig = function () {
     _config.watch.options.usePolling = true;
   }
 
-  config.set(_config);
+  try { config.set(_config); }
+  catch (er) { return alert('error', 'Whoops!', er); }
 
   config.get().watch ? initWatcher() : closeWatcher();
 

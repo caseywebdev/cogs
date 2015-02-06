@@ -5,6 +5,7 @@ var getBuild = require('./get-build');
 var getTargetPath = require('./get-target-path');
 var mkdirp = require('mkdirp');
 var path = require('path');
+var toArray = require('./to-array');
 
 module.exports = function (filePath, sourceGlob, targets, cb) {
   async.waterfall([
@@ -12,7 +13,7 @@ module.exports = function (filePath, sourceGlob, targets, cb) {
     function (build, wasUpdated, cb) {
 
       // Normalize targets array.
-      if (!_.isArray(targets)) targets = [targets];
+      targets = toArray(targets);
 
       // Extract targetPaths. If they match the targetPaths stored on `build`,
       // there's nothing to do.

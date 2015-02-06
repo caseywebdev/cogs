@@ -46,49 +46,69 @@ describe('getTransformers(filePath, config)', function () {
   it('works with one transformer', function () {
     expect(getTransformers('file.es6')).to.deep.equal([{
       name: '6to5',
-      options: {}
+      options: {},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }]);
   });
 
   it('works with chained transformers', function () {
     expect(getTransformers('file.a')).to.deep.equal([{
       name: '6to5',
-      options: {}
+      options: {},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: '6to5',
-      options: {buz: 'baz'}
+      options: {buz: 'baz'},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: 'concat-amd',
       except: 'except.*',
-      options: {foo: 'bar'}
+      options: {foo: 'bar'},
+      fn: require('cogs-transformer-concat-amd'),
+      version: '1.0.1'
     }]);
   });
 
   it('respects `only` arrays', function () {
     expect(getTransformers('only.a')).to.deep.equal([{
       name: '6to5',
-      options: {}
+      options: {},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: '6to5',
       only: ['only.a'],
-      options: {foo: 'bar'}
+      options: {foo: 'bar'},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: '6to5',
-      options: {buz: 'baz'}
+      options: {buz: 'baz'},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: 'concat-amd',
       except: 'except.*',
-      options: {foo: 'bar'}
+      options: {foo: 'bar'},
+      fn: require('cogs-transformer-concat-amd'),
+      version: '1.0.1'
     }]);
   });
 
   it('respects `except` arrays', function () {
     expect(getTransformers('except.a')).to.deep.equal([{
       name: '6to5',
-      options: {}
+      options: {},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }, {
       name: '6to5',
-      options: {buz: 'baz'}
+      options: {buz: 'baz'},
+      fn: require('cogs-transformer-6to5'),
+      version: '1.0.0'
     }]);
   });
 });
