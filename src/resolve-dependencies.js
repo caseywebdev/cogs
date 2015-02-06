@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var getFile = require('./get-file');
+var pruneDependencies = require('./prune-dependencies');
 
 var getFiles = function (filePath, cb, files) {
   if (!files) files = {};
@@ -10,7 +11,7 @@ var getFiles = function (filePath, cb, files) {
     _.partial(getFile, filePath),
     function (file, cb) {
       files[filePath] = file;
-      var filePaths = _.map(file.requires.concat(file.links), 'path');
+      var filePaths = file.requires.concat(file.links);
       async.each(filePaths, _.partial(getFiles, _, _, files), cb);
     }
   ], function (er) {
@@ -26,9 +27,7 @@ var walk = function (filePath, type, files, visited) {
   var file = files[filePath];
   if (visited[filePath]) return file;
   visited[filePath] = true;
-  var filePaths = _.map(file.requires, 'path').concat(
-    type === 'links' ? _.map(file.links, 'path') : []
-  );
+  var filePaths = file.requires.concat(type === 'links' ? file.links : []);
   var graph = _.map(filePaths, _.partial(walk, _, type, files, visited));
   return _.unique(_.flatten(graph));
 };
@@ -40,7 +39,11 @@ module.exports = function (filePath, cb) {
       var requires = walk(filePath, 'requires', files);
       var links = walk(filePath, 'links', files);
       var globs = _.unique(_.flatten(_.map(requires.concat(links), 'globs')));
-      cb(null, {requires: requires, links: links, globs: globs});
+      cb(null, pruneDependencies({
+        requires: requires,
+        links: links,
+        globs: globs
+      }));
     }
   ], cb);
 };

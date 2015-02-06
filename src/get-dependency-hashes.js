@@ -12,10 +12,10 @@ var mapPaths = function (paths, getHash, cb) {
   }, cb);
 };
 
-module.exports = function (file, cb) {
+module.exports = function (build, cb) {
   async.parallel({
-    requires: _.partial(mapPaths, _.map(file.requires, 'path'), getFileHash),
-    links: _.partial(mapPaths, _.map(file.links, 'path'), getFileHash),
-    globs: _.partial(mapPaths, _.map(file.globs, 'path'), getGlobHash)
+    requires: _.partial(mapPaths, _.map(build.requires, 'path'), getFileHash),
+    links: _.partial(mapPaths, _.map(build.links, 'path'), getFileHash),
+    globs: _.partial(mapPaths, _.map(build.globs, 'path'), getGlobHash)
   }, cb);
 };

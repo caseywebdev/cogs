@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
+var getDependencyHashes = require('./get-dependency-hashes');
 var getTransformers = require('./get-transformers');
 var path = require('path');
 var pruneDependencies = require('./prune-dependencies');

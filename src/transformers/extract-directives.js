@@ -1,6 +1,5 @@
 var _ = require('underscore');
 var async = require('async');
-var getDependencyHashes = require('../get-dependency-hashes');
 var glob = require('glob');
 var path = require('path');
 
@@ -48,16 +47,14 @@ var directiveGlob = function (pattern, file, type, cb) {
   glob(pattern, {nodir: true}, function (er, paths) {
     if (er) return cb(er);
     if (!paths.length) return cb(new Error("No files match '" + pattern + "'"));
-    var obj = {globs: [{path: pattern}]};
-    obj[type] = _.map(paths, function (filePath) { return {path: filePath}; });
+    var obj = {globs: [pattern]};
+    obj[type] = paths;
     cb(null, obj);
   });
 };
 
 var DIRECTIVES = {
-  requireself: function (__, file, cb) {
-    cb(null, {requires: [{path: file.path}]});
-  },
+  requireself: function (__, file, cb) { cb(null, {requires: [file.path]}); },
   require: _.partial(directiveGlob, _, _, 'requires'),
   link: _.partial(directiveGlob, _, _, 'links')
 };
@@ -78,20 +75,18 @@ module.exports = function (file, options, cb) {
       }, cb);
     },
     function (dependencies, cb) {
-      getDependencyHashes(_.reduce(dependencies, function (a, b) {
+      dependencies = _.reduce(dependencies, function (a, b) {
         return {
           requires: a.requires.concat(b.requires || []),
           links: a.links.concat(b.links || []),
           globs: a.globs.concat(b.globs || []),
         };
-      }, {requires: [], links: [], globs: []}), cb);
-    },
-    function (hashes, cb) {
+      }, {requires: [], links: [], globs: []});
       return cb(null, {
         buffer: new Buffer(extracted.source),
-        requires: hashes.requires.concat(file.requires),
-        links: hashes.links.concat(file.links),
-        globs: hashes.globs.concat(file.globs)
+        requires: dependencies.requires.concat(file.requires),
+        links: dependencies.links.concat(file.links),
+        globs: dependencies.globs.concat(file.globs)
       });
     }
   ], cb);
