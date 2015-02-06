@@ -1,23 +1,21 @@
 var _ = require('underscore');
+var path = require('path');
 
 module.exports = function (transformer) {
   transformer = _.clone(transformer);
   if (_.isString(transformer)) transformer = {name: transformer};
   if (!transformer.options) transformer.options = {};
   var name = transformer.name;
-  if (!name) console.log(transformer);
   var packageName = 'cogs-transformer-' + name;
-  try {
-    require.resolve(packageName);
-  } catch (er) {
+  var requirePath;
+  try { requirePath = require.resolve(path.resolve(name)); } catch (er) {
+  try { requirePath = require.resolve(packageName); } catch (er) {
     throw new Error(
       "Cannot find transformer '" + name + "'\n" +
       '  Did you forget to `npm install ' + packageName + '`?'
     );
-  }
-  try {
-    transformer.fn = require(packageName);
-  } catch (er) {
+  }}
+  try { transformer.fn = require(requirePath); } catch (er) {
     throw _.extend(er, {
       message: "Failed to load '" + name + "'\n  " + er.message
     });
