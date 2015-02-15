@@ -107,22 +107,22 @@ var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
         build.targetPaths.join('\n  ');
     } else process.stdout.write(build.buffer);
     alert('success', filePath, message);
-    cb(null, wasUpdated);
+    cb();
   });
 };
 
 var saveChanged = function (changedPaths, cb) {
   var builds = config.get().builds;
-  async.map(_.keys(builds), function (sourceGlob, cb) {
+  async.each(_.keys(builds), function (sourceGlob, cb) {
     var targets = builds[sourceGlob];
     glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      async.map(
+      async.each(
         filePaths,
         _.partial(updateBuild, changedPaths, _, sourceGlob, targets),
         cb
       );
     });
-  }, function (er, wereUpdated) { cb(er, _.flatten(wereUpdated)); });
+  }, cb);
 };
 
 var updateManifest = function (cb) {
@@ -146,10 +146,7 @@ var saveAll = function () {
   var _changedPaths = changedPaths;
   changedPaths = [];
   if (_.contains(_changedPaths, argv.configPath)) return loadConfig();
-  async.waterfall([
-    _.partial(saveChanged, _changedPaths),
-    function (wereUpdated, cb) { if (_.any(wereUpdated)) updateManifest(cb); }
-  ]);
+  async.waterfall([_.partial(saveChanged, _changedPaths), updateManifest]);
 };
 
 var debouncedSaveAll = _.debounce(saveAll, argv.debounce);
