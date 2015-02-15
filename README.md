@@ -78,7 +78,7 @@ module.exports = {
       transformers: [{
 
         // This is the name of the transformer.
-        name: '6to5',
+        name: 'babel',
 
         // [Optional] Only apply this transformer to files that match this/these
         // glob(s).
