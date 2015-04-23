@@ -11,8 +11,7 @@ var getFiles = function (filePath, cb, files) {
     _.partial(getFile, filePath),
     function (file, cb) {
       files[filePath] = file;
-      var filePaths = file.requires.concat(file.links);
-      async.each(filePaths, _.partial(getFiles, _, _, files), cb);
+      async.each(file.requires, _.partial(getFiles, _, _, files), cb);
     }
   ], function (er) {
     if (!er) return cb(null, files);
@@ -22,13 +21,12 @@ var getFiles = function (filePath, cb, files) {
   });
 };
 
-var walk = function (filePath, type, files, visited) {
+var walk = function (filePath, files, visited) {
   if (!visited) visited = {};
   var file = files[filePath];
   if (visited[filePath]) return file;
   visited[filePath] = true;
-  var filePaths = file.requires.concat(type === 'links' ? file.links : []);
-  var graph = _.map(filePaths, _.partial(walk, _, type, files, visited));
+  var graph = _.map(file.requires, _.partial(walk, _, files, visited));
   return _.unique(_.flatten(graph));
 };
 
@@ -36,13 +34,11 @@ module.exports = function (filePath, cb) {
   async.waterfall([
     _.partial(getFiles, filePath),
     function (files, cb) {
-      var requires = walk(filePath, 'requires', files);
-      var links = walk(filePath, 'links', files);
-      var globs = _.unique(_.flatten(_.map(requires.concat(links), 'globs')));
+      var requires = walk(filePath, files);
       cb(null, pruneDependencies({
         requires: requires,
-        links: links,
-        globs: globs
+        links: _.flatten(_.map(requires, 'links')),
+        globs: _.flatten(_.map(requires, 'globs'))
       }));
     }
   ], cb);
