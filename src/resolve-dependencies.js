@@ -27,7 +27,7 @@ var walk = function (filePath, files, visited) {
   if (visited[filePath]) return file;
   visited[filePath] = true;
   var graph = _.map(file.requires, _.partial(walk, _, files, visited));
-  return _.unique(_.flatten(graph));
+  return _.unique(_.flatten(graph), 'path');
 };
 
 module.exports = function (filePath, cb) {
@@ -35,11 +35,11 @@ module.exports = function (filePath, cb) {
     _.partial(getFiles, filePath),
     function (files, cb) {
       var requires = walk(filePath, files);
-      cb(null, pruneDependencies({
-        requires: requires,
+      cb(null, _.extend(pruneDependencies({
+        requires: _.map(requires, 'path'),
         links: _.flatten(_.map(requires, 'links')),
         globs: _.flatten(_.map(requires, 'globs'))
-      }));
+      }), {requires: requires}));
     }
   ], cb);
 };
