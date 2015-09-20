@@ -1,13 +1,13 @@
 var _ = require('underscore');
 var argv = require('commander');
 var async = require('async');
-var chalk = require('chalk');
 var chokidar = require('chokidar');
 var config = require('./config');
 var fs = require('fs');
 var getBuild = require('./get-build');
 var getFile = require('./get-file');
 var glob = require('glob');
+var log = require('orgsync-logger');
 var memoize = require('./memoize');
 var minimatch = require('minimatch');
 var path = require('path');
@@ -46,29 +46,26 @@ if (argv.args.length) {
   }, {});
 }
 
-chalk.enabled = argv.color;
-
-var COLORS = {info: chalk.grey, success: chalk.green, error: chalk.red};
+log.config.name = 'cogs';
+log.config.colors = argv.color;
+if (argv.silent) log.config.level = 'error';
 
 var watcher;
 
-var alert = function (type, title, message) {
-  var isError = type === 'error';
-  if (!isError && argv.silent) return;
-  message = COLORS[type]('[cogs] ' + chalk.bold(title) + ' ' + message);
-  console[isError ? 'error' : 'log'](message);
-  if (isError && !watcher) process.exit(1);
+var alert = function (type, message) {
+  log[type](message);
+  if (type === 'error' && !watcher) process.exit(1);
 };
 
 var argvError = function (message) {
   process.stderr.write(argv.helpInformation());
-  alert('error', 'Whoops!', message);
+  alert('error', message);
 };
 
 if (argv.dir) {
   try { process.chdir(argv.dir); }
   catch (er) {
-    argvError("Unable to change to directory '" + argv.dir + "'\n" + er);
+    argvError("Unable to run in directory '" + argv.dir + "'. " + er.message);
   }
 }
 
@@ -90,23 +87,24 @@ var shouldSave = function (changedPaths, filePath) {
 
 var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
   if (!shouldSave(changedPaths, filePath)) return cb();
-  alert('info', filePath, 'Building...');
+  alert('info', 'Building ' + filePath);
   var buildFn =
     targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
   var start = Date.now();
   buildFn(filePath, function (er, build, wasUpdated) {
     if (er) {
-      alert('error', filePath, er);
+      alert('error', filePath + ' ' + er.message);
       return cb(er);
     }
-    var seconds = (Date.now() - start) / 1000;
-    var message = '(' + seconds + 's) ';
-    message += wasUpdated ? 'Built' : 'Unchanged';
+    var ms = Date.now() - start;
+    var message = wasUpdated ? 'Built ' + filePath : filePath + ' is unchanged';
     if (targets) {
-      message += (wasUpdated ? ' and saved to' : ', touched') + '\n  ' +
-        build.targetPaths.join('\n  ');
-    } else process.stdout.write(build.buffer);
-    alert('success', filePath, message);
+      message += (wasUpdated ? ' and saved to ' : ', touched ') +
+        build.targetPaths.join(', ');
+    }
+    message += ' in ' + ms + 'ms';
+    if (!targets) process.stdout.write(build.buffer);
+    alert('success', message);
     cb();
   });
 };
@@ -128,15 +126,15 @@ var saveChanged = function (changedPaths, cb) {
 var updateManifest = function (cb) {
   var manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb();
-  alert('info', manifestPath, 'Saving manifest...');
+  alert('info', 'Saving ' + manifestPath);
   var start = Date.now();
   saveManifest(function (er) {
     if (er) {
-      alert('error', manifestPath, er);
+      alert('error', 'Error saving ' + manifestPath + '. ' + er.message);
       return cb(er);
     }
-    var seconds = (Date.now() - start) / 1000;
-    alert('success', manifestPath, '(' + seconds + 's) Manifest saved');
+    var ms = Date.now() - start;
+    alert('success', manifestPath + ' saved in ' + ms + 'ms');
   });
 };
 
@@ -210,7 +208,7 @@ var loadConfig = function () {
     delete require.cache[resolvedConfigPath];
     _config = require(resolvedConfigPath);
   } catch (er) {
-    return argvError("Unable to load '" + argv.configPath + "'\n" + er);
+    return argvError("Unable to load '" + argv.configPath + "'. " + er.message);
   }
 
   if (argv.manifestPath) _config.manifestPath = argv.manifestPath;
@@ -234,9 +232,9 @@ var loadConfig = function () {
   }
 
   try { config.set(_config); }
-  catch (er) { return alert('error', 'Whoops!', er); }
+  catch (er) { return alert('error', er.message); }
 
-  config.get().watch ? initWatcher() : closeWatcher();
+  if (config.get().watch) initWatcher(); else closeWatcher();
 
   saveAll();
 };
