@@ -12,13 +12,13 @@
     "cogs": "bin/cogs"
   },
   "dependencies": {
-    "async": "1.5.0",
-    "chokidar": "1.4.0",
+    "async": "1.5.1",
+    "chokidar": "1.4.2",
     "commander": "2.9.0",
-    "glob": "6.0.1",
+    "glob": "6.0.3",
     "minimatch": "3.0.0",
     "mkdirp": "0.5.1",
-    "orgsync-logger": "1.2.6",
+    "orgsync-logger": "1.2.8",
     "underscore": "1.8.3"
   },
   "devDependencies": {
