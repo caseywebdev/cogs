@@ -14,33 +14,34 @@ var barVersion = require('../transformers/bar/package').version;
 describe('getTransformers(filePath, config)', function () {
   before(function () {
     config.set({
-      in: {
-        es6: {
-          transformers: './test/transformers/foo'
+      pipe: [
+        {
+          name: './test/transformers/foo',
+          only: '**/*.es6'
         },
-        a: {
-          out: 'b',
-          transformers: ['./test/transformers/foo']
+        {
+          name: './test/transformers/foo',
+          only: ['only.a'],
+          ext: '.c',
+          options: {foo: 'bar'}
         },
-        b: {
-          out: 'c',
-          transformers: {
-            name: './test/transformers/foo',
-            only: ['only.a'],
-            options: {foo: 'bar'}
-          }
+        {
+          name: './test/transformers/foo',
+          only: '**/*.a',
+          ext: '.b'
         },
-        c: {
-          transformers: [{
-            name: './test/transformers/foo',
-            options: {buz: 'baz'}
-          }, {
-            name: './test/transformers/bar',
-            except: 'except.*',
-            options: {foo: 'bar'}
-          }]
+        {
+          name: './test/transformers/foo',
+          only: '**/*.c',
+          options: {buz: 'baz'}
+        },
+        {
+          name: './test/transformers/bar',
+          only: '**/*.c',
+          except: 'except.*',
+          options: {foo: 'bar'}
         }
-      }
+      ]
     });
   });
 
@@ -51,6 +52,7 @@ describe('getTransformers(filePath, config)', function () {
   it('works with one transformer', function () {
     expect(getTransformers('file.es6')).to.deep.equal([{
       name: './test/transformers/foo',
+      only: '**/*.es6',
       options: {},
       fn: foo,
       version: fooVersion
@@ -60,42 +62,31 @@ describe('getTransformers(filePath, config)', function () {
   it('works with chained transformers', function () {
     expect(getTransformers('file.a')).to.deep.equal([{
       name: './test/transformers/foo',
+      only: '**/*.a',
+      ext: '.b',
       options: {},
       fn: foo,
       version: fooVersion
-    }, {
-      name: './test/transformers/foo',
-      options: {buz: 'baz'},
-      fn: foo,
-      version: fooVersion
-    }, {
-      name: './test/transformers/bar',
-      except: 'except.*',
-      options: {foo: 'bar'},
-      fn: bar,
-      version: barVersion
     }]);
   });
 
   it('respects `only` arrays', function () {
-    expect(getTransformers('only.a')).to.deep.equal([{
+    expect(getTransformers('file.a')).to.deep.equal([{
       name: './test/transformers/foo',
+      only: ['only.a'],
+      ext: '.c',
       options: {},
       fn: foo,
       version: fooVersion
     }, {
       name: './test/transformers/foo',
-      only: ['only.a'],
-      options: {foo: 'bar'},
-      fn: foo,
-      version: fooVersion
-    }, {
-      name: './test/transformers/foo',
+      only: '**/*.c',
       options: {buz: 'baz'},
       fn: foo,
       version: fooVersion
     }, {
       name: './test/transformers/bar',
+      only: '**/*.c',
       except: 'except.*',
       options: {foo: 'bar'},
       fn: bar,

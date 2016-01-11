@@ -9,11 +9,12 @@ var it = global.it;
 describe('getTargetPath(file, sourceGlob, target)', function () {
   before(function () {
     config.set({
-      in: {
-        es6: {
-          out: 'js'
+      pipe: [
+        {
+          only: '**/*.es6',
+          ext: '.js'
         }
-      }
+      ]
     });
   });
 

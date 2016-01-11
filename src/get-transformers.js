@@ -1,24 +1,20 @@
-var _ = require('underscore');
-var config = require('./config');
-var getExt = require('./get-ext');
-var getTransformer = require('./get-transformer');
-var minimatch = require('minimatch');
-var toArray = require('./to-array');
+const _ = require('underscore');
+const config = require('./config');
+const minimatch = require('minimatch');
+const setExt = require('./set-ext');
+const toArray = require('./to-array');
 
-var filterOnlyExcept = function (filePath, transformer) {
-  var only = toArray(transformer.only);
-  var except = toArray(transformer.except);
-  var match = _.partial(minimatch, filePath);
+const doesMatch = (filePath, transformer) => {
+  const only = toArray(transformer.only);
+  const except = toArray(transformer.except);
+  const match = _.partial(minimatch, filePath);
   return (!only.length || _.any(only, match)) &&
     (!except.length || !_.any(except, match));
 };
 
-module.exports = function (filePath, ext) {
-  if (ext == null) ext = getExt(filePath);
-  var info = config.get().in[ext] || {};
-  var transformers = toArray(info.transformers);
-  var extChange = info.out && ext !== info.out;
-  var filter = _.partial(filterOnlyExcept, filePath);
-  return _.filter(_.map(transformers, getTransformer), filter)
-    .concat(extChange ? module.exports(filePath, info.out) : []);
-};
+module.exports = filePath =>
+  _.filter(config.get().pipe, transformer => {
+    if (!doesMatch(filePath, transformer)) return false;
+    filePath = setExt(filePath, transformer.ext);
+    return true;
+  });

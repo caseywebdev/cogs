@@ -1,18 +1,19 @@
+'use strict';
+
 var _ = require('underscore');
 var path = require('path');
-var getExt = require('./get-ext');
-var getOutExt = require('./get-out-ext');
+var getTransformedPath = require('./get-transformed-path');
+const setExt = require('./set-ext');
 
 var GLOB = /([*{]|[?+@!]\().*/;
 var DUMMY = 'dummy';
 
 module.exports = function (file, sourceGlob, target) {
   if (_.isString(target)) target = {dir: target};
-  var ext = getExt(file.path);
-  var filePath =
-    (ext ? file.path.slice(0, -ext.length - 1) : file.path) +
-    (target.fingerprint ? '-' + file.hash : '') +
-    (ext ? '.' + getOutExt(ext) : '');
+  let filePath = getTransformedPath(file.path);
+  if (target.fingerprint) {
+    filePath = setExt(filePath, `-${file.hash}${path.extname(filePath)}`);
+  }
   return path.join(
     target.dir,
     path.relative(
