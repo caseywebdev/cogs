@@ -28,6 +28,7 @@ describe('getTransformers(filePath, config)', function () {
         {
           name: './test/transformers/foo',
           only: '**/*.a',
+          except: ['except.a'],
           ext: '.b'
         },
         {
@@ -63,6 +64,7 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('file.a')).to.deep.equal([{
       name: './test/transformers/foo',
       only: '**/*.a',
+      except: ['except.a'],
       ext: '.b',
       options: {},
       fn: foo,
@@ -71,11 +73,11 @@ describe('getTransformers(filePath, config)', function () {
   });
 
   it('respects `only` arrays', function () {
-    expect(getTransformers('file.a')).to.deep.equal([{
+    expect(getTransformers('only.a')).to.deep.equal([{
       name: './test/transformers/foo',
       only: ['only.a'],
       ext: '.c',
-      options: {},
+      options: {foo: 'bar'},
       fn: foo,
       version: fooVersion
     }, {
@@ -95,16 +97,6 @@ describe('getTransformers(filePath, config)', function () {
   });
 
   it('respects `except` arrays', function () {
-    expect(getTransformers('except.a')).to.deep.equal([{
-      name: './test/transformers/foo',
-      options: {},
-      fn: foo,
-      version: fooVersion
-    }, {
-      name: './test/transformers/foo',
-      options: {buz: 'baz'},
-      fn: foo,
-      version: fooVersion
-    }]);
+    expect(getTransformers('except.a')).to.deep.equal([]);
   });
 });
