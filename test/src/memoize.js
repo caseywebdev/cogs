@@ -1,7 +1,6 @@
 var _ = require('underscore');
 var expect = require('chai').expect;
 var memoize = require('../../src/memoize');
-var minimatch = require('minimatch');
 
 var describe = global.describe;
 var it = global.it;
