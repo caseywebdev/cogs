@@ -9,7 +9,7 @@ var validate = function (config) {
   config = _.clone(config) || {};
   if (!config.pipe) config.pipe = [];
   config.pipe = _.map(config.pipe, getTransformer);
-  var __PIPE__ = JSON.stringify(config.pipe);
+  var __PIPE__ = JSON.parse(JSON.stringify(config.pipe));
 
   if (!config.manifest && config.manifestPath) {
     try {
@@ -20,7 +20,7 @@ var validate = function (config) {
 
   if (!config.manifest ||
       config.manifest.__VERSION__ !== __VERSION__ ||
-      config.manifest.__PIPE__ !== __PIPE__) {
+      !_.isEqual(config.manifest.__PIPE__, __PIPE__)) {
     config.manifest = {__VERSION__, __PIPE__};
     getFile.cache = {};
   }
