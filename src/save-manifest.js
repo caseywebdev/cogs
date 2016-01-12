@@ -5,7 +5,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
-var META_KEYS = ['__VERSION__', '__IN__', '__TRANSFORMERS__'];
+var META_KEYS = ['__VERSION__', '__PIPE__'];
 
 var pruneManifest = function (manifest) {
   return _.reduce(manifest, function (manifest, val, key) {
