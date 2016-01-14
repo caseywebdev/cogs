@@ -1,7 +1,6 @@
 const _ = require('underscore');
 const config = require('./config');
 const minimatch = require('minimatch');
-const setExt = require('./set-ext');
 const toArray = require('./to-array');
 
 const doesMatch = (filePath, transformer) => {
@@ -13,8 +12,4 @@ const doesMatch = (filePath, transformer) => {
 };
 
 module.exports = filePath =>
-  _.filter(config.get().pipe, transformer => {
-    if (!doesMatch(filePath, transformer)) return false;
-    filePath = setExt(filePath, transformer.ext);
-    return true;
-  });
+  _.filter(config.get().pipe, _.partial(doesMatch, filePath));

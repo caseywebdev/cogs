@@ -107,10 +107,14 @@ module.exports = {
   // Define source globs and targets here. This is where you define what to
   // transform and where it should go.
   builds: {
-    'src/index.es6': 'public',
+    'src/index.es6': 'public/index.js',
+
+    'src/public/**/*': {dir: 'public'},
 
     // Use the fingerprint: true option to fingerprint saved files.
-    'styles/**/*': {dir: 'public', fingerprint: true}
+    'styles/**/*': (file, sourceGlob) => {
+      return 'public/foo/bar/' + file.path;
+    }
   }
 };
 ```

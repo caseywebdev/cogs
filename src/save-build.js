@@ -1,48 +1,51 @@
-var _ = require('underscore');
-var async = require('async');
-var fs = require('fs');
-var getBuild = require('./get-build');
-var getTargetPath = require('./get-target-path');
-var mkdirp = require('mkdirp');
-var path = require('path');
-var toArray = require('./to-array');
+const _ = require('underscore');
+const async = require('async');
+const fs = require('fs');
+const getBuild = require('./get-build');
+const getTargetPaths = require('./get-target-path');
+const mkdirp = require('mkdirp');
+const path = require('path');
+const toArray = require('./to-array');
 
-module.exports = function (filePath, sourceGlob, targets, cb) {
+module.exports = (filePath, sourceGlob, targets, cb) => {
   async.waterfall([
     _.partial(getBuild, filePath),
-    function (build, wasUpdated, cb) {
-
-      // Normalize targets array.
-      targets = toArray(targets);
+    (build, __, cb) => {
 
       // Extract targetPaths. If they match the targetPaths stored on `build`,
       // there's nothing to do.
-      var iterator = _.partial(getTargetPath, build, sourceGlob);
-      var targetPaths = _.map(targets, iterator);
-      var saved = build.targetPaths || [];
-      var notSaved = _.difference(targetPaths, saved);
-      wasUpdated = notSaved.length > 0;
+      async.waterfall([
+        _.partial(
+          async.map,
+          toArray(targets),
+          _.partial(getTargetPaths, build, sourceGlob)
+        ),
+        (targetPaths, cb) => cb(null, _.compact(_.flatten(targetPaths)))
+      ], _.partial(cb, _, build));
+    },
+    (build, targetPaths, cb) => {
+      const saved = build.targetPaths || [];
+      const notSaved = _.difference(targetPaths, saved);
+      const wasUpdated = notSaved.length > 0;
 
       // Save the buffer to each targetPath that's not saved, and update
       // atime/mtime for each file that is already saved.
       async.waterfall([
-        function (cb) {
+        cb =>
           async.parallel([
-            function (cb) {
-              var now = Date.now() / 1000;
+            cb => {
+              const now = Date.now() / 1000;
               async.each(saved, _.partial(fs.utimes, _, now, now), cb);
             },
-            function (cb) {
-              async.each(notSaved, function (targetPath, cb) {
+            cb =>
+              async.each(notSaved, (targetPath, cb) =>
                 async.series([
                   _.partial(mkdirp, path.dirname(targetPath)),
                   _.partial(fs.writeFile, targetPath, build.buffer)
-                ], cb);
-              }, cb);
-            }
-          ], cb);
-        },
-        function (__, cb) {
+                ], cb)
+              , cb)
+          ], cb),
+        (__, cb) => {
           build.targetPaths = targetPaths;
           cb(null, build, wasUpdated);
         }

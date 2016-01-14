@@ -22,18 +22,19 @@ describe('getTransformers(filePath, config)', function () {
         {
           name: './test/transformers/foo',
           only: ['only.a'],
-          ext: '.c',
           options: {foo: 'bar'}
         },
         {
           name: './test/transformers/foo',
           only: '**/*.a',
           except: ['except.a'],
-          ext: '.b'
         },
         {
           name: './test/transformers/foo',
-          only: '**/*.c',
+          only: [
+            '**/*.c',
+            'only.a'
+          ],
           options: {buz: 'baz'}
         },
         {
@@ -65,7 +66,6 @@ describe('getTransformers(filePath, config)', function () {
       name: './test/transformers/foo',
       only: '**/*.a',
       except: ['except.a'],
-      ext: '.b',
       options: {},
       fn: foo,
       version: fooVersion
@@ -76,23 +76,25 @@ describe('getTransformers(filePath, config)', function () {
     expect(getTransformers('only.a')).to.deep.equal([{
       name: './test/transformers/foo',
       only: ['only.a'],
-      ext: '.c',
       options: {foo: 'bar'},
       fn: foo,
       version: fooVersion
     }, {
       name: './test/transformers/foo',
-      only: '**/*.c',
-      options: {buz: 'baz'},
+      only: '**/*.a',
+      except: ['except.a'],
+      options: {},
       fn: foo,
       version: fooVersion
     }, {
-      name: './test/transformers/bar',
-      only: '**/*.c',
-      except: 'except.*',
-      options: {foo: 'bar'},
-      fn: bar,
-      version: barVersion
+      name: './test/transformers/foo',
+      only: [
+        '**/*.c',
+        'only.a'
+      ],
+      options: {buz: 'baz'},
+      fn: foo,
+      version: fooVersion
     }]);
   });
 
