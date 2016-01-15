@@ -1,3 +1,5 @@
+'use strict';
+
 var _ = require('underscore');
 var argv = require('commander');
 var async = require('async');
@@ -97,7 +99,7 @@ var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
       return cb(er);
     }
     var ms = Date.now() - start;
-    var message;
+    let message;
     if (wasUpdated) {
       message = `Built ${filePath}`;
       if (build.targetPaths.length) {
@@ -109,49 +111,34 @@ var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
     }
     if (!targets) process.stdout.write(build.buffer);
     alert('success', message);
-    cb(null, wasUpdated);
+    cb();
   });
 };
 
 var saveChanged = function (changedPaths, cb) {
   var builds = config.get().builds;
-  async.waterfall([
-    cb =>
-      async.map(_.keys(builds), (sourceGlob, cb) =>
-        glob(sourceGlob, {nodir: true}, (er, filePaths) =>
-          async.map(
-            filePaths,
-            _.partial(
-              updateBuild,
-              changedPaths,
-              _,
-              sourceGlob,
-              builds[sourceGlob]
-            ),
-            cb
-          )
-        ),
+  async.each(_.keys(builds), function (sourceGlob, cb) {
+    var targets = builds[sourceGlob];
+    glob(sourceGlob, {nodir: true}, function (er, filePaths) {
+      async.each(
+        filePaths,
+        _.partial(updateBuild, changedPaths, _, sourceGlob, targets),
         cb
-      ),
-    (wasUpdated, cb) => cb(null, _.any(_.flatten(wasUpdated)))
-  ], cb);
+      );
+    });
+  }, cb);
 };
 
-var updateManifest = function (wasUpdated, cb) {
-  if (!wasUpdated) return cb();
-
+var updateManifest = function (cb) {
   var manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb();
-
   alert('info', 'Saving ' + manifestPath);
-  var start = Date.now();
-  saveManifest(function (er) {
+  saveManifest((er, wasUpdated) => {
     if (er) {
       alert('error', 'Error saving ' + manifestPath + '. ' + er.message);
       return cb(er);
     }
-    var ms = Date.now() - start;
-    alert('success', manifestPath + ' saved in ' + ms + 'ms');
+    if (wasUpdated) alert('success', `${manifestPath} updated`);
   });
 };
 
