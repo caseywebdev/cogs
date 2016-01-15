@@ -26,7 +26,7 @@ module.exports = (filePath, sourceGlob, targets, cb) => {
     (build, targetPaths, cb) => {
       const saved = build.targetPaths || [];
       const notSaved = _.difference(targetPaths, saved);
-      const wasUpdated = notSaved.length > 0;
+      if (!notSaved.length) return cb(null, build, false);
 
       const saveTarget = (targetPath, cb) =>
         async.series([
@@ -35,11 +35,11 @@ module.exports = (filePath, sourceGlob, targets, cb) => {
         ], cb);
 
       // Save the buffer to each targetPath that's not saved.
-      async.series([
+      async.waterfall([
         _.partial(async.each, notSaved, saveTarget),
         cb => {
           build.targetPaths = targetPaths;
-          cb(null, build, wasUpdated);
+          cb(null, build, true);
         }
       ], cb);
     }

@@ -21,14 +21,17 @@ var pruneManifest = function (manifest) {
 module.exports = function (cb) {
   var manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb(null, false);
+
   const data = JSON.stringify(pruneManifest(config.get().manifest));
+  const checkEquality = _cb =>
+    async.waterfall([
+      _.partial(fs.readFile, manifestPath, 'utf8'),
+      (existing, _cb) => data === existing ? cb(null, false) : _cb()
+    ], _.bind(_cb, null));
+
   async.series([
-    _cb =>
-      async.waterfall([
-        _.partial(fs.readFile, 'utf8'),
-        (existing, _cb) => data === existing ? cb(null, false) : _cb()
-      ], _.bind(_cb, null)),
+    checkEquality,
     _.partial(mkdirp, path.dirname(manifestPath)),
     _.partial(fs.writeFile, manifestPath, data)
-  ], _.bind(cb, _, true));
+  ], _.partial(cb, _, true));
 };

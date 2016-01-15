@@ -132,7 +132,6 @@ var saveChanged = function (changedPaths, cb) {
 var updateManifest = function (cb) {
   var manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb();
-  alert('info', 'Saving ' + manifestPath);
   saveManifest((er, wasUpdated) => {
     if (er) {
       alert('error', 'Error saving ' + manifestPath + '. ' + er.message);
