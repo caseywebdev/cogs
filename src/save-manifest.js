@@ -30,7 +30,7 @@ module.exports = function (cb) {
         _.isEqual(JSON.parse(data), JSON.parse(existing)) ?
         cb(null, false) :
         _cb()
-    ], _.bind(_cb, null));
+    ], _.partial(_cb, null));
 
   async.series([
     checkEquality,
