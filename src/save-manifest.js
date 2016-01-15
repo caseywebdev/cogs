@@ -23,11 +23,11 @@ module.exports = function (cb) {
   if (!manifestPath) return cb(null, false);
   const data = JSON.stringify(pruneManifest(config.get().manifest));
   async.series([
-    cb =>
+    _cb =>
       async.waterfall([
         _.partial(fs.readFile, 'utf8'),
         (existing, _cb) => data === existing ? cb(null, false) : _cb()
-      ], _.bind(cb, null)),
+      ], _.bind(_cb, null)),
     _.partial(mkdirp, path.dirname(manifestPath)),
     _.partial(fs.writeFile, manifestPath, data)
   ], _.bind(cb, _, true));
