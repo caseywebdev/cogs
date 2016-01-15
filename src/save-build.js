@@ -28,16 +28,16 @@ module.exports = (filePath, sourceGlob, targets, cb) => {
       const notSaved = _.difference(targetPaths, saved);
       const wasUpdated = notSaved.length > 0;
 
+      const saveTarget = (targetPath, cb) =>
+        async.series([
+          _.partial(mkdirp, path.dirname(targetPath)),
+          _.partial(fs.writeFile, targetPath, build.buffer)
+        ], cb);
+
       // Save the buffer to each targetPath that's not saved.
-      async.waterfall([
-        cb =>
-          async.each(notSaved, (targetPath, cb) =>
-            async.series([
-              _.partial(mkdirp, path.dirname(targetPath)),
-              _.partial(fs.writeFile, targetPath, build.buffer)
-            ], cb)
-          , cb),
-        (__, cb) => {
+      async.series([
+        _.partial(async.each, notSaved, saveTarget),
+        cb => {
           build.targetPaths = targetPaths;
           cb(null, build, wasUpdated);
         }
