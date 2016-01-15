@@ -26,7 +26,10 @@ module.exports = function (cb) {
   const checkEquality = _cb =>
     async.waterfall([
       _.partial(fs.readFile, manifestPath, 'utf8'),
-      (existing, _cb) => data === existing ? cb(null, false) : _cb()
+      (existing, _cb) =>
+        _.isEqual(JSON.parse(data), JSON.parse(existing)) ?
+        cb(null, false) :
+        _cb()
     ], _.bind(_cb, null));
 
   async.series([
