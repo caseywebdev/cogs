@@ -20,13 +20,15 @@ var pruneManifest = function (manifest) {
 
 module.exports = function (cb) {
   var manifestPath = config.get().manifestPath;
-  if (!manifestPath) return cb();
+  if (!manifestPath) return cb(null, false);
+  const data = JSON.stringify(pruneManifest(config.get().manifest));
   async.series([
+    cb =>
+      async.waterfall([
+        _.partial(fs.readFile, 'utf8'),
+        (existing, _cb) => data === existing ? cb(null, false) : _cb()
+      ], _.bind(cb, null)),
     _.partial(mkdirp, path.dirname(manifestPath)),
-    _.partial(
-      fs.writeFile,
-      manifestPath,
-      JSON.stringify(pruneManifest(config.get().manifest))
-    )
-  ], cb);
+    _.partial(fs.writeFile, manifestPath, data)
+  ], _.bind(cb, _, true));
 };

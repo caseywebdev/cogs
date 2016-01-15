@@ -97,35 +97,52 @@ var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
       return cb(er);
     }
     var ms = Date.now() - start;
-    var message = wasUpdated ? 'Built ' + filePath : filePath + ' is unchanged';
-    if (targets) {
-      message += (wasUpdated ? ' and saved to ' : ', touched ') +
-        build.targetPaths.join(', ');
+    var message;
+    if (wasUpdated) {
+      message = `Built ${filePath}`;
+      if (build.targetPaths.length) {
+        message += ` and saved to ${build.targetPaths.join(', ')}`;
+      }
+      message += ' in ' + ms + 'ms';
+    } else {
+      message = `${filePath} is unchanged`;
     }
-    message += ' in ' + ms + 'ms';
     if (!targets) process.stdout.write(build.buffer);
     alert('success', message);
-    cb();
+    cb(null, wasUpdated);
   });
 };
 
 var saveChanged = function (changedPaths, cb) {
   var builds = config.get().builds;
-  async.each(_.keys(builds), function (sourceGlob, cb) {
-    var targets = builds[sourceGlob];
-    glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      async.each(
-        filePaths,
-        _.partial(updateBuild, changedPaths, _, sourceGlob, targets),
+  async.waterfall([
+    cb =>
+      async.map(_.keys(builds), (sourceGlob, cb) =>
+        glob(sourceGlob, {nodir: true}, (er, filePaths) =>
+          async.map(
+            filePaths,
+            _.partial(
+              updateBuild,
+              changedPaths,
+              _,
+              sourceGlob,
+              builds[sourceGlob]
+            ),
+            cb
+          )
+        ),
         cb
-      );
-    });
-  }, cb);
+      ),
+    (wasUpdated, cb) => cb(null, _.any(_.flatten(wasUpdated)))
+  ], cb);
 };
 
-var updateManifest = function (cb) {
+var updateManifest = function (wasUpdated, cb) {
+  if (!wasUpdated) return cb();
+
   var manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb();
+
   alert('info', 'Saving ' + manifestPath);
   var start = Date.now();
   saveManifest(function (er) {
