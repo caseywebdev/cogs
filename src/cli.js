@@ -32,12 +32,6 @@ argv
   .option('-p, --use-polling', 'use stat polling instead of fsevents')
   .option('-s, --silent', 'do not output build information, only errors')
   .option('-C, --no-color', 'disable colored output')
-  .option(
-    '-D, --debounce [ms]',
-    'debounce changes [ms]ms [default 250]',
-    _.partial(parseInt, _, 10),
-    250
-  )
   .parse(process.argv);
 
 if (argv.args.length) {
@@ -141,16 +135,23 @@ var updateManifest = function (cb) {
   });
 };
 
-var changedPaths = [];
+let changedPaths = [];
+let savingAll = false;
 
 var saveAll = function () {
-  var _changedPaths = changedPaths;
+  if (savingAll) return;
+  const _changedPaths = changedPaths;
   changedPaths = [];
   if (_.contains(_changedPaths, argv.configPath)) return loadConfig();
-  async.waterfall([_.partial(saveChanged, _changedPaths), updateManifest]);
+  savingAll = true;
+  async.waterfall([
+    _.partial(saveChanged, _changedPaths),
+    updateManifest
+  ], () => {
+    savingAll = false;
+    if (changedPaths.length) saveAll();
+  });
 };
-
-var debouncedSaveAll = _.debounce(saveAll, argv.debounce);
 
 var fileHasDependency = function (file, changedPath) {
   return (
@@ -174,7 +175,7 @@ var handleChangedPath = function (__, changedPath) {
   );
 
   changedPaths.push(changedPath);
-  debouncedSaveAll();
+  saveAll();
 };
 
 var closeWatcher = function () {
