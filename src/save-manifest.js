@@ -1,35 +1,34 @@
-var _ = require('underscore');
-var async = require('async');
-var config = require('./config');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var path = require('path');
+const _ = require('underscore');
+const async = require('async');
+const config = require('./config');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const path = require('path');
 
-var META_KEYS = ['__VERSION__', '__PIPE__'];
+const META_KEYS = new Set(['__VERSION__', '__PIPE__']);
 
-var pruneManifest = function (manifest) {
-  return _.reduce(manifest, function (manifest, val, key) {
-    if (_.include(META_KEYS, key)) {
-      manifest[key] = val;
-    } else if (val.targetPaths && val.hash) {
-      manifest[key] = _.omit(val, 'buffer');
-    }
+const pruneManifest = manifest =>
+  _.reduce(manifest, (manifest, val, key) => {
+    if (META_KEYS.has(key)) manifest[key] = val;
+    else if (val.targetPaths && val.hash) manifest[key] = _.omit(val, 'buffer');
     return manifest;
   }, {});
-};
 
-module.exports = function (cb) {
-  var manifestPath = config.get().manifestPath;
+module.exports = cb => {
+  const manifestPath = config.get().manifestPath;
   if (!manifestPath) return cb(null, false);
 
   const data = JSON.stringify(pruneManifest(config.get().manifest));
   const checkEquality = _cb =>
     async.waterfall([
       _.partial(fs.readFile, manifestPath, 'utf8'),
-      (existing, _cb) =>
-        _.isEqual(JSON.parse(data), JSON.parse(existing)) ?
-        cb(null, false) :
-        _cb()
+      (existing, _cb) => {
+        try {
+          existing = JSON.parse(existing);
+          if (_.isEqual(JSON.parse(data), existing)) return cb(null, false);
+        } catch (er) {}
+        _cb();
+      }
     ], _.partial(_cb, null));
 
   async.series([

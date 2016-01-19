@@ -1,19 +1,21 @@
-var _ = require('underscore');
-var fs = require('fs');
-var getFile = require('./get-file');
-var getTransformer = require('./get-transformer');
+'use strict';
 
-var __VERSION__ = require('../package').version;
+const _ = require('underscore');
+const fs = require('fs');
+const getFile = require('./get-file');
+const getTransformer = require('./get-transformer');
+const toArray = require('./to-array');
 
-var validate = function (config) {
+const __VERSION__ = require('../package').version;
+
+const validate = function (config) {
   config = _.clone(config) || {};
-  if (!config.pipe) config.pipe = [];
-  config.pipe = _.map(config.pipe, getTransformer);
-  var __PIPE__ = JSON.parse(JSON.stringify(config.pipe));
+  config.pipe = _.map(toArray(config.pipe), getTransformer);
+  const __PIPE__ = JSON.parse(JSON.stringify(config.pipe));
 
   if (!config.manifest && config.manifestPath) {
     try {
-      var source = fs.readFileSync(config.manifestPath, 'utf8');
+      const source = fs.readFileSync(config.manifestPath, 'utf8');
       config.manifest = JSON.parse(source);
     } catch (er) {}
   }
@@ -28,12 +30,8 @@ var validate = function (config) {
   return config;
 };
 
-var config = validate();
+let config = validate();
 
-exports.get = function () {
-  return config;
-};
+exports.get = () => config;
 
-exports.set = function (newConfig) {
-  config = validate(newConfig);
-};
+exports.set = newConfig => config = validate(newConfig);
