@@ -132,6 +132,7 @@ var updateManifest = function (cb) {
       return cb(er);
     }
     if (wasUpdated) alert('success', `${manifestPath} updated`);
+    cb();
   });
 };
 
