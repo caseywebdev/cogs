@@ -37,7 +37,7 @@ module.exports = function (build, sourceGlob, target, cb) {
   }
 
   if (filePath === build.path) {
-    return cb(new Error(`Refusing to overwite ${build.path}`));
+    return cb(new Error(`Refusing to overwrite ${build.path}`));
   }
 
   return cb(null, filePath);
