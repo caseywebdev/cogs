@@ -47,7 +47,7 @@ module.exports = {
 
   // [Optional] Specify a manifest file path for Cogs to load/save to. While not
   // necessary, leveraging a manifest file can drastically improve subsequent
-  // build times. This value can also be set/overriden with the command line.
+  // build times. This value can also be set/overridden with the command line.
   manifestPath: 'manifest.json',
 
   // [Optional] Watch the specified paths, and pass the given options along to
@@ -63,46 +63,45 @@ module.exports = {
   },
 
   // Define the transformer pipeline here.
-  in: {
+  pipe: [
+    {
+      // This is the name of the transformer to use for this piece of the
+      // pipeline. It can be shorthand like this, or the fully-qualified package
+      // name like 'cogs-transformer-babel'.
+      name: 'babel',
 
-    // This key specifies the file extension to match.
-    es6: {
+      // The "only" key can be used to define a glob or array of globs, one of
+      // which must be matched for the file to go through this transformer.
+      only: 'src/**/*.js',
 
-      // `out` specifies what the output extension should be after
-      // transformations in this section are done. If no `out` is specified, the
-      // extension does not change.
-      out: 'js',
+      // "except" is the opposite of only. Paths that match these globs will not
+      // go through the transformer.
+      except: [
+        'src/some/outlier/file.js',
+        'src/more/outliers/**/*.js'
+      ],
 
-      // Define transformers to take this extension from `es6` to `js`. See all
-      // of the transformers in the Transformers section.
-      transformers: [{
-
-        // This is the name of the transformer.
-        name: 'babel',
-
-        // [Optional] Only apply this transformer to files that match this/these
-        // glob(s).
-        only: 'my/only/dir/**/*',
-
-        // [Optional] Exclude files that match this/these glob(s) from this
-        // transformer.
-        except: [
-          'skip/this/one',
-          'and/all/of/these/**/*'
-        ],
-
-        // These are the options to be passed to the transformer.
-        options: {
-          modules: 'umd'
-        }
-      }]
+      // "options" will be passed directly to the transformer.
+      options: {
+        presets: ['stage-0', 'es2015', 'react']
+      }
     },
 
-    // The es6-transformed files will next pass through this transformer.
-    js: {
-      transformers: 'uglify-js'
+    // Some other examples...
+    {
+      name: 'uglify-js',
+      only: '**/*.js',
+      except: '**/*+(-|_|.)min.js'
+    },
+    {
+      name: 'sass',
+      only: 'src/**/*.scss'
+    },
+    {
+      name: 'clean-css',
+      only: '**/*.+(css|scss)'
     }
-  },
+  ],
 
   // Define source globs and targets here. This is where you define what to
   // transform and where it should go.
@@ -111,9 +110,14 @@ module.exports = {
 
     'src/public/**/*': {dir: 'public'},
 
-    // Use the fingerprint: true option to fingerprint saved files.
     'styles/**/*': (file, sourceGlob) => {
       return 'public/foo/bar/' + file.path;
+    },
+
+    // Use the fingerprint: true option to fingerprint saved files.
+    'src/foo/**/*': {
+      dir: 'public',
+      fingerprint: true
     }
   }
 };
