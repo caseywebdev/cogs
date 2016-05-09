@@ -12,20 +12,20 @@
     "cogs": "bin/cogs"
   },
   "dependencies": {
-    "async": "1.5.1",
-    "chokidar": "1.4.2",
-    "commander": "2.9.0",
-    "glob": "6.0.3",
-    "minimatch": "3.0.0",
-    "mkdirp": "0.5.1",
-    "orgsync-logger": "1.2.8",
+    "async": "1",
+    "chokidar": "1",
+    "commander": "2",
+    "glob": "7",
+    "minimatch": "3",
+    "mkdirp": "0.5",
+    "orgsync-logger": "1",
     "underscore": "1.8.3"
   },
   "devDependencies": {
-    "chai": "3.4.1",
-    "istanbul": "0.4.1",
-    "mocha": "2.3.4",
-    "watchy": "0.6.5"
+    "chai": "3",
+    "istanbul": "0.4",
+    "mocha": "2",
+    "watchy": "0.6"
   },
   "scripts": {
     "test": "make test"
