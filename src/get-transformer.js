@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var path = require('path');
+var path = require('npath');
 
 const NOOP = {
   name: 'noop',

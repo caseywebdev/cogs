@@ -3,7 +3,7 @@ const async = require('async');
 const config = require('./config');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
-const path = require('path');
+const path = require('npath');
 
 const META_KEYS = new Set(['__VERSION__', '__PIPE__']);
 

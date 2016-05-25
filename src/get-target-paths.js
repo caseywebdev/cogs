@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
-var path = require('path');
+var path = require('npath');
 const setExt = require('./set-ext');
 
 var GLOB = /([*{]|[?+@!]\().*/;

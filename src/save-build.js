@@ -4,7 +4,7 @@ const fs = require('fs');
 const getBuild = require('./get-build');
 const getTargetPaths = require('./get-target-paths');
 const mkdirp = require('mkdirp');
-const path = require('path');
+const path = require('npath');
 const toArray = require('./to-array');
 
 module.exports = (filePath, sourceGlob, targets, cb) => {

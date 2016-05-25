@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require('npath');
 
 module.exports = function (filePath, ext) {
   if (ext == null) return filePath;

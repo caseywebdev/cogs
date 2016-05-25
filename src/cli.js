@@ -8,11 +8,11 @@ var config = require('./config');
 var fs = require('fs');
 var getBuild = require('./get-build');
 var getFile = require('./get-file');
-var glob = require('glob');
+var glob = require('./nglob');
 var log = require('orgsync-logger');
 var memoize = require('./memoize');
 var minimatch = require('minimatch');
-var path = require('path');
+var path = require('npath');
 var saveBuild = require('./save-build');
 var saveManifest = require('./save-manifest');
 
