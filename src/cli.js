@@ -85,14 +85,11 @@ const build = () => {
       glob(pattern, {nodir: true}).then(paths =>
         Promise.all(_.map(paths, path =>
           saveBuild({env, path, pattern, target})
-            .then(({build: {endedAt, startedAt}, didChange, targetPath}) => {
+            .then(({didChange, targetPath}) => {
               if (!didChange) return ++status.unchanged;
 
-              const duration = ((endedAt - startedAt) / 1000).toFixed(2);
-              if (didChange) {
-                ++status.built;
-                log('success', `${path} -> ${targetPath} [${duration}s]`);
-              }
+              ++status.built;
+              log('success', `${path} -> ${targetPath}`);
             })
             .catch(er => {
               ++status.failed;

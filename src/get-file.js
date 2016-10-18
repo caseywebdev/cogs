@@ -1,4 +1,3 @@
-const _ = require('underscore');
 const applyTransformers = require('./apply-transformers');
 const getBuffer = require('./get-buffer');
 const getOrSet = require('./get-or-set');
@@ -15,13 +14,9 @@ module.exports = ({env: {cache, transformers}, path}) =>
           globs: [],
           links: [],
           path,
-          requires: [path],
-          startedAt: _.now()
+          requires: [path]
         },
         transformers
       })
-    ).then(file => {
-      file.endedAt = _.now();
-      return file;
-    })
+    )
   );
