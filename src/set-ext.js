@@ -1,8 +1,9 @@
-var path = require('npath');
+var npath = require('npath');
 
-module.exports = function (filePath, ext) {
-  if (ext == null) return filePath;
-  var prev = path.extname(filePath);
-  if (prev) filePath = filePath.slice(0, -prev.length);
-  return filePath + ext;
+module.exports = ({path, ext}) => {
+  if (ext == null) return path;
+
+  const prev = npath.extname(path);
+  if (prev) path = npath.slice(0, -prev.length);
+  return path + ext;
 };

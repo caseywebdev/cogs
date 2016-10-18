@@ -1,247 +1,169 @@
-'use strict';
+const _ = require('underscore');
+const argv = require('commander');
+const chokidar = require('chokidar');
+const chalk = require('chalk');
+const fileHasDependency = require('./file-has-dependency');
+const fs = require('fs');
+const normalizeConfig = require('./normalize-config');
+const npath = require('npath');
+const Promise = require('better-promise').default;
+const saveBuild = require('./save-build');
 
-var _ = require('underscore');
-var argv = require('commander');
-var async = require('async');
-var chokidar = require('chokidar');
-var config = require('./config');
-var fs = require('fs');
-var getBuild = require('./get-build');
-var getFile = require('./get-file');
-var glob = require('./nglob');
-var log = require('orgsync-logger');
-var memoize = require('./memoize');
-var minimatch = require('minimatch');
-var path = require('npath');
-var saveBuild = require('./save-build');
-var saveManifest = require('./save-manifest');
-
-var split = function (str) { return str.split(','); };
+const glob = Promise.promisify(require('glob'));
 
 argv
   .version(require('../package').version)
-  .usage('[options] [source-glob[:target-dir] ...]')
+  .usage('[options]')
   .option(
     '-c, --config-path [path]',
     'load config from [path] [default cogs.js]',
     'cogs.js'
   )
   .option('-d, --dir [path]', 'run in [path] instead of current directory')
-  .option('-m, --manifest-path [path]', 'load/save build manifest at [path]')
-  .option('-w, --watch-paths [paths]', 'rebuild when [paths] change', split)
+  .option(
+    '-w, --watch [path]',
+    'build when [path] changes, can be specified multiple times',
+    (path, paths) => {
+      paths.push(path);
+      return paths;
+    },
+    []
+  )
   .option('-p, --use-polling', 'use stat polling instead of fsevents')
   .option('-s, --silent', 'do not output build information, only errors')
   .option('-C, --no-color', 'disable colored output')
   .parse(process.argv);
 
-if (argv.args.length) {
-  argv.builds = _.reduce(argv.args, function (builds, str) {
-    var split = str.split(':');
-    builds[split[0]] = split[1];
-    return builds;
-  }, {});
-}
+let config;
+let watcher;
 
-log.config.name = 'cogs';
-log.config.colors = argv.color;
-if (argv.silent) log.config.level = 'error';
+const COLORS = {success: chalk.green, error: chalk.red};
+const log = (type, message) => {
+  const isError = type === 'error';
+  if (argv.silent && !isError) return;
 
-var watcher;
-
-var alert = function (type, message) {
-  log[type](message);
-  if (type === 'error' && !watcher) process.exit(1);
+  message = `[${type}] ${message}`;
+  const color = argv.color && COLORS[type];
+  if (color) message = color(message);
+  console[isError ? 'error' : 'log'](message);
 };
 
-var argvError = function (message) {
+const logErrorAndMaybeExit = message => {
+  log('error', message);
+  if (!watcher) process.exit(1);
+};
+
+const argvError = message => {
   process.stderr.write(argv.helpInformation());
-  alert('error', message);
+  logErrorAndMaybeExit(message);
 };
 
 if (argv.dir) {
-  try { process.chdir(argv.dir); }
-  catch (er) {
-    argvError("Unable to run in directory '" + argv.dir + "'. " + er.message);
+  try {
+    process.chdir(argv.dir);
+  } catch (er) {
+    argvError(`Unable to run in directory '${argv.dir}'. ${er.message}`);
   }
 }
 
-var buildHasDependency = function (build, changedPath) {
-  return (
-    _.any(build.requires.concat(build.links), {path: changedPath}) ||
-    _.any(
-      build.globs,
-      _.compose(_.partial(minimatch, changedPath), _.property('path'))
-    )
-  );
-};
-
-var shouldSave = function (changedPaths, filePath) {
-  var build = config.get().manifest[filePath];
-  return !changedPaths.length || !build ||
-    _.any(changedPaths, _.partial(buildHasDependency, build));
-};
-
-var updateBuild = function (changedPaths, filePath, sourceGlob, targets, cb) {
-  if (!shouldSave(changedPaths, filePath)) return cb();
-  alert('info', 'Building ' + filePath);
-  var buildFn =
-    targets ? _.partial(saveBuild, _, sourceGlob, targets) : getBuild;
-  var start = Date.now();
-  buildFn(filePath, function (er, build, wasUpdated) {
-    if (er) {
-      alert('error', filePath + ' ' + er.message);
-      return cb(er);
-    }
-    var ms = Date.now() - start;
-    let message;
-    if (wasUpdated) {
-      message = `Built ${filePath}`;
-      if (build.targetPaths.length) {
-        message += ` and saved to ${build.targetPaths.join(', ')}`;
-      }
-      message += ' in ' + ms + 'ms';
-    } else {
-      message = `${filePath} is unchanged`;
-    }
-    if (!targets) process.stdout.write(build.buffer);
-    alert('success', message);
-    cb();
-  });
-};
-
-var saveChanged = function (changedPaths, cb) {
-  var builds = config.get().builds;
-  async.each(_.keys(builds), function (sourceGlob, cb) {
-    var targets = builds[sourceGlob];
-    glob(sourceGlob, {nodir: true}, function (er, filePaths) {
-      async.each(
-        filePaths,
-        _.partial(updateBuild, changedPaths, _, sourceGlob, targets),
-        cb
-      );
-    });
-  }, cb);
-};
-
-var updateManifest = function (cb) {
-  var manifestPath = config.get().manifestPath;
-  if (!manifestPath) return cb();
-  saveManifest((er, wasUpdated) => {
-    if (er) {
-      alert('error', 'Error saving ' + manifestPath + '. ' + er.message);
-      return cb(er);
-    }
-    if (wasUpdated) alert('success', `${manifestPath} updated`);
-    cb();
-  });
-};
-
 let changedPaths = [];
-let savingAll = false;
+let building = false;
 
-var saveAll = function () {
-  if (savingAll) return;
-  const _changedPaths = changedPaths;
+const build = () => {
+  if (building) return;
+
+  const paths = changedPaths;
   changedPaths = [];
-  if (_.contains(_changedPaths, argv.configPath)) return loadConfig();
-  savingAll = true;
-  async.waterfall([
-    _.partial(saveChanged, _changedPaths),
-    updateManifest
-  ], () => {
-    savingAll = false;
-    if (changedPaths.length) saveAll();
+  if (_.contains(paths, argv.configPath)) return loadConfig();
+
+  building = true;
+  const status = {built: 0, unchanged: 0, failed: 0};
+  const startedAt = _.now();
+  log('info', 'Building...');
+  return Promise.all(_.map(config.envs, env =>
+    Promise.all(_.map(env.builds, (target, pattern) =>
+      glob(pattern, {nodir: true}).then(paths =>
+        Promise.all(_.map(paths, path =>
+          saveBuild({env, path, pattern, target})
+            .then(({build: {endedAt, startedAt}, didChange, targetPath}) => {
+              if (!didChange) return ++status.unchanged;
+
+              const duration = ((endedAt - startedAt) / 1000).toFixed(2);
+              if (didChange) {
+                ++status.built;
+                log('success', `${path} -> ${targetPath} [${duration}s]`);
+              }
+            })
+            .catch(er => {
+              ++status.failed;
+              log('error', er);
+            })
+        ))
+      )
+    ))
+  )).then(() => {
+    const duration = ((_.now() - startedAt) / 1000).toFixed(2);
+    const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
+    log('info', `${message} [${duration}s]`);
+    if (status.failed > 0 && !watcher) process.exit(status.failed);
+
+    building = false;
+    if (changedPaths.length) return build();
+  }).catch(logErrorAndMaybeExit);
+};
+
+const handleChangedPath = (__, path) => {
+  path = npath.relative('.', path);
+  _.each(config.envs, ({cache: {buffers, files}}) => {
+    delete buffers[path];
+    _.each(files, file => {
+      if (fileHasDependency({file, path})) delete files[path];
+    });
   });
+
+  changedPaths.push(path);
+  build();
 };
 
-var fileHasDependency = function (file, changedPath) {
-  return (
-    _.contains(file.requires.concat(file.links), changedPath) ||
-    _.any(file.globs, _.partial(minimatch, changedPath))
-  );
-};
-
-var handleChangedPath = function (__, changedPath) {
-  changedPath = path.relative('.', changedPath);
-
-  // Remove the changed path from all memoized function caches.
-  _.each(memoize.all, function (memoized) {
-    delete memoized.cache[changedPath];
-  });
-
-  // Bust any getFile cached file that has a dependency on this changed path.
-  _.each(
-    _.filter(getFile.cache, _.partial(fileHasDependency, _, changedPath)),
-    function (file) { delete getFile.cache[file.path]; }
-  );
-
-  changedPaths.push(changedPath);
-  saveAll();
-};
-
-var closeWatcher = function () {
+const closeWatcher = () => {
   if (!watcher) return;
+
   watcher.close();
   watcher = null;
 };
 
 process.on('SIGTERM', closeWatcher);
+process.on('SIGINT', closeWatcher);
 
-var WATCH_DEFAULTS = {
-  ignoreInitial: true,
-  persistent: true
-};
-
-var resolve = function (filePath) { return path.resolve(filePath); };
-
-var initWatcher = function () {
+const initWatcher = function () {
   closeWatcher();
-  var watch = config.get().watch;
-  var options = _.extend(WATCH_DEFAULTS, watch.options);
-  var paths = [argv.configPath].concat(_.map(watch.paths, resolve));
-  watcher = chokidar.watch(paths, options).on('all', handleChangedPath);
+  if (!argv.watch.length) return;
+
+  watcher = chokidar.watch(
+    _.map([argv.configPath].concat(argv.watch), path => npath.resolve(path)),
+    {
+      ignoreInitial: true,
+      persistent: true,
+      usePolling: argv.usePolling
+    }
+  ).on('all', handleChangedPath);
 };
 
-var loadConfig = function () {
-  var _config;
-
+const loadConfig = () => {
   try {
-    var resolvedConfigPath = path.resolve(argv.configPath);
+    const path = npath.resolve(argv.configPath);
     if (!fs.existsSync(argv.configPath)) {
-      throw new Error("'" + resolvedConfigPath + "' does not exist");
+      throw new Error(`'${path}' does not exist`);
     }
-    delete require.cache[resolvedConfigPath];
-    _config = require(resolvedConfigPath);
+
+    delete require.cache[path];
+    config = normalizeConfig(require(path));
   } catch (er) {
-    return argvError("Unable to load '" + argv.configPath + "'. " + er.message);
+    return argvError(`Unable to load '${argv.configPath}'. ${er.message}`);
   }
 
-  if (argv.manifestPath) _config.manifestPath = argv.manifestPath;
-
-  if (argv.builds) _config.builds = argv.builds;
-
-  if (_.isString(_config.watch)) _config.watch = [_config.watch];
-  if (_.isArray(_config.watch)) _config.watch = {paths: _config.watch};
-  if (_config.watch && _.isString(_config.watch.path)) {
-    _config.watch.paths = [_config.watch.path];
-  }
-
-  if (argv.watchPaths) {
-    if (!_config.watch) _config.watch = {};
-    _config.watch.paths = argv.watchPaths;
-  }
-
-  if (_config.watch && argv.usePolling) {
-    if (!_config.watch.options) _config.watch.options = {};
-    _config.watch.options.usePolling = true;
-  }
-
-  try { config.set(_config); }
-  catch (er) { return alert('error', er.message); }
-
-  if (config.get().watch) initWatcher(); else closeWatcher();
-
-  saveAll();
+  initWatcher();
+  build();
 };
 
 loadConfig();

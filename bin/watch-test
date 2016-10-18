@@ -1,0 +1,3 @@
+#!/usr/bin/env bash -e
+
+exec node_modules/.bin/watchy -w src,test bin/test

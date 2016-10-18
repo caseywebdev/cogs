@@ -1,3 +1,5 @@
-.DS_Store
-/coverage
-/test
+/*
+!/src
+/src/test.js
+!/LICENSE.txt
+!/README.md

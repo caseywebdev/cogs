@@ -1,14 +1,14 @@
-var _ = require('underscore');
-const path = require('npath');
+const _ = require('underscore');
+const npath = require('npath');
 
-const normalize = p => path.normalize(p);
+const normalize = path => npath.normalize(path);
+
 const clean = paths => _.unique(_.map(paths, normalize));
 
-module.exports = function (file) {
-  var requires;
-  return _.extend({}, file, {
-    requires: requires = clean(file.requires),
-    links: _.difference(clean(file.links), requires),
-    globs: clean(file.globs)
-  });
+module.exports = file => {
+  let {requires, links, globs} = file;
+  requires = clean(requires);
+  links = _.difference(clean(links), requires);
+  globs = clean(globs);
+  return _.extend({}, file, {requires, links, globs});
 };
