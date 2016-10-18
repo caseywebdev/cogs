@@ -19,7 +19,7 @@ const config = normalizeConfig({
 describe('getBuild', () => {
   it('works', done => {
     getBuild({env: config.envs[0], path: 'test/fixtures/a.txt'}).then(build => {
-      expect(build.buffer.toString()).to.equal('A\nB\nC\n');
+      expect(build.toString()).to.equal('A\nB\nC\n');
       done();
     });
   });

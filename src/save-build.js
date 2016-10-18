@@ -18,9 +18,9 @@ module.exports = ({env, path, pattern, target}) => {
     getBuild({env, path}),
     getBuffer(targetPath).catch(_.noop)
   ]).then(([build, targetBuffer]) => {
-    const didChange = !targetBuffer || build.buffer.compare(targetBuffer) !== 0;
+    const didChange = !targetBuffer || build.compare(targetBuffer) !== 0;
 
-    return Promise.resolve(didChange ? write(targetPath, build.buffer) : null)
+    return Promise.resolve(didChange ? write(targetPath, build) : null)
       .then(() => ({build, didChange, targetPath}));
   });
 };
