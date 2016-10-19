@@ -37,13 +37,14 @@ argv
 let config;
 let watcher;
 
+chalk.enabled = argv.color;
 const COLORS = {success: chalk.green, error: chalk.red};
 const log = (type, message) => {
   const isError = type === 'error';
   if (argv.silent && !isError) return;
 
   message = `[${type}] ${message}`;
-  const color = argv.color && COLORS[type];
+  const color = COLORS[type];
   if (color) message = color(message);
   console[isError ? 'error' : 'log'](message);
 };
