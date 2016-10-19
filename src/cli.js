@@ -114,7 +114,9 @@ const handleChangedPath = (__, path) => {
   _.each(config.envs, ({cache: {buffers, files}}) => {
     delete buffers[path];
     _.each(files, file => {
-      if (fileHasDependency({file, path})) delete files[path];
+      if (Promise.isPromise(file) || fileHasDependency({file, path})) {
+        delete files[path];
+      }
     });
   });
 
