@@ -81,7 +81,7 @@ const build = () => {
   const status = {built: 0, unchanged: 0, failed: 0};
   const startedAt = _.now();
   log('info', 'Building...');
-  return Promise.all(_.map(config.envs, env =>
+  Promise.all(_.map(config.envs, env =>
     Promise.all(_.map(env.builds, (target, pattern) =>
       glob(pattern, {nodir: true}).then(paths =>
         Promise.all(_.map(paths, path =>
@@ -103,11 +103,13 @@ const build = () => {
     const duration = ((_.now() - startedAt) / 1000).toFixed(2);
     const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
     log('info', `${message} | ${duration}s`);
-    if (status.failed > 0 && !watcher) process.exit(status.failed);
-
+    if (status.failed > 0 && !watcher) {
+      throw new Error(`${status.failed} builds failed`);
+    }
+  }).catch(logErrorAndMaybeExit).then(() => {
     building = false;
-    if (changedPaths.length) return build();
-  }).catch(logErrorAndMaybeExit);
+    if (changedPaths.length) build();
+  });
 };
 
 const handleChangedPath = (__, path) => {
