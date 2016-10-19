@@ -11,7 +11,7 @@ The fast file transform pipeline. [![Build Status](https://secure.travis-ci.org/
 
 
 ```bash
-npm install -g cogs
+npm install cogs
 ```
 
 ## Usage
@@ -20,20 +20,18 @@ Cogs leverages a simple command line interface paired with a powerful
 declarative config file.
 
 ```
-Usage: cogs [options] [source-glob[:target-dir] ...]
+Usage: cogs [options]
 
 Options:
 
-  -h, --help                  output usage information
-  -V, --version               output the version number
-  -c, --config-path [path]    load config from [path] [default cogs.js]
-  -d, --dir [path]            run in [path] instead of current directory
-  -m, --manifest-path [path]  load/save build manifest at [path]
-  -w, --watch-paths [paths]   rebuild when [paths] change
-  -p, --use-polling           use stat polling instead of fsevents
-  -s, --silent                do not output build information, only errors
-  -C, --no-color              disable colored output
-  -D, --debounce [ms]         debounce changes [ms]ms [default 250]
+  -h, --help                output usage information
+  -V, --version             output the version number
+  -c, --config-path [path]  load config from [path] [default cogs.js]
+  -d, --dir [path]          run in [path] instead of current directory
+  -w, --watch [path]        build when [path] changes, can be specified multiple times
+  -p, --use-polling         use stat polling instead of fsevents
+  -s, --silent              do not output build information, only errors
+  -C, --no-color            disable colored output
 ```
 
 ## Config
@@ -45,25 +43,8 @@ example in JavaScript (mainly so comments can be added in this case):
 ```js
 module.exports = {
 
-  // [Optional] Specify a manifest file path for Cogs to load/save to. While not
-  // necessary, leveraging a manifest file can drastically improve subsequent
-  // build times. This value can also be set/overridden with the command line.
-  manifestPath: 'manifest.json',
-
-  // [Optional] Watch the specified paths, and pass the given options along to
-  // [chokidar](https://github.com/paulmillr/chokidar).
-  watch: {
-    paths: ['src', 'styles'],
-    options: {
-
-      // Because it is essential for watching over NFS, `usePolling` can be
-      // enabled with the command line for convenience.
-      usePolling: true
-    }
-  },
-
   // Define the transformer pipeline here.
-  pipe: [
+  transformers: [
     {
       // This is the name of the transformer to use for this piece of the
       // pipeline. It can be shorthand like this, or the fully-qualified package
@@ -85,6 +66,12 @@ module.exports = {
       options: {
         presets: ['stage-0', 'es2015', 'react']
       }
+    },
+
+    // Impromptu transformers are as easy as specifying a function.
+    {
+      fn: ({file: {buffer}, options}) => ({buffer: Buffer.from(`${buffer}!`)),
+      only: '**/*.exciting'
     },
 
     // Some other examples...
@@ -110,14 +97,12 @@ module.exports = {
 
     'src/public/**/*': {dir: 'public'},
 
-    'styles/**/*': (file, sourceGlob) => {
-      return 'public/foo/bar/' + file.path;
-    },
-
-    // Use the fingerprint: true option to fingerprint saved files.
+    // Save to public dir and rename .es6 files to .js
     'src/foo/**/*': {
       dir: 'public',
-      fingerprint: true
+      ext: {
+        '.es6': '.js'
+      }
     }
   }
 };
@@ -129,19 +114,12 @@ Transformers are generally node modules that can be downloaded from npm.
 Alternatively, you can create your own transformers for your projects and
 reference them in the transformers array.
 
-[Here are some transformers to get you started](https://github.com/search?q=cogs-transformers&type=Repositories)
+[Here are some transformers to get you started](https://github.com/search?q=cogs-transformer&type=Repositories)
 
 ## Develop
 
 ```bash
-# Get situated...
 git clone git@github.com:caseywebdev/cogs
 cd cogs
-npm install
-
-# Run the tests when files are changed.
-make
-
-# Run the tests once then exit.
-make test
+bin/watch-test
 ```
