@@ -102,7 +102,7 @@ const build = () => {
   )).then(() => {
     const duration = ((_.now() - startedAt) / 1000).toFixed(2);
     const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
-    log('info', `${message} [${duration}s]`);
+    log('info', `${message} | ${duration}s`);
     if (status.failed > 0 && !watcher) process.exit(status.failed);
 
     building = false;
