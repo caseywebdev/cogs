@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
   "license": "MIT",
@@ -29,6 +29,6 @@
     "watchy": "0.6"
   },
   "scripts": {
-    "test": "make test"
+    "test": "bin/test"
   }
 }

@@ -1,6 +1,5 @@
 const _ = require('underscore');
-const resolveDependencies = require('./resolve-dependencies');
+const walk = require('./walk');
 
 module.exports = ({env, path}) =>
-  resolveDependencies({env, path})
-    .then(files => Buffer.concat(_.map(files, 'buffer')));
+  walk({env, path}).then(files => Buffer.concat(_.map(files, 'buffer')));
