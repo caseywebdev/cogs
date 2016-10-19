@@ -17,12 +17,11 @@ module.exports = transformer => {
 
   let path;
   try { path = require.resolve(npath.resolve(name)); } catch (__) {
-  try { path = require.resolve(name); } catch (__) {
   try { path = require.resolve(`cogs-transformer-${name}`); } catch (er) {
     throw new Error(
       `Cannot find transformer '${name}'. Did you forget to install it?`
     );
-  }}}
+  }}
 
   try { transformer.fn = require(path); } catch (er) {
     throw _.extend(er, {message: `Failed to load '${name}'\n  ${er.message}`});
