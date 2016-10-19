@@ -1,6 +1,6 @@
 var npath = require('npath');
 
-module.exports = ({path, ext}) => {
+module.exports = (path, ext) => {
   if (ext == null) return path;
 
   const prev = npath.extname(path);
