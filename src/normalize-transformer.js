@@ -15,17 +15,16 @@ module.exports = transformer => {
     throw new Error('A transformer name or fn property is required');
   }
 
-  let requirePath;
-  const pkgName = `cogs-transformer-${name}`;
-  try { requirePath = require.resolve(name); } catch (__) {
-  try { requirePath = require.resolve(npath.resolve(name)); } catch (__) {
-  try { requirePath = require.resolve(pkgName); } catch (er) {
+  let path;
+  try { path = require.resolve(npath.resolve(name)); } catch (__) {
+  try { path = require.resolve(name); } catch (__) {
+  try { path = require.resolve(`cogs-transformer-${name}`); } catch (er) {
     throw new Error(
-      `Cannot find transformer '${name}'\n  Did you forget to install it?`
+      `Cannot find transformer '${name}'. Did you forget to install it?`
     );
   }}}
 
-  try { transformer.fn = require(requirePath); } catch (er) {
+  try { transformer.fn = require(path); } catch (er) {
     throw _.extend(er, {message: `Failed to load '${name}'\n  ${er.message}`});
   }
 
