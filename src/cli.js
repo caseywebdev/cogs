@@ -114,6 +114,7 @@ const handleChangedPath = (__, path) => {
   path = npath.relative('.', path);
   _.each(config.envs, ({cache: {buffers, files}}) => {
     delete buffers[path];
+    delete files[path];
     _.each(files, (file, key) => {
       if (Promise.isPromise(file) || fileHasDependency({file, path})) {
         delete files[key];
