@@ -136,7 +136,6 @@ const closeWatcher = () => {
 };
 
 process.on('SIGTERM', closeWatcher);
-process.on('SIGINT', closeWatcher);
 
 const initWatcher = function () {
   closeWatcher();
