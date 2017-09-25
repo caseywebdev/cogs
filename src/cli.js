@@ -107,6 +107,8 @@ const build = () => {
       throw new Error(`${status.failed} builds failed`);
     }
   }).catch(logErrorAndMaybeExit).then(() => {
+    if (!watcher) return process.exit();
+
     building = false;
     if (changedPaths.length) build();
   });
