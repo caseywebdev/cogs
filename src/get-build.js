@@ -1,5 +1,5 @@
 const _ = require('underscore');
 const walk = require('./walk');
 
-module.exports = ({env, path}) =>
-  walk({env, path}).then(files => Buffer.concat(_.map(files, 'buffer')));
+module.exports = async ({env, path}) =>
+  Buffer.concat(_.map(await walk({env, path}), 'buffer'));

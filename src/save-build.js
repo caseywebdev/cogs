@@ -1,26 +1,26 @@
 const _ = require('underscore');
+const {promisify} = require('util');
 const fs = require('fs');
 const getBuffer = require('./get-buffer');
 const getBuild = require('./get-build');
 const getTargetPath = require('./get-target-path');
 const npath = require('npath');
-const Promise = require('better-promise').default;
 
-const mkdirp = Promise.promisify(require('mkdirp'));
-const writeFile = Promise.promisify(fs.writeFile);
+const mkdirp = promisify(require('mkdirp'));
+const writeFile = promisify(fs.writeFile);
 
-const write = (path, buffer) =>
-  mkdirp(npath.dirname(path)).then(() => writeFile(path, buffer));
+const write = async (path, buffer) => {
+  await mkdirp(npath.dirname(path));
+  return writeFile(path, buffer);
+};
 
-module.exports = ({env, path, pattern, target}) => {
+module.exports = async ({env, path, pattern, target}) => {
   const targetPath = getTargetPath({path, pattern, target});
-  return Promise.all([
+  const [build, targetBuffer] = await Promise.all([
     getBuild({env, path}),
     getBuffer(targetPath).catch(_.noop)
-  ]).then(([build, targetBuffer]) => {
-    const didChange = !targetBuffer || build.compare(targetBuffer) !== 0;
-
-    return Promise.resolve(didChange ? write(targetPath, build) : null)
-      .then(() => ({build, didChange, targetPath}));
-  });
+  ]);
+  const didChange = !targetBuffer || build.compare(targetBuffer) !== 0;
+  if (didChange) await write(targetPath, build);
+  return {build, didChange, targetPath};
 };

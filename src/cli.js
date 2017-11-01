@@ -1,15 +1,15 @@
 const _ = require('underscore');
+const {promisify} = require('util');
 const argv = require('commander');
-const chokidar = require('chokidar');
 const chalk = require('chalk');
+const chokidar = require('chokidar');
 const fileHasDependency = require('./file-has-dependency');
 const fs = require('fs');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
-const Promise = require('better-promise').default;
 const saveBuild = require('./save-build');
 
-const glob = Promise.promisify(require('glob'));
+const glob = promisify(require('glob'));
 
 argv
   .version(require('../package').version)
@@ -70,7 +70,7 @@ if (argv.dir) {
 let changedPaths = [];
 let building = false;
 
-const build = () => {
+const build = async () => {
   if (building) return;
 
   const paths = changedPaths;
@@ -81,50 +81,46 @@ const build = () => {
   const status = {built: 0, unchanged: 0, failed: 0};
   const startedAt = _.now();
   log('info', 'Building...');
-  Promise.all(_.map(config.envs, env =>
-    Promise.all(_.map(env.builds, (target, pattern) =>
-      glob(pattern, {nodir: true}).then(paths =>
-        Promise.all(_.map(paths, path =>
-          saveBuild({env, path, pattern, target})
-            .then(({didChange, targetPath}) => {
-              if (!didChange) return ++status.unchanged;
+  await Promise.all(_.map(config.envs, env =>
+    Promise.all(_.map(env.builds, async (target, pattern) =>
+      Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
+        try {
+          const {didChange, targetPath} =
+            await saveBuild({env, path, pattern, target});
+          if (!didChange) return ++status.unchanged;
 
-              ++status.built;
-              log('success', `${path} -> ${targetPath}`);
-            })
-            .catch(er => {
-              ++status.failed;
-              log('error', er);
-            })
-        ))
-      )
+          ++status.built;
+          log('success', `${path} -> ${targetPath}`);
+        } catch (er) {
+          ++status.failed;
+          log('error', er);
+        }
+      }))
     ))
-  )).then(() => {
-    const duration = ((_.now() - startedAt) / 1000).toFixed(1);
-    const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
-    log('info', `${message} | ${duration}s`);
-    if (status.failed > 0 && !watcher) {
-      throw new Error(`${status.failed} builds failed`);
-    }
-  }).catch(logErrorAndMaybeExit).then(() => {
-    if (!watcher) return process.exit();
+  ));
 
-    building = false;
-    if (changedPaths.length) build();
-  });
+  const duration = ((_.now() - startedAt) / 1000).toFixed(1);
+  const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
+  log('info', `${message} | ${duration}s`);
+  if (status.failed > 0 && !watcher) {
+    logErrorAndMaybeExit(new Error(`${status.failed} builds failed`));
+  }
+
+  if (!watcher) return process.exit();
+
+  building = false;
+  if (changedPaths.length) build();
 };
 
-const handleChangedPath = (__, path) => {
+const handleChangedPath = async (__, path) => {
   path = npath.relative('.', path);
-  _.each(config.envs, ({cache: {buffers, files}}) => {
+  await Promise.all(_.map(config.envs, async ({cache: {buffers, files}}) => {
     delete buffers[path];
     delete files[path];
-    _.each(files, (file, key) => {
-      if (Promise.isPromise(file) || fileHasDependency({file, path})) {
-        delete files[key];
-      }
-    });
-  });
+    await Promise.all(_.map(files, async (file, key) => {
+      if (fileHasDependency({file: await file, path})) delete files[key];
+    }));
+  }));
 
   changedPaths.push(path);
   build();

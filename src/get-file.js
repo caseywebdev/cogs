@@ -6,17 +6,15 @@ const readFile = ({cache, path}) =>
   getOrSet(cache.buffers, path, () => getBuffer(path));
 
 module.exports = ({env: {cache, transformers}, path}) =>
-  getOrSet(cache.files, path, () =>
-    readFile({cache, path}).then(buffer =>
-      applyTransformers({
-        file: {
-          buffer,
-          globs: [],
-          links: [],
-          path,
-          requires: [path]
-        },
-        transformers
-      })
-    )
+  getOrSet(cache.files, path, async () =>
+    applyTransformers({
+      file: {
+        buffer: await readFile({cache, path}),
+        globs: [],
+        links: [],
+        path,
+        requires: [path]
+      },
+      transformers
+    })
   );
