@@ -37,8 +37,11 @@ argv
 let config;
 let watcher;
 
-chalk.enabled = argv.color;
-const COLORS = {success: chalk.green, error: chalk.red};
+const colors = new chalk.constructor({
+  enabled: argv.color,
+  level: argv.color ? 1 : 0
+});
+const COLORS = {success: colors.green, error: colors.red};
 const log = (type, message) => {
   const isError = type === 'error';
   if (argv.silent && !isError) return;
