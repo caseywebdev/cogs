@@ -6,7 +6,7 @@ const normalizeTransformers = transformers =>
   _.map(toArray(transformers), normalizeTransformer);
 
 module.exports = config => {
-  let {envs} = config;
+  let {envs, manifestPath} = config;
   if (!envs) {
     envs = toArray(config);
     config = {};
@@ -14,6 +14,7 @@ module.exports = config => {
 
   const buffers = {};
   return _.extend({}, config, {
+    manifestPath,
     envs: _.map(toArray(envs), ({builds, transformers}) => ({
       builds,
       cache: {buffers, files: {}},

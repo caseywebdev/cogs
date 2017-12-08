@@ -10,6 +10,7 @@ module.exports = ({env: {cache, transformers}, path}) =>
     applyTransformers({
       file: {
         buffer: await readFile({cache, path}),
+        builds: [],
         globs: [],
         links: [],
         path,

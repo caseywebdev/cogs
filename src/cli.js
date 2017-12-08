@@ -7,6 +7,7 @@ const fileHasDependency = require('./file-has-dependency');
 const fs = require('fs');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
+const getBuild = require('./get-build');
 const saveBuild = require('./save-build');
 
 const glob = promisify(require('glob'));
@@ -73,6 +74,9 @@ if (argv.dir) {
 let changedPaths = [];
 let building = false;
 
+const flattenBuilds = build =>
+  [].concat(build, ..._.map(build.builds, flattenBuilds));
+
 const build = async () => {
   if (building) return;
 
@@ -84,23 +88,29 @@ const build = async () => {
   const status = {built: 0, unchanged: 0, failed: 0};
   const startedAt = _.now();
   log('info', 'Building...');
+  const manifest = {};
   await Promise.all(_.map(config.envs, env =>
     Promise.all(_.map(env.builds, async (target, pattern) =>
       Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
         try {
-          const {didChange, targetPath} =
-            await saveBuild({env, path, pattern, target});
-          if (!didChange) return ++status.unchanged;
+          const build = await getBuild({env, path});
+          await Promise.all(_.map(flattenBuilds(build), async build => {
+            const {didChange, targetPath} = await saveBuild({build, target});
+            if (!didChange) return ++status.unchanged;
 
-          ++status.built;
-          log('success', `${path} -> ${targetPath}`);
+            ++status.built;
+            log('success', `${path} -> ${targetPath}`);
+            manifest[build.path] = targetPath;
+          }));
         } catch (er) {
           ++status.failed;
+          console.log(er);
           log('error', er);
         }
       }))
     ))
   ));
+  console.log(manifest);
 
   const duration = ((_.now() - startedAt) / 1000).toFixed(1);
   const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');

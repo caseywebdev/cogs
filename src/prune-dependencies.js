@@ -6,9 +6,10 @@ const normalize = path => npath.normalize(path);
 const clean = paths => _.unique(_.map(paths, normalize));
 
 module.exports = file => {
-  let {requires, links, globs} = file;
+  let {builds, globs, links, requires} = file;
   requires = clean(requires);
-  links = _.difference(clean(links), requires);
+  builds = _.difference(clean(builds), requires);
+  links = _.difference(clean(links), [].concat(builds, requires));
   globs = clean(globs);
-  return _.extend({}, file, {requires, links, globs});
+  return _.extend({}, file, {builds, globs, links, requires});
 };
