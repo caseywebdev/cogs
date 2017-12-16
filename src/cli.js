@@ -5,10 +5,11 @@ const chalk = require('chalk');
 const chokidar = require('chokidar');
 const fileHasDependency = require('./file-has-dependency');
 const fs = require('fs');
+const getBuild = require('./get-build');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
-const getBuild = require('./get-build');
-const saveBuild = require('./save-build');
+const runHook = require('./run-hook');
+const writeBuild = require('./write-build');
 
 const glob = promisify(require('glob'));
 
@@ -24,10 +25,7 @@ argv
   .option(
     '-w, --watch [path]',
     'build when [path] changes, can be specified multiple times',
-    (path, paths) => {
-      paths.push(path);
-      return paths;
-    },
+    (path, paths) => [].concat(paths, path),
     []
   )
   .option('-p, --use-polling', 'use stat polling instead of fsevents')
@@ -88,29 +86,50 @@ const build = async () => {
   const status = {built: 0, unchanged: 0, failed: 0};
   const startedAt = _.now();
   log('info', 'Building...');
-  const manifest = {};
-  await Promise.all(_.map(config.envs, env =>
-    Promise.all(_.map(env.builds, async (target, pattern) =>
+
+  const handleDone = message => {
+    if (!message) return ++status.unchanged;
+
+    ++status.built;
+    log('success', message);
+  };
+
+  const handleError = er => {
+    ++status.failed;
+    log('error', er);
+  };
+
+  const runHooks = ({hooks, manifest}) =>
+    Promise.all(_.map(hooks, async hook => {
+      try {
+        const {didChange, message} = await runHook({hook, manifest});
+        handleDone(didChange && message);
+      } catch (er) { handleError(er); }
+    }));
+
+  const jointManifest = {};
+  await Promise.all(_.map(config.envs, async env => {
+    const manifest = {};
+    await Promise.all(_.map(env.builds, async (target, pattern) =>
       Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
         try {
-          const build = await getBuild({env, path});
-          await Promise.all(_.map(flattenBuilds(build), async build => {
-            const {didChange, targetPath} = await saveBuild({build, target});
-            if (!didChange) return ++status.unchanged;
-
-            ++status.built;
-            log('success', `${path} -> ${targetPath}`);
-            manifest[build.path] = targetPath;
+          const builds = flattenBuilds(await getBuild({env, path}));
+          await Promise.all(_.map(builds, async build => {
+            try {
+              const didChange = await writeBuild(build);
+              jointManifest[build.path] = manifest[build.path] =
+                build.targetPath;
+              handleDone(didChange && `${build.path} -> ${build.targetPath}`);
+            } catch (er) { handleError(er); }
           }));
-        } catch (er) {
-          ++status.failed;
-          console.log(er);
-          log('error', er);
-        }
+        } catch (er) { handleError(er); }
       }))
-    ))
-  ));
-  console.log(manifest);
+    ));
+
+    await runHooks({hooks: env.buildHooks, manifest});
+  }));
+
+  await runHooks({hooks: config.buildHooks, manifest: jointManifest});
 
   const duration = ((_.now() - startedAt) / 1000).toFixed(1);
   const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
