@@ -6,6 +6,7 @@ const chokidar = require('chokidar');
 const fileHasDependency = require('./file-has-dependency');
 const fs = require('fs');
 const getBuild = require('./get-build');
+const maybeWrite = require('./maybe-write');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
 const runHook = require('./run-hook');
@@ -126,10 +127,10 @@ const build = async () => {
       }))
     ));
 
-    await runHooks({hooks: env.buildHooks, manifest});
+    await runExporters({exporters: env.exporters, manifest});
   }));
 
-  await runHooks({hooks: config.buildHooks, manifest: jointManifest});
+  await runExporters({exporters: config.exporters, manifest: jointManifest});
 
   const duration = ((_.now() - startedAt) / 1000).toFixed(1);
   const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
