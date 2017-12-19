@@ -1,12 +1,9 @@
 const _ = require('underscore');
-const normalizeHandler = require('./normalize-handler');
+const normalizeTransformer = require('./normalize-transformer');
 const toArray = require('./to-array');
 
-const normalizeHandlers = (type, handlers) =>
-  _.map(toArray(handlers), handler => normalizeHandler(type, handler));
-
-module.exports = config => {
-  let {envs} = config;
+const normalizeConfig = module.exports = (config, buffers = {}) => {
+  let {envs} = config || {};
   if (!envs) {
     envs = config;
     config = {};
@@ -14,15 +11,16 @@ module.exports = config => {
 
   envs = toArray(envs);
 
-  const {exporters} = config;
-  const buffers = {};
+  const {manifestPath, then} = config;
   return _.extend({}, config, {
-    envs: _.map(envs, ({builds, exporters, transformers}) => ({
+    envs: _.map(envs, ({builds, manifestPath, then, transformers}) => ({
       builds,
       cache: {buffers, files: {}},
-      exporters: normalizeHandlers('exporter', exporters),
-      transformers: normalizeHandlers('transformer', transformers)
+      manifestPath,
+      transformers: _.map(toArray(transformers), normalizeTransformer),
+      then: normalizeConfig(then, buffers)
     })),
-    exporters: normalizeHandlers('exporter', exporters)
+    manifestPath,
+    then: normalizeConfig(then, buffers)
   });
 };

@@ -9,7 +9,6 @@ const getBuild = require('./get-build');
 const maybeWrite = require('./maybe-write');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
-const runHook = require('./run-hook');
 const writeBuild = require('./write-build');
 
 const glob = promisify(require('glob'));
@@ -76,6 +75,64 @@ let building = false;
 const flattenBuilds = build =>
   [].concat(build, ..._.map(build.builds, flattenBuilds));
 
+const buildConfig = async ({config, configManifest = {}, status}) => {
+  const handleError = er => {
+    ++status.failed;
+    log('error', er);
+  };
+
+  await Promise.all(_.map(config.envs, async env => {
+    const envManifest = {};
+    await Promise.all(_.map(env.builds, async (target, pattern) =>
+      Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
+        try {
+          const builds = flattenBuilds(await getBuild({env, path}));
+          await Promise.all(_.map(builds, async build => {
+            try {
+              const didChange = await writeBuild(build);
+              envManifest[build.path] = build.targetPath;
+              if (!didChange) return ++status.unchanged;
+
+              ++status.built;
+              log('success', `${build.path} -> ${build.targetPath}`);
+            } catch (er) { handleError(er); }
+          }));
+        } catch (er) { handleError(er); }
+      }))
+    ));
+
+    if (env.manifestPath) {
+      const buffer = Buffer.from(JSON.stringify(envManifest));
+      const targetPath = env.manifestPath;
+      if (await maybeWrite({buffer, targetPath})) {
+        log('success', `[manifest] -> ${env.manifestPath}`);
+      }
+    }
+
+    if (env.then) {
+      await buildConfig({
+        config: env.then,
+        configManifest: envManifest,
+        status
+      });
+    }
+
+    _.extend(configManifest, envManifest);
+  }));
+
+  if (config.manifestPath) {
+    const buffer = Buffer.from(JSON.stringify(configManifest));
+    const targetPath = config.manifestPath;
+    if (await maybeWrite({buffer, targetPath})) {
+      log('success', `[manifest] -> ${config.manifestPath}`);
+    }
+  }
+
+  if (config.then) {
+    await buildConfig({config: config.then, configManifest, status});
+  }
+};
+
 const build = async () => {
   if (building) return;
 
@@ -84,53 +141,11 @@ const build = async () => {
   if (_.contains(paths, argv.configPath)) return loadConfig();
 
   building = true;
-  const status = {built: 0, unchanged: 0, failed: 0};
   const startedAt = _.now();
   log('info', 'Building...');
 
-  const handleDone = message => {
-    if (!message) return ++status.unchanged;
-
-    ++status.built;
-    log('success', message);
-  };
-
-  const handleError = er => {
-    ++status.failed;
-    log('error', er);
-  };
-
-  const runHooks = ({hooks, manifest}) =>
-    Promise.all(_.map(hooks, async hook => {
-      try {
-        const {didChange, message} = await runHook({hook, manifest});
-        handleDone(didChange && message);
-      } catch (er) { handleError(er); }
-    }));
-
-  const jointManifest = {};
-  await Promise.all(_.map(config.envs, async env => {
-    const manifest = {};
-    await Promise.all(_.map(env.builds, async (target, pattern) =>
-      Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
-        try {
-          const builds = flattenBuilds(await getBuild({env, path}));
-          await Promise.all(_.map(builds, async build => {
-            try {
-              const didChange = await writeBuild(build);
-              jointManifest[build.path] = manifest[build.path] =
-                build.targetPath;
-              handleDone(didChange && `${build.path} -> ${build.targetPath}`);
-            } catch (er) { handleError(er); }
-          }));
-        } catch (er) { handleError(er); }
-      }))
-    ));
-
-    await runExporters({exporters: env.exporters, manifest});
-  }));
-
-  await runExporters({exporters: config.exporters, manifest: jointManifest});
+  const status = {built: 0, unchanged: 0, failed: 0};
+  await buildConfig({config, status});
 
   const duration = ((_.now() - startedAt) / 1000).toFixed(1);
   const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
