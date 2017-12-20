@@ -6,17 +6,11 @@ const getFiles = async ({env, files = {}, path}) => {
 
   files[path] = true;
   const file = await getFile({env, path});
+
   files[path] = file;
-  try {
-    await Promise.all(_.map(file.requires, path =>
-      getFiles({env, files, path})
-    ));
-    return files;
-  } catch (er) {
-    const line = `\n  ${path}`;
-    if (er.message.indexOf(line) === -1) er.message += line;
-    throw er;
-  }
+  await Promise.all(_.map(file.requires, path => getFiles({env, files, path})));
+
+  return files;
 };
 
 const walk = ({files, path, visited = {}}) => {
