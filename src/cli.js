@@ -102,6 +102,8 @@ const buildConfig = async ({config, configManifest = {}, status}) => {
       }))
     ));
 
+    if (status.failed) return;
+
     if (env.manifestPath) {
       const buffer = Buffer.from(JSON.stringify(sortObj(envManifest)));
       const targetPath = env.manifestPath;
@@ -120,6 +122,8 @@ const buildConfig = async ({config, configManifest = {}, status}) => {
 
     _.extend(configManifest, envManifest);
   }));
+
+  if (status.failed) return;
 
   if (config.manifestPath) {
     const buffer = Buffer.from(JSON.stringify(sortObj(configManifest)));
@@ -151,7 +155,7 @@ const build = async () => {
   const duration = ((_.now() - startedAt) / 1000).toFixed(1);
   const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
   log('info', `${message} | ${duration}s`);
-  if (status.failed > 0 && !watcher) {
+  if (status.failed && !watcher) {
     logErrorAndMaybeExit(new Error(`${status.failed} builds failed`));
   }
 
@@ -161,16 +165,24 @@ const build = async () => {
   if (changedPaths.length) build();
 };
 
-const handleChangedPath = async (__, path) => {
-  path = npath.relative('.', path);
-  await Promise.all(_.map(config.envs, async ({cache: {buffers, files}}) => {
+const clearPath = async ({config: {envs, then}, path}) => {
+  await Promise.all(_.map(envs, async ({cache, then}) => {
+    const {buffers, files} = cache;
     delete buffers[path];
     delete files[path];
     await Promise.all(_.map(files, async (file, key) => {
       if (fileHasDependency({file: await file, path})) delete files[key];
     }));
+
+    if (then) await clearPath({config: then, path});
   }));
 
+  if (then) await clearPath({config: then, path});
+};
+
+const handleChangedPath = async (__, path) => {
+  path = npath.relative('.', path);
+  await clearPath({config, path});
   changedPaths.push(path);
   build();
 };
