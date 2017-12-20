@@ -9,6 +9,7 @@ const getBuild = require('./get-build');
 const maybeWrite = require('./maybe-write');
 const normalizeConfig = require('./normalize-config');
 const npath = require('npath');
+const sortObj = require('./sort-obj');
 const writeBuild = require('./write-build');
 
 const glob = promisify(require('glob'));
@@ -102,7 +103,7 @@ const buildConfig = async ({config, configManifest = {}, status}) => {
     ));
 
     if (env.manifestPath) {
-      const buffer = Buffer.from(JSON.stringify(envManifest));
+      const buffer = Buffer.from(JSON.stringify(sortObj(envManifest)));
       const targetPath = env.manifestPath;
       if (await maybeWrite({buffer, targetPath})) {
         log('success', `[manifest] -> ${env.manifestPath}`);
@@ -121,7 +122,7 @@ const buildConfig = async ({config, configManifest = {}, status}) => {
   }));
 
   if (config.manifestPath) {
-    const buffer = Buffer.from(JSON.stringify(configManifest));
+    const buffer = Buffer.from(JSON.stringify(sortObj(configManifest)));
     const targetPath = config.manifestPath;
     if (await maybeWrite({buffer, targetPath})) {
       log('success', `[manifest] -> ${config.manifestPath}`);
