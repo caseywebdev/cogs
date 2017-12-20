@@ -6,5 +6,5 @@ module.exports = async ({build: {buffer, path}, target}) => {
 
   if (targetPath === path) throw new Error(`Refusing to overwrite ${path}`);
 
-  return maybeWrite({buffer, targetPath});
+  return {didChange: await maybeWrite({buffer, targetPath}), targetPath};
 };
