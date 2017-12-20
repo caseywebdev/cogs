@@ -18,9 +18,9 @@ const normalizeConfig = module.exports = (config, buffers = {}) => {
       cache: {buffers, files: {}},
       manifestPath,
       transformers: _.map(toArray(transformers), normalizeTransformer),
-      then: normalizeConfig(then, buffers)
+      then: then && normalizeConfig(then, buffers)
     })),
     manifestPath,
-    then: normalizeConfig(then, buffers)
+    then: then && normalizeConfig(then, buffers)
   });
 };
