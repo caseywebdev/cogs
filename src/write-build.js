@@ -1,9 +1,10 @@
+const getTargetPath = require('./get-target-path');
 const maybeWrite = require('./maybe-write');
 
-module.exports = async build => {
-  if (build.targetPath === build.path) {
-    throw new Error(`Refusing to overwrite ${build.path}`);
-  }
+module.exports = async ({build: {buffer, path}, target}) => {
+  const targetPath = getTargetPath({buffer, path, target});
 
-  return maybeWrite(build);
+  if (targetPath === path) throw new Error(`Refusing to overwrite ${path}`);
+
+  return maybeWrite({buffer, targetPath});
 };

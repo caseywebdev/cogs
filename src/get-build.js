@@ -1,5 +1,4 @@
 const _ = require('underscore');
-const getTargetPath = require('./get-target-path');
 const walk = require('./walk');
 
 const getAllFiles = build =>
@@ -9,7 +8,7 @@ const getAllFiles = build =>
     )
   , build.files);
 
-const resolve = async ({env, path, seen = {}, target}) => {
+const resolve = async ({env, path, seen = {}}) => {
   if (seen[path]) return;
 
   const build = seen[path] = {};
@@ -18,7 +17,7 @@ const resolve = async ({env, path, seen = {}, target}) => {
   const builds = [];
   await Promise.all(_.map(files, file =>
     Promise.all(_.map(file.builds, async path => {
-      const build = await resolve({env, path, seen, target});
+      const build = await resolve({env, path, seen});
       if (!build) return;
 
       builds.push(build);
@@ -30,16 +29,14 @@ const resolve = async ({env, path, seen = {}, target}) => {
     }))
   ));
 
-  return _.extend(build, {builds, files, path, target});
+  return _.extend(build, {builds, files, path});
 };
 
 const dedupe = (build, included = {}) => {
-  const {builds, files, path, target} = build;
+  const {builds, files} = build;
   _.each(included, (__, path) => delete files[path]);
   _.each(builds, build => dedupe(build, {...included, ...files}));
-  const buffer = Buffer.concat(_.map(files, 'buffer'));
-  const targetPath = getTargetPath({buffer, path, target});
-  return _.extend(build, {buffer, targetPath});
+  return _.extend(build, {buffer: Buffer.concat(_.map(files, 'buffer'))});
 };
 
 module.exports = async ({env, path}) => dedupe(await resolve({env, path}));

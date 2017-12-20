@@ -89,12 +89,12 @@ const buildConfig = async ({config, configManifest = {}, status}) => {
           const builds = flattenBuilds(await getBuild({env, path}));
           await Promise.all(_.map(builds, async build => {
             try {
-              const didChange = await writeBuild(build);
-              envManifest[build.path] = build.targetPath;
+              const {didChange, targetPath} = await writeBuild({build, target});
+              envManifest[build.path] = targetPath;
               if (!didChange) return ++status.unchanged;
 
               ++status.built;
-              log('success', `${build.path} -> ${build.targetPath}`);
+              log('success', `${build.path} -> ${targetPath}`);
             } catch (er) { handleError(er); }
           }));
         } catch (er) { handleError(er); }
