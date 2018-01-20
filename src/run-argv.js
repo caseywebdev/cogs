@@ -1,0 +1,196 @@
+const _ = require('underscore');
+const {promisify} = require('util');
+const chokidar = require('chokidar');
+const fileHasDependency = require('./file-has-dependency');
+const fs = require('fs');
+const getBuild = require('./get-build');
+const getLog = require('./get-log');
+const maybeWrite = require('./maybe-write');
+const normalizeConfig = require('./normalize-config');
+const npath = require('npath');
+const parseArgv = require('./parse-argv');
+const sortObj = require('./sort-obj');
+const writeBuild = require('./write-build');
+
+const glob = promisify(require('glob'));
+
+module.exports = argv => {
+  argv = parseArgv(argv);
+
+  let config;
+  let watcher;
+
+  const log = getLog({onlyErrors: argv.silent, useColor: argv.color});
+
+  const logErrorAndMaybeExit = message => {
+    log('error', message);
+    if (!watcher) process.exit(1);
+  };
+
+  const argvError = message => {
+    console.error(argv.helpInformation());
+    logErrorAndMaybeExit(message);
+  };
+
+  if (argv.dir) {
+    try {
+      process.chdir(argv.dir);
+    } catch (er) {
+      argvError(`Unable to run in directory '${argv.dir}'. ${er.message}`);
+    }
+  }
+
+  let changedPaths = [];
+  let building = false;
+
+  const flattenBuilds = build =>
+    [].concat(build, ..._.map(build.builds, flattenBuilds));
+
+  const buildConfig = async ({config, configManifest = {}, status}) => {
+    const handleError = er => {
+      ++status.failed;
+      log('error', er);
+    };
+
+    await Promise.all(_.map(config.envs, async env => {
+      const envManifest = {};
+      await Promise.all(_.map(env.builds, async (target, pattern) =>
+        Promise.all(_.map(await glob(pattern, {nodir: true}), async path => {
+          try {
+            const builds = flattenBuilds(await getBuild({env, path}));
+            await Promise.all(_.map(builds, async build => {
+              try {
+                const {didChange, targetPath} = await writeBuild({build, target});
+                envManifest[build.path] = targetPath;
+                if (!didChange) return ++status.unchanged;
+
+                ++status.built;
+                log('success', `${build.path} -> ${targetPath}`);
+              } catch (er) { handleError(er); }
+            }));
+          } catch (er) { handleError(er); }
+        }))
+      ));
+
+      if (status.failed) return;
+
+      if (env.manifestPath) {
+        const buffer = Buffer.from(JSON.stringify(sortObj(envManifest)));
+        const targetPath = env.manifestPath;
+        if (await maybeWrite({buffer, targetPath})) {
+          log('success', `[manifest] -> ${env.manifestPath}`);
+        }
+      }
+
+      if (env.then) {
+        await buildConfig({
+          config: env.then,
+          configManifest: envManifest,
+          status
+        });
+      }
+
+      _.extend(configManifest, envManifest);
+    }));
+
+    if (status.failed) return;
+
+    if (config.manifestPath) {
+      const buffer = Buffer.from(JSON.stringify(sortObj(configManifest)));
+      const targetPath = config.manifestPath;
+      if (await maybeWrite({buffer, targetPath})) {
+        log('success', `[manifest] -> ${config.manifestPath}`);
+      }
+    }
+
+    if (config.then) {
+      await buildConfig({config: config.then, configManifest, status});
+    }
+  };
+
+  const build = async () => {
+    if (building) return;
+
+    const paths = changedPaths;
+    changedPaths = [];
+    if (_.contains(paths, argv.configPath)) return loadConfig();
+
+    building = true;
+    const startedAt = _.now();
+    log('info', 'Building...');
+
+    const status = {built: 0, unchanged: 0, failed: 0};
+    await buildConfig({config, status});
+
+    const duration = ((_.now() - startedAt) / 1000).toFixed(1);
+    const message = _.map(status, (n, label) => `${n} ${label}`).join(' | ');
+    log('info', `${message} | ${duration}s`);
+    if (status.failed && !watcher) {
+      logErrorAndMaybeExit(new Error(`${status.failed} builds failed`));
+    }
+
+    if (!watcher) return process.exit();
+
+    building = false;
+    if (changedPaths.length) build();
+  };
+
+  const clearPath = async ({config: {envs, then}, path}) => {
+    await Promise.all(_.map(envs, async ({cache, then}) => {
+      const {buffers, files} = cache;
+      delete buffers[path];
+      delete files[path];
+      await Promise.all(_.map(files, async (file, key) => {
+        if (fileHasDependency({file: await file, path})) delete files[key];
+      }));
+
+      if (then) await clearPath({config: then, path});
+    }));
+
+    if (then) await clearPath({config: then, path});
+  };
+
+  const handleChangedPath = async (__, path) => {
+    path = npath.relative('.', path);
+    await clearPath({config, path});
+    changedPaths.push(path);
+    build();
+  };
+
+  const closeWatcher = () => {
+    if (!watcher) return;
+
+    watcher.close();
+  };
+
+  process.on('SIGTERM', closeWatcher);
+
+  const initWatcher = () => {
+    const {configPath, watch, usePolling} = argv;
+    if (watcher || !watch) return;
+
+    watcher = chokidar.watch(
+      _.map([configPath].concat(watch), path => npath.resolve(path)),
+      {ignoreInitial: true, persistent: true, usePolling}
+    ).on('all', handleChangedPath);
+  };
+
+  const loadConfig = () => {
+    try {
+      const path = npath.resolve(argv.configPath);
+      if (!fs.existsSync(argv.configPath)) {
+        throw new Error(`'${path}' does not exist`);
+      }
+
+      delete require.cache[path];
+      config = normalizeConfig(require(path));
+    } catch (er) {
+      return argvError(`Unable to load '${argv.configPath}'\n${er.stack}`);
+    }
+
+    initWatcher();
+    build();
+  };
+
+  loadConfig();
+};

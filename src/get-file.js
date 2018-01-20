@@ -12,7 +12,6 @@ module.exports = ({env: {cache, transformers}, path}) =>
         file: {
           buffer: await readFile({cache, path}),
           builds: [],
-          globs: [],
           links: [],
           path,
           requires: [path]

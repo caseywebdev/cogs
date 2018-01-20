@@ -1,6 +1,6 @@
 # Cogs
 
-The fast file transform pipeline. [![Build Status](https://secure.travis-ci.org/caseywebdev/cogs.png)](http://travis-ci.org/caseywebdev/cogs)
+The fast file transform pipeline. [![Build Status]](http://travis-ci.org/caseywebdev/cogs)
 
 > George Jetson's workweek is typical of his era: an hour a day, two days a
 > week. His boss is Cosmo Spacely, the diminutive yet bombastic owner of Spacely
@@ -38,7 +38,7 @@ Options:
 
 Every good project needs a Cogs config file. This file can be JavaScript or
 JSON, as long as `require`ing the file returns the config object. Here's an
-example in JavaScript (mainly so comments can be added in this case):
+example in JavaScript:
 
 ```js
 module.exports = {
@@ -93,15 +93,17 @@ module.exports = {
   // Define source globs and targets here. This is where you define what to
   // transform and where it should go.
   builds: {
-    'src/index.es6': 'public/index.js',
+    'src/index.es6': {base: 'src', dir: 'public'},
 
-    'src/public/**/*': {dir: 'public'},
+    'src/public/**/*': {base: 'src/public', dir: 'public'},
 
-    // Save to public dir and rename .es6 files to .js
+    // Save to public dir and rename .es6 files to .js and .scss files to .css
     'src/foo/**/*': {
+      base: 'src',
       dir: 'public',
       ext: {
-        '.es6': '.js'
+        '.es6': '.js',
+        '.scss': '.css'
       }
     }
   }
@@ -121,5 +123,8 @@ reference them in the transformers array.
 ```bash
 git clone git@github.com:caseywebdev/cogs
 cd cogs
+npm install
 bin/watch-test
 ```
+
+[Build Status]: https://secure.travis-ci.org/caseywebdev/cogs.png

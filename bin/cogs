@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-require('../src/cli');
+const runArgv = require('../src/run-argv');
+
+runArgv(process.argv);

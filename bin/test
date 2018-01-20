@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
-exec node_modules/.bin/_mocha test
+node_modules/.bin/nyc \
+  --temp-directory=./coverage/.nyc_output \
+  --reporter=text \
+  --reporter=lcov \
+  node_modules/.bin/mocha \
+  test
