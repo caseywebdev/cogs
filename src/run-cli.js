@@ -35,9 +35,8 @@ module.exports = async () => {
     const duration = ((_.now() - start) / 1000).toFixed(1);
     const message = _.map(results, (n, label) => `${n} ${label}`).join(' | ');
     log('info', `${message} | ${duration}s`);
-    if (results.failed) {
-      log('error', new Error(`${results.failed} builds failed`));
-      if (!options.watch) process.exit(1);
+    if (!argv.watchPaths && results.failed) {
+      onError(new Error(`${results.failed} builds failed`));
     }
   };
 
