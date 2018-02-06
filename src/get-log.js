@@ -1,7 +1,7 @@
 const _ = require('underscore');
 const chalk = require('chalk');
 
-module.exports = ({useColor, onlyErrors}) => {
+module.exports = ({onlyErrors, useColor}) => {
   const {green, red} = new chalk.constructor({
     enabled: useColor,
     level: useColor ? 1 : 0

@@ -59,6 +59,6 @@ module.exports = async ({
 
   return chokidar.watch(
     _.map([].concat(configPath, watchPaths), path => npath.resolve(path)),
-    {ignoreInitial: true, persistent: true, usePolling}
+    {ignoreInitial: true, usePolling}
   ).on('all', handleChangedPath);
 };
