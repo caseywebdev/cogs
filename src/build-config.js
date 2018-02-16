@@ -15,11 +15,25 @@ const buildConfig = async ({
   configManifest = {},
   onResult = _.noop
 }) => {
+  if (!config) return;
+
   let error = false;
 
   const handleError = async er => {
     error = true;
     await onResult({type: 'failed', error: er});
+  };
+
+  const saveManifest = async ({manifest, manifestPath}) => {
+    if (!manifestPath) return;
+
+    const buffer = Buffer.from(JSON.stringify(sortObj(manifest)));
+    const targetPath = manifestPath;
+    const didChange = await maybeWrite({buffer, targetPath});
+    const type = didChange ? 'changed' : 'unchanged';
+    const sourcePath = '[manifest]';
+    const size = buffer.length;
+    await onResult({type, size, sourcePath, targetPath: manifestPath});
   };
 
   await Promise.all(_.map(config.envs, async env => {
@@ -33,7 +47,8 @@ const buildConfig = async ({
               const {didChange, targetPath} = await writeBuild({build, target});
               envManifest[build.path] = targetPath;
               const type = didChange ? 'changed' : 'unchanged';
-              await onResult({type, sourcePath: build.path, targetPath});
+              const size = build.buffer.length;
+              await onResult({type, size, sourcePath: build.path, targetPath});
             } catch (er) { await handleError(er); }
           }));
         } catch (er) { await handleError(er); }
@@ -43,19 +58,8 @@ const buildConfig = async ({
     if (error) return;
 
     const {manifestPath, then} = env;
-
-    if (manifestPath) {
-      const buffer = Buffer.from(JSON.stringify(sortObj(envManifest)));
-      const targetPath = manifestPath;
-      const didChange = await maybeWrite({buffer, targetPath});
-      const type = didChange ? 'changed' : 'unchanged';
-      const sourcePath = '[manifest]';
-      await onResult({type, sourcePath, targetPath: manifestPath});
-    }
-
-    if (then) {
-      await buildConfig({config: then, configManifest: envManifest, onResult});
-    }
+    await saveManifest({manifest: envManifest, manifestPath});
+    await buildConfig({config: then, configManifest: envManifest, onResult});
 
     _.extend(configManifest, envManifest);
   }));
@@ -63,17 +67,8 @@ const buildConfig = async ({
   if (error) return;
 
   const {manifestPath, then} = config;
-
-  if (manifestPath) {
-    const buffer = Buffer.from(JSON.stringify(sortObj(configManifest)));
-    const targetPath = manifestPath;
-    const didChange = await maybeWrite({buffer, targetPath});
-    const type = didChange ? 'changed' : 'unchanged';
-    const sourcePath = '[manifest]';
-    await onResult({type, sourcePath, targetPath: manifestPath});
-  }
-
-  if (then) await buildConfig({config: then, configManifest, onResult});
+  await saveManifest({manifest: configManifest, manifestPath});
+  await buildConfig({config: then, configManifest, onResult});
 };
 
 module.exports = buildConfig;

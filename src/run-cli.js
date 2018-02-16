@@ -1,4 +1,5 @@
 const _ = require('underscore');
+const formatSize = require('./format-size');
 const getLog = require('./get-log');
 const parseArgv = require('./parse-argv');
 const run = require('./run');
@@ -21,13 +22,13 @@ module.exports = async () => {
     start = _.now();
   };
 
-  const onResult = ({error, sourcePath, targetPath, type}) => {
+  const onResult = ({error, size, sourcePath, targetPath, type}) => {
     ++results[type];
     if (type === 'unchanged') return;
 
     log(
       type === 'failed' ? 'error' : 'success',
-      error || `${sourcePath} -> ${targetPath}`
+      error || `${sourcePath} -> ${targetPath} [${formatSize(size)}]`
     );
   };
 
