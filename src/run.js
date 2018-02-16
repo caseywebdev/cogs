@@ -7,6 +7,7 @@ const watchy = require('watchy');
 
 module.exports = async ({
   configPath = 'cogs.js',
+  debounce = 0.1,
   onError = _.noop,
   onEnd = _.noop,
   onResult = _.noop,
@@ -32,17 +33,20 @@ module.exports = async ({
   if (!watchPaths.length) return;
 
   let building = false;
-  let changedPaths = [];
+  let changedPaths = new Set();
+  let timeoutId;
 
   const maybeBuild = async () => {
     if (building) return;
 
     const paths = changedPaths;
-    changedPaths = [];
-    if (_.contains(paths, configPath)) {
+    changedPaths = new Set();
+    if (paths.has(configPath)) {
       config = null;
     } else if (config) {
-      await Promise.all(_.map(paths, async path => bustCache({config, path})));
+      await Promise.all(
+        Array.from(paths).map(async path => bustCache({config, path}))
+      );
     }
 
     building = true;
@@ -52,9 +56,16 @@ module.exports = async ({
     if (changedPaths.length) await maybeBuild();
   };
 
+  const safeMaybeBuild = async () => {
+    try { await maybeBuild(); } catch (er) { onError(er); }
+  };
+
   const handleChangedPath = async ({path}) => {
-    changedPaths.push(npath.relative('.', path));
-    try { await maybeBuild(); } catch (er) { await onError(er); }
+    changedPaths.add(npath.relative('.', path));
+    if (!debounce) return await safeMaybeBuild();
+
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(safeMaybeBuild, debounce * 1000);
   };
 
   return await watchy({

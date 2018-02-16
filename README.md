@@ -22,16 +22,19 @@ declarative config file.
 ```
 Usage: cogs [options]
 
+The fast file transform pipeline.
+
+
 Options:
 
-  -h, --help                output usage information
   -V, --version             output the version number
-  -c, --config-path [path]  load config from [path] [default cogs.js]
-  -d, --dir [path]          run in [path] instead of current directory
-  -w, --watch [path]        build when [path] changes, can be specified multiple times
-  -p, --use-polling         use stat polling instead of fsevents
+  -c, --config-path [path]  load config from [path] (default: cogs.js)
+  -d, --debounce [seconds]  trigger a build at most every [seconds] seconds (default: 0.1)
+  -w, --watch-paths [path]  rebuild if [path] changes, can be specified multiple times
+  -p, --use-polling         use stat polling instead of fsevents when watching
   -s, --silent              do not output build information, only errors
   -C, --no-color            disable colored output
+  -h, --help                output usage information
 ```
 
 ## Config
