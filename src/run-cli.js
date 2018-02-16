@@ -1,23 +1,28 @@
 const _ = require('underscore');
+const chalk = require('chalk');
 const formatSize = require('./format-size');
-const getLog = require('./get-log');
 const parseArgv = require('./parse-argv');
 const run = require('./run');
 
 module.exports = async () => {
   const argv = parseArgv(process.argv);
   const {color, silent} = argv;
-  const log = getLog({onlyErrors: silent, useColor: color});
+  const {blue, gray, green, magenta, red, yellow} = new chalk.constructor({
+    enabled: color,
+    level: color ? 1 : 0
+  });
 
   let results, start;
 
+  const log = silent ? _.noop : console.log.bind(console);
+
   const onError = er => {
-    log('error', er);
+    console.error(red(er));
     if (!argv.watchPaths) process.exit(1);
   };
 
   const onStart = () => {
-    log('info', 'Building...');
+    log(gray('Building...'));
     results = {changed: 0, unchanged: 0, failed: 0};
     start = _.now();
   };
@@ -26,16 +31,23 @@ module.exports = async () => {
     ++results[type];
     if (type === 'unchanged') return;
 
-    log(
-      type === 'failed' ? 'error' : 'success',
-      error || `${sourcePath} -> ${targetPath} [${formatSize(size)}]`
-    );
+    if (error) return console.error(red(error));
+
+    log([
+      magenta(`${formatSize(size)}`),
+      green(sourcePath),
+      gray('->'),
+      blue(targetPath)
+    ].join(' '));
   };
 
   const onEnd = () => {
-    const duration = ((_.now() - start) / 1000).toFixed(1);
-    const message = _.map(results, (n, label) => `${n} ${label}`).join(' | ');
-    log('info', `${message} | ${duration}s`);
+    log([
+      green(`${results.changed} changed`),
+      blue(`${results.unchanged} unchanged`),
+      red(`${results.failed} failed`),
+      yellow(`${((_.now() - start) / 1000).toFixed(1)}s`)
+    ].join(gray(' | ')));
     if (!argv.watchPaths && results.failed) {
       onError(new Error(`${results.failed} builds failed`));
     }
