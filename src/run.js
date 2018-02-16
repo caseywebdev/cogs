@@ -1,9 +1,9 @@
 const _ = require('underscore');
 const buildConfig = require('./build-config');
 const bustCache = require('./bust-cache');
-const chokidar = require('chokidar');
 const getConfig = require('./get-config');
 const npath = require('npath');
+const watchy = require('watchy');
 
 module.exports = async ({
   configPath = 'cogs.js',
@@ -52,13 +52,15 @@ module.exports = async ({
     if (changedPaths.length) await maybeBuild();
   };
 
-  const handleChangedPath = async (__, path) => {
+  const handleChangedPath = async ({path}) => {
     changedPaths.push(npath.relative('.', path));
     try { await maybeBuild(); } catch (er) { await onError(er); }
   };
 
-  return chokidar.watch(
-    _.map([].concat(configPath, watchPaths), path => npath.resolve(path)),
-    {ignoreInitial: true, usePolling}
-  ).on('all', handleChangedPath);
+  return await watchy({
+    onError,
+    onChange: handleChangedPath,
+    patterns: [].concat(configPath, watchPaths),
+    usePolling
+  });
 };
