@@ -20,9 +20,7 @@ module.exports = transformer => {
     try {
       path = require.resolve(attempt, options);
       break;
-    } catch (er) {
-      console.log(er);
-    }
+    } catch (er) {}
   }
 
   if (!path) {
