@@ -17,23 +17,26 @@ const buildConfig = async ({
 }) => {
   if (!config) return;
 
-  let error = false;
+  let failed = false;
 
-  const handleError = async er => {
-    error = true;
-    await onResult({type: 'failed', error: er});
+  const handleError = async ({error, sourcePath}) => {
+    failed = true;
+    await onResult({error, sourcePath});
   };
 
   const saveManifest = async ({manifest, manifestPath}) => {
     if (!manifestPath) return;
 
     const buffer = Buffer.from(JSON.stringify(sortObj(manifest)));
-    const targetPath = manifestPath;
-    const didChange = await maybeWrite({buffer, targetPath});
-    const type = didChange ? 'changed' : 'unchanged';
-    const sourcePath = '[manifest]';
     const size = buffer.length;
-    await onResult({type, size, sourcePath, targetPath: manifestPath});
+    const sourcePath = '[manifest]';
+    const targetPath = manifestPath;
+    try {
+      const didChange = await maybeWrite({buffer, targetPath});
+      await onResult({didChange, size, sourcePath, targetPath});
+    } catch (error) {
+      await handleError({error, sourcePath});
+    }
   };
 
   await Promise.all(_.map(config.envs, async env => {
@@ -43,31 +46,35 @@ const buildConfig = async ({
         try {
           const builds = flattenBuilds(await getBuild({env, path}));
           await Promise.all(_.map(builds, async build => {
+            const size = build.buffer.length;
+            const sourcePath = build.path;
             try {
               const {didChange, targetPath} = await writeBuild({build, target});
-              envManifest[build.path] = targetPath;
-              const type = didChange ? 'changed' : 'unchanged';
-              const size = build.buffer.length;
-              await onResult({type, size, sourcePath: build.path, targetPath});
-            } catch (er) { await handleError(er); }
+              envManifest[sourcePath] = targetPath;
+              await onResult({didChange, size, sourcePath, targetPath});
+            } catch (error) { await handleError({error, sourcePath}); }
           }));
-        } catch (er) { await handleError(er); }
+        } catch (error) { await handleError({error, sourcePath: path}); }
       }))
     ));
 
-    if (error) return;
+    if (failed) return;
 
     const {manifestPath, then} = env;
     await saveManifest({manifest: envManifest, manifestPath});
+    if (failed) return;
+
     await buildConfig({config: then, configManifest: envManifest, onResult});
 
     _.extend(configManifest, envManifest);
   }));
 
-  if (error) return;
+  if (failed) return;
 
   const {manifestPath, then} = config;
   await saveManifest({manifest: configManifest, manifestPath});
+  if (failed) return;
+
   await buildConfig({config: then, configManifest, onResult});
 };
 

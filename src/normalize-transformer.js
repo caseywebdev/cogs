@@ -13,17 +13,26 @@ module.exports = transformer => {
   const {name} = transformer;
   if (!name) throw new Error('Each transformer requires a name or fn property');
 
+  const attempts = [`cogs-transformer-${name}`, name, npath.resolve(name)];
+  const options = {paths: [process.cwd()]};
   let path;
-  try { path = require.resolve(npath.resolve(name)); } catch (er) {
-    try { path = require.resolve(`cogs-transformer-${name}`); } catch (er) {
-      throw new Error(
-        `Cannot find transformer '${name}'. Did you forget to install it?`
-      );
+  for (let attempt of attempts) {
+    try {
+      path = require.resolve(attempt, options);
+      break;
+    } catch (er) {
+      console.log(er);
     }
   }
 
+  if (!path) {
+    throw new Error(
+      `Cannot find transformer '${name}'. Did you forget to install it?`
+    );
+  }
+
   try { transformer.fn = require(path); } catch (er) {
-    throw _.extend(er, {message: `Failed to load '${name}'\n  ${er.message}`});
+    throw _.extend(er, {message: `Failed to load '${name}'\n${er.message}`});
   }
 
   return transformer;

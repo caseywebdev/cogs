@@ -12,7 +12,7 @@ module.exports = async () => {
     level: color ? 1 : 0
   });
 
-  let results, start;
+  let built, failed, start, unchanged;
 
   const log = silent ? _.noop : console.log.bind(console);
 
@@ -23,16 +23,19 @@ module.exports = async () => {
 
   const onStart = () => {
     log(gray('Building...'));
-    results = {changed: 0, unchanged: 0, failed: 0};
+    built = failed = unchanged = 0;
     start = _.now();
   };
 
-  const onResult = ({error, size, sourcePath, targetPath, type}) => {
-    ++results[type];
-    if (type === 'unchanged') return;
+  const onResult = ({didChange, error, size, sourcePath, targetPath}) => {
+    if (error) {
+      ++failed;
+      return console.error(red(`Failed to build ${sourcePath}\n${error}`));
+    }
 
-    if (error) return console.error(red(error));
+    if (!didChange) return ++unchanged;
 
+    ++built;
     log([
       magenta(`${formatSize(size)}`),
       green(sourcePath),
@@ -43,13 +46,13 @@ module.exports = async () => {
 
   const onEnd = () => {
     log([
-      green(`${results.changed} changed`),
-      blue(`${results.unchanged} unchanged`),
-      red(`${results.failed} failed`),
+      green(`${built} built`),
+      blue(`${unchanged} unchanged`),
+      red(`${failed} failed`),
       yellow(`${((_.now() - start) / 1000).toFixed(1)}s`)
     ].join(gray(' | ')));
-    if (!argv.watchPaths && results.failed) {
-      onError(new Error(`${results.failed} builds failed`));
+    if (!argv.watchPaths && failed) {
+      onError(new Error(`${failed} build${failed > 1 ? 's' : ''} failed`));
     }
   };
 
