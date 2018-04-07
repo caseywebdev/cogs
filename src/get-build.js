@@ -5,7 +5,7 @@ const getAllFiles = build =>
   _.reduce(build.files, (files, file) =>
     _.reduce(file.builds, (files, build) =>
       _.extend({}, files, getAllFiles(build))
-    )
+    , files)
   , build.files);
 
 const resolve = async ({env, path, seen = {}}) => {
