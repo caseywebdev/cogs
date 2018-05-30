@@ -12,22 +12,25 @@ const resolve = async ({env, path, seen = {}}) => {
   if (seen[path]) return;
 
   const build = seen[path] = {};
-  const files = _.indexBy(await walk({env, path}), 'path');
+  const files = {};
   const shared = {};
-  const builds = [];
-  await Promise.all(_.map(files, file =>
-    Promise.all(_.map(file.builds, async path => {
-      const build = await resolve({env, path, seen});
-      if (!build) return;
+  const builds = _.flatten(
+    await Promise.all(_.map(await walk({env, path}), async file => {
+      files[file.path] = file;
+      return await Promise.all(_.map(file.builds, async path => {
+        const build = await resolve({env, path, seen});
+        if (!build) return [];
 
-      builds.push(build);
-      _.each(getAllFiles(build), file =>
-        shared[file.path] ?
-        files[file.path] = file :
-        shared[file.path] = true
-      );
+        _.each(getAllFiles(build), file =>
+          shared[file.path] ?
+          files[file.path] = file :
+          shared[file.path] = true
+        );
+
+        return build;
+      }))
     }))
-  ));
+  );
 
   return _.extend(build, {builds, files, path});
 };
