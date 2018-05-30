@@ -11,28 +11,22 @@ const getAllFiles = build =>
 const resolve = async ({env, path, seen = {}}) => {
   if (seen[path]) return;
 
-  const build = seen[path] = {};
-  const files = {};
+  const build = seen[path] = {path};
+  const files = build.files = _.indexBy(await walk({env, path}), 'path');
+  const builds = build.builds = _.compact(_.flatten(
+    await Promise.all(_.map(files, file =>
+      Promise.all(_.map(file.builds, path => resolve({env, path, seen})))
+    ))
+  ));
+
   const shared = {};
-  const builds = _.flatten(
-    await Promise.all(_.map(await walk({env, path}), async file => {
-      files[file.path] = file;
-      return await Promise.all(_.map(file.builds, async path => {
-        const build = await resolve({env, path, seen});
-        if (!build) return [];
-
-        _.each(getAllFiles(build), file =>
-          shared[file.path] ?
-          files[file.path] = file :
-          shared[file.path] = true
-        );
-
-        return build;
-      }))
-    }))
+  _.each(builds, build =>
+    _.each(getAllFiles(build), file =>
+      shared[file.path] ? files[file.path] = file : shared[file.path] = true
+    )
   );
 
-  return _.extend(build, {builds, files, path});
+  return build;
 };
 
 const dedupe = (build, included = {}) => {
