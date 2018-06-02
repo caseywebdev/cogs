@@ -12,8 +12,7 @@ module.exports = async () => {
     level: color ? 1 : 0
   });
 
-  let built, failed, start, unchanged;
-  let totalSize = 0;
+  let built, failed, start, totalSize, unchanged;
 
   const log = silent ? _.noop : console.log.bind(console);
 
@@ -24,7 +23,7 @@ module.exports = async () => {
 
   const onStart = () => {
     log(gray('Building...'));
-    built = failed = unchanged = 0;
+    built = failed = totalSize = unchanged = 0;
     start = _.now();
   };
 
