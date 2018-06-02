@@ -13,6 +13,7 @@ module.exports = async () => {
   });
 
   let built, failed, start, unchanged;
+  let totalSize = 0;
 
   const log = silent ? _.noop : console.log.bind(console);
 
@@ -33,6 +34,8 @@ module.exports = async () => {
       return console.error(red(`Failed to build ${sourcePath}\n${error}`));
     }
 
+    totalSize += size;
+
     if (!didChange) return ++unchanged;
 
     ++built;
@@ -46,6 +49,7 @@ module.exports = async () => {
 
   const onEnd = () => {
     log([
+      magenta(`${formatSize(totalSize)}`),
       green(`${built} built`),
       blue(`${unchanged} unchanged`),
       red(`${failed} failed`),
