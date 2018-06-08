@@ -2,25 +2,20 @@ const _ = require('underscore');
 const normalizeTransformer = require('./normalize-transformer');
 const toArray = require('./to-array');
 
-const normalizeConfig = module.exports = (config, buffers = {}) => {
-  let {envs} = config || {};
-  if (!envs) {
-    envs = config;
-    config = {};
-  }
+module.exports = config => {
+  const buffers = {};
 
-  envs = toArray(envs);
+  config = toArray(config);
 
-  const {manifestPath, then} = config;
-  return _.extend({}, config, {
-    envs: _.map(envs, ({builds, manifestPath, then, transformers}) => ({
-      builds,
-      cache: {buffers, files: {}},
-      manifestPath,
-      transformers: _.map(toArray(transformers), normalizeTransformer),
-      then: then && normalizeConfig(then, buffers)
-    })),
+  config = _.map(config, ({builds, transformers, manifestPath, requires}) => ({
+    builds,
+    cache: {buffers, files: {}},
     manifestPath,
-    then: then && normalizeConfig(then, buffers)
-  });
+    requires: toArray(requires),
+    transformers: _.map(toArray(transformers), normalizeTransformer)
+  }));
+
+  _.each(config, env => env.requires = _.map(env.requires, i => config[i]));
+
+  return config;
 };

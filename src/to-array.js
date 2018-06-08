@@ -1,3 +1,3 @@
 const _ = require('underscore');
 
-module.exports = val => _.isArray(val) ? val : val ? [val] : [];
+module.exports = val => val == null ? [] : _.isArray(val) ? val : [val];
