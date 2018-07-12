@@ -48,7 +48,7 @@ module.exports = async ({
 
     await build();
 
-    if (changedPaths.length) await maybeBuild();
+    if (changedPaths.size) await maybeBuild();
   };
 
   const safeMaybeBuild = async () => {
