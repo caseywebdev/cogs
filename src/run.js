@@ -21,50 +21,54 @@ module.exports = async ({
   let timeoutId;
 
   const build = async () => {
-    try {
-      if (building) return;
+    if (building) return;
 
-      building = true;
+    building = true;
 
-      const paths = changedPaths;
-      changedPaths = new Set();
-      if (paths.has(configPath)) {
-        config = null;
-      } else if (config) {
-        await Promise.all(
-          Array.from(paths).map(async path => bustCache({config, path}))
-        );
-      }
-
-      if (!config) config = await getConfig(configPath);
-      await onStart();
-      await buildConfig({config, onResult});
-      await onEnd();
-
-      building = false;
-
-      if (changedPaths.size) await build();
-    } catch (er) {
-      await onError(er);
+    const paths = changedPaths;
+    changedPaths = new Set();
+    if (paths.has(configPath)) {
+      config = null;
+    } else if (config) {
+      await Promise.all(
+        Array.from(paths).map(async path => bustCache({config, path}))
+      );
     }
+
+    if (!config) config = await getConfig(configPath);
+    await onStart();
+    await buildConfig({config, onResult});
+    await onEnd();
+
+    building = false;
+
+    if (changedPaths.size) await build();
+  };
+
+  const tryBuild = async () => {
+    try { await build(); } catch (er) { await onError(er); }
   };
 
   const handleChangedPath = async ({path}) => {
     changedPaths.add(npath.relative('.', path));
-    if (!debounce) return await build();
+    if (!debounce) return await tryBuild();
 
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(build, debounce * 1000);
+    timeoutId = setTimeout(tryBuild, debounce * 1000);
   };
 
-  const watcher = watchPaths.length ? await watchy({
-    onError,
-    onChange: handleChangedPath,
-    patterns: [].concat(configPath, watchPaths),
-    usePolling
-  }) : null;
+  if (watchPaths.length) {
+    const watcher = await watchy({
+      onError,
+      onChange: handleChangedPath,
+      patterns: [].concat(configPath, watchPaths),
+      usePolling
+    });
 
-  await build();
+    await tryBuild();
 
-  return watcher;
+    return watcher;
+  }
+
+  return await build();
 };
