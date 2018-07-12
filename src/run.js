@@ -28,9 +28,7 @@ module.exports = async ({
     }
   };
 
-  await build();
-
-  if (!watchPaths.length) return;
+  if (!watchPaths.length) return await build();
 
   let building = false;
   let changedPaths = new Set();
@@ -68,10 +66,14 @@ module.exports = async ({
     timeoutId = setTimeout(safeMaybeBuild, debounce * 1000);
   };
 
-  return await watchy({
+  const watcher = await watchy({
     onError,
     onChange: handleChangedPath,
     patterns: [].concat(configPath, watchPaths),
     usePolling
   });
+
+  await build();
+
+  return watcher;
 };
