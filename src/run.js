@@ -15,9 +15,13 @@ module.exports = async ({
   usePolling = false,
   watchPaths = []
 }) => {
+  let building = false;
+  let changedPaths = new Set();
   let config;
+  let timeoutId;
 
   const build = async () => {
+    building = true;
     try {
       if (!config) config = await getConfig(configPath);
       await onStart();
@@ -26,13 +30,8 @@ module.exports = async ({
     } catch (er) {
       await onError(er);
     }
+    building = false;
   };
-
-  if (!watchPaths.length) return await build();
-
-  let building = false;
-  let changedPaths = new Set();
-  let timeoutId;
 
   const maybeBuild = async () => {
     if (building) return;
@@ -47,9 +46,7 @@ module.exports = async ({
       );
     }
 
-    building = true;
     await build();
-    building = false;
 
     if (changedPaths.length) await maybeBuild();
   };
@@ -66,7 +63,7 @@ module.exports = async ({
     timeoutId = setTimeout(safeMaybeBuild, debounce * 1000);
   };
 
-  const watcher = await watchy({
+  const watcher = watchPaths.length > 0 && await watchy({
     onError,
     onChange: handleChangedPath,
     patterns: [].concat(configPath, watchPaths),
