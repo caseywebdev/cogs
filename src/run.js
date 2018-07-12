@@ -45,6 +45,8 @@ module.exports = async ({
     if (changedPaths.size) await build();
   };
 
+  if (!watchPaths.length) return await build();
+
   const tryBuild = async () => {
     try { await build(); } catch (er) { await onError(er); }
   };
@@ -57,18 +59,14 @@ module.exports = async ({
     timeoutId = setTimeout(tryBuild, debounce * 1000);
   };
 
-  if (watchPaths.length) {
-    const watcher = await watchy({
-      onError,
-      onChange: handleChangedPath,
-      patterns: [].concat(configPath, watchPaths),
-      usePolling
-    });
+  const watcher = await watchy({
+    onError,
+    onChange: handleChangedPath,
+    patterns: [].concat(configPath, watchPaths),
+    usePolling
+  });
 
-    await tryBuild();
+  await tryBuild();
 
-    return watcher;
-  }
-
-  return await build();
+  return watcher;
 };
