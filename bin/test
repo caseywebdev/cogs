@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-node_modules/.bin/nyc \
-  --temp-directory=./coverage/.nyc_output \
-  --reporter=text \
-  --reporter=lcov \
-  node_modules/.bin/mocha \
-  test
+exec npx jest \
+  --color \
+  --coverage \
+  $([ "$WATCH" = "1" ] && echo '--watch') \
+  src
