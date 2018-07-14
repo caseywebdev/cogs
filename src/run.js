@@ -31,13 +31,20 @@ module.exports = async ({
       config = null;
     } else if (config) {
       await Promise.all(
-        Array.from(paths).map(async path => bustCache({config, path}))
+        Array.from(paths).map(async path => await bustCache({config, path}))
       );
     }
 
     if (!config) config = await getConfig(configPath);
     await onStart();
-    await buildConfig({config, onResult});
+    await buildConfig({
+      config,
+      onResult: async result => {
+        const {didChange, targetPath} = result;
+        if (didChange) await bustCache({config, path: targetPath});
+        return await onResult(result);
+      }
+    });
     await onEnd();
 
     building = false;
