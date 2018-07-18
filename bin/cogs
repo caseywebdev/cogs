@@ -1,5 +1,3 @@
 #!/usr/bin/env node
 
-const runCli = require('../src/run-cli');
-
-runCli();
+require('../src/cli');
