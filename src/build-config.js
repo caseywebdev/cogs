@@ -50,7 +50,7 @@ const saveBuilds = async ({env, manifest, onError, onResult}) =>
     }))
   ));
 
-const buildConfig = async ({config, built = new Set(), onResult = _.noop}) => {
+const buildConfig = async ({built, config, onResult, started}) => {
   let failed = false;
 
   const onError = async ({error, sourcePath}) => {
@@ -59,8 +59,9 @@ const buildConfig = async ({config, built = new Set(), onResult = _.noop}) => {
   };
 
   await Promise.all(_.map(config, async env => {
-    if (built.has(env) || !_.all(env.requires, env => built.has(env))) return;
+    if (started.has(env) || !_.all(env.requires, env => built.has(env))) return;
 
+    started.add(env);
     const manifest = {};
 
     await saveBuilds({env, manifest, onError, onResult});
@@ -70,8 +71,9 @@ const buildConfig = async ({config, built = new Set(), onResult = _.noop}) => {
     if (failed) return;
 
     built.add(env);
-    await buildConfig({config, built, onResult});
+    await buildConfig({built, config, onResult, started});
   }));
 };
 
-module.exports = buildConfig;
+module.exports = async ({config, onResult = _.noop}) =>
+  await buildConfig({built: new Set(), config, onResult, started: new Set()});
