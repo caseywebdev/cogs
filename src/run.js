@@ -32,7 +32,7 @@ module.exports = async ({
       config = null;
     } else if (config) {
       await Promise.all(
-        Array.from(paths).map(path => bustCache({ config, path }))
+        _.map(Array.from(paths), path => bustCache({ config, path }))
       );
     }
 

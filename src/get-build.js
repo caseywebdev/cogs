@@ -1,6 +1,5 @@
 const _ = require('underscore');
 
-const applyTransformers = require('./apply-transformers');
 const walk = require('./walk');
 
 const getAllFiles = build =>
@@ -47,8 +46,4 @@ const dedupe = (build, included = {}) => {
   return _.extend(build, { buffer: Buffer.concat(_.map(files, 'buffer')) });
 };
 
-module.exports = async ({ env, path, transformers }) =>
-  applyTransformers({
-    file: dedupe(await resolve({ env, path })),
-    transformers
-  });
+module.exports = async ({ env, path }) => dedupe(await resolve({ env, path }));
