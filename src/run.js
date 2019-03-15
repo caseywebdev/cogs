@@ -1,9 +1,10 @@
 const _ = require('underscore');
+const npath = require('npath');
+const watchy = require('watchy');
+
 const buildConfig = require('./build-config');
 const bustCache = require('./bust-cache');
 const getConfig = require('./get-config');
-const npath = require('npath');
-const watchy = require('watchy');
 
 module.exports = async ({
   configPath = 'cogs.js',
@@ -31,7 +32,7 @@ module.exports = async ({
       config = null;
     } else if (config) {
       await Promise.all(
-        Array.from(paths).map(async path => await bustCache({config, path}))
+        Array.from(paths).map(path => bustCache({ config, path }))
       );
     }
 
@@ -40,9 +41,9 @@ module.exports = async ({
     await buildConfig({
       config,
       onResult: async result => {
-        const {didChange, targetPath} = result;
-        if (didChange) await bustCache({config, path: targetPath});
-        return await onResult(result);
+        const { didChange, targetPath } = result;
+        if (didChange) await bustCache({ config, path: targetPath });
+        return onResult(result);
       }
     });
     await onEnd();
@@ -52,15 +53,19 @@ module.exports = async ({
     if (changedPaths.size) await build();
   };
 
-  if (!watchPaths.length) return await build();
+  if (!watchPaths.length) return build();
 
   const tryBuild = async () => {
-    try { await build(); } catch (er) { await onError(er); }
+    try {
+      await build();
+    } catch (er) {
+      await onError(er);
+    }
   };
 
-  const handleChangedPath = async ({path}) => {
+  const handleChangedPath = ({ path }) => {
     changedPaths.add(npath.relative('.', path));
-    if (!debounce) return await tryBuild();
+    if (!debounce) return tryBuild();
 
     clearTimeout(timeoutId);
     timeoutId = setTimeout(tryBuild, debounce * 1000);

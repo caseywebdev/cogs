@@ -1,5 +1,7 @@
 const crypto = require('crypto');
+
 const npath = require('npath');
+
 const setExt = require('./set-ext');
 
 const getHash = buffer => {
@@ -11,7 +13,7 @@ const getHash = buffer => {
 module.exports = ({
   buffer,
   path,
-  target: {base = '.', dir = '.', ext = {}, fingerprint = false} = {}
+  target: { base = '.', dir = '.', ext = {}, fingerprint = false } = {}
 }) => {
   const oldExt = npath.extname(path);
   return setExt(

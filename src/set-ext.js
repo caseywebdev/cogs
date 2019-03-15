@@ -1,4 +1,4 @@
-var npath = require('npath');
+const npath = require('npath');
 
 module.exports = (path, newExt) => {
   if (!newExt) return path;

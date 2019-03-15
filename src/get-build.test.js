@@ -1,5 +1,4 @@
 const getBuild = require('./get-build');
-
 const normalizeConfig = require('./normalize-config');
 
 const config = normalizeConfig({
@@ -13,7 +12,6 @@ const config = normalizeConfig({
 });
 
 test('getBuild', async () => {
-  const build =
-    await getBuild({env: config[0], path: 'test-fixtures/a.txt'});
+  const build = await getBuild({ env: config[0], path: 'test-fixtures/a.txt' });
   expect(build.buffer.toString()).toEqual('A\nB\nC\n');
 });
