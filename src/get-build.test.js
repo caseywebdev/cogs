@@ -2,16 +2,30 @@ const getBuild = require('./get-build');
 const normalizeConfig = require('./normalize-config');
 
 const config = normalizeConfig({
-  transformers: () => ({
-    requires: [
-      'test-fixtures/a.txt',
-      'test-fixtures/b.txt',
-      'test-fixtures/c.txt'
-    ]
-  })
+  main: {
+    transformers: () => ({
+      requires: [
+        'test-fixtures/a.txt',
+        'test-fixtures/b.txt',
+        'test-fixtures/c.txt'
+      ]
+    }),
+    builds: {
+      'test-fixtures/a.txt': {
+        transformers: ({ file: { buffer } }) => ({
+          buffer: buffer.toString().toLowerCase()
+        })
+      }
+    }
+  }
 });
 
 test('getBuild', async () => {
-  const build = await getBuild({ env: config[0], path: 'test-fixtures/a.txt' });
-  expect(build.buffer.toString()).toEqual('A\nB\nC\n');
+  const env = config.main;
+  const build = await getBuild({
+    env,
+    path: 'test-fixtures/a.txt',
+    transformers: env.builds['test-fixtures/a.txt'].transformers
+  });
+  expect(build.buffer.toString()).toEqual('a\nb\nc\n');
 });

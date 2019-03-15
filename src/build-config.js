@@ -11,13 +11,13 @@ const writeBuild = require('./write-build');
 const flattenBuilds = build =>
   [].concat(build, ..._.map(build.builds, flattenBuilds));
 
-const saveManifest = async ({ config, env, manifest, onError, onResult }) => {
+const saveManifest = async ({ env, manifest, onError, onResult }) => {
   const { manifestPath } = env;
   if (!manifestPath) return;
 
   const buffer = Buffer.from(JSON.stringify(sortObj(manifest)));
   const size = buffer.length;
-  const sourcePath = `[manifest:${config.indexOf(env)}]`;
+  const sourcePath = `[manifest:${env.name}]`;
   const targetPath = manifestPath;
   try {
     const didChange = await maybeWrite({ buffer, targetPath });
@@ -41,11 +41,14 @@ const saveBuild = async ({ build, manifest, onError, onResult, target }) => {
 
 const saveBuilds = ({ env, manifest, onError, onResult }) =>
   Promise.all(
-    _.map(env.builds, async (target, pattern) =>
-      Promise.all(
+    _.map(env.builds, async (target, pattern) => {
+      const { transformers } = target;
+      return Promise.all(
         _.map(await glob(pattern, { nodir: true }), async path => {
           try {
-            const builds = flattenBuilds(await getBuild({ env, path }));
+            const builds = flattenBuilds(
+              await getBuild({ env, path, transformers })
+            );
             await Promise.all(
               _.map(builds, async build => {
                 await saveBuild({ build, manifest, onError, onResult, target });
@@ -55,8 +58,8 @@ const saveBuilds = ({ env, manifest, onError, onResult }) =>
             await onError({ error, sourcePath: path });
           }
         })
-      )
-    )
+      );
+    })
   );
 
 const buildConfig = async ({ built, config, onResult, started }) => {
@@ -79,7 +82,7 @@ const buildConfig = async ({ built, config, onResult, started }) => {
       await saveBuilds({ env, manifest, onError, onResult });
       if (failed) return;
 
-      await saveManifest({ config, env, manifest, onError, onResult });
+      await saveManifest({ env, manifest, onError, onResult });
       if (failed) return;
 
       built.add(env);
