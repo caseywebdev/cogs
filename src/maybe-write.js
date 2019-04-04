@@ -1,10 +1,8 @@
 const { promisify } = require('util');
 const fs = require('fs');
-
 const _ = require('underscore');
 const npath = require('npath');
 const mkdirp = promisify(require('mkdirp'));
-
 const getBuffer = require('./get-buffer');
 
 const writeFile = promisify(fs.writeFile);

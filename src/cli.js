@@ -1,6 +1,5 @@
 const _ = require('underscore');
 const chalk = require('chalk');
-
 const formatSize = require('./format-size');
 const parseArgv = require('./parse-argv');
 const run = require('./run');

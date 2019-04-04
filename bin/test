@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 exec npx jest \
   --color \
   --coverage \
-  $([ "$WATCH" = "1" ] && echo '--watch') \
+  $([ "$WATCH" = 1 ] && echo --watch) \
   src

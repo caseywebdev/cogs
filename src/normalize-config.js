@@ -1,5 +1,4 @@
 const _ = require('underscore');
-
 const normalizeTransformer = require('./normalize-transformer');
 const toArray = require('./to-array');
 

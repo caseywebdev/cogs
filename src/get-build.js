@@ -1,5 +1,4 @@
 const _ = require('underscore');
-
 const walk = require('./walk');
 
 const getAllFiles = build =>

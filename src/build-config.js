@@ -1,8 +1,6 @@
 const { promisify } = require('util');
-
 const _ = require('underscore');
 const glob = promisify(require('glob'));
-
 const getBuild = require('./get-build');
 const maybeWrite = require('./maybe-write');
 const sortObj = require('./sort-obj');

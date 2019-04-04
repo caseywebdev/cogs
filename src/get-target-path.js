@@ -1,7 +1,5 @@
 const crypto = require('crypto');
-
 const npath = require('npath');
-
 const setExt = require('./set-ext');
 
 const getHash = buffer => {

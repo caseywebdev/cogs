@@ -1,6 +1,5 @@
 const _ = require('underscore');
 const minimatch = require('minimatch');
-
 const toArray = require('./to-array');
 
 const doesMatch = ({ transformer, path }) => {

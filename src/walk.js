@@ -1,5 +1,4 @@
 const _ = require('underscore');
-
 const getFile = require('./get-file');
 
 const getFiles = async ({ env, files = {}, path }) => {

@@ -1,8 +1,6 @@
 const { promisify } = require('util');
 const fs = require('fs');
-
 const npath = require('npath');
-
 const normalizeConfig = require('./normalize-config');
 
 const exists = promisify(fs.exists);

@@ -1,5 +1,4 @@
 const _ = require('underscore');
-
 const fileHasDependency = require('./file-has-dependency');
 
 module.exports = ({ config, path }) =>

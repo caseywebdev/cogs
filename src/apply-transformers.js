@@ -1,5 +1,4 @@
 const _ = require('underscore');
-
 const filterTransformers = require('./filter-transformers');
 const pruneDependencies = require('./prune-dependencies');
 

@@ -1,7 +1,6 @@
 const _ = require('underscore');
 const npath = require('npath');
 const watchy = require('watchy');
-
 const buildConfig = require('./build-config');
 const bustCache = require('./bust-cache');
 const getConfig = require('./get-config');
