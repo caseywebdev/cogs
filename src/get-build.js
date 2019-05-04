@@ -3,46 +3,61 @@ const walk = require('./walk');
 
 const getAllFiles = build =>
   _.reduce(
-    build.files,
-    (files, file) =>
-      _.reduce(
-        file.builds,
-        (files, build) => _.extend({}, files, getAllFiles(build)),
-        files
-      ),
+    build.builds,
+    (files, build) => ({ ...files, ...getAllFiles(build) }),
     build.files
   );
 
-const resolve = async ({ env, path, seen = {} }) => {
-  if (seen[path]) return;
+const deleteFile = ({ build: { builds, files }, path }) => {
+  delete files[path];
+  for (const build of builds) deleteFile({ build, path });
+};
 
-  const build = (seen[path] = { path });
-  const files = (build.files = _.indexBy(await walk({ env, path }), 'path'));
-  const builds = (build.builds = _.compact(
+const resolve = async ({ env, path, buildsSeen = {} }) => {
+  if (buildsSeen[path]) return;
+
+  buildsSeen[path] = true;
+  const files = _.indexBy(await walk({ env, path }), 'path');
+  const builds = _.compact(
     _.flatten(
       await Promise.all(
         _.map(files, file =>
-          Promise.all(_.map(file.builds, path => resolve({ env, path, seen })))
+          Promise.all(
+            _.map(file.builds, path => resolve({ env, path, buildsSeen }))
+          )
         )
       )
     )
-  ));
-
-  const shared = {};
-  _.each(builds, build =>
-    _.each(getAllFiles(build), file =>
-      shared[file.path] ? (files[file.path] = file) : (shared[file.path] = true)
-    )
   );
 
+  const filesSeen = {};
+  for (const build of builds) {
+    for (const [path, file] of Object.entries(getAllFiles(build))) {
+      if (files[path]) {
+        deleteFile({ build, path });
+      } else if (filesSeen[path]) {
+        files[path] = file;
+        deleteFile({ build: filesSeen[path], path });
+        deleteFile({ build, path });
+        delete filesSeen[path];
+      } else {
+        filesSeen[path] = build;
+      }
+    }
+  }
+
+  return { builds, files, path };
+};
+
+const setBuffer = build => {
+  const { builds, files } = build;
+  for (const build of builds) setBuffer(build);
+  build.buffer = Buffer.concat(_.map(files, 'buffer'));
+  delete build.files;
+};
+
+module.exports = async ({ env, path }) => {
+  const build = await resolve({ env, path });
+  setBuffer(build);
   return build;
 };
-
-const dedupe = (build, included = {}) => {
-  const { builds, files } = build;
-  _.each(included, (__, path) => delete files[path]);
-  _.each(builds, build => dedupe(build, { ...included, ...files }));
-  return _.extend(build, { buffer: Buffer.concat(_.map(files, 'buffer')) });
-};
-
-module.exports = async ({ env, path }) => dedupe(await resolve({ env, path }));
