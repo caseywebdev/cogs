@@ -8,7 +8,7 @@ const run = require('./run');
 
 const argv = parseArgv(process.argv);
 const { color, silent } = argv;
-const { blue, gray, green, magenta, red, yellow } = new chalk.constructor({
+const { blue, gray, green, magenta, red, yellow } = new chalk.Instance({
   enabled: color,
   level: color ? 1 : 0
 });
