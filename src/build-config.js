@@ -1,15 +1,14 @@
 const { promisify } = require('util');
 
-const _ = require('underscore');
 const glob = promisify(require('glob'));
+const npath = require('npath');
+const _ = require('underscore');
 
 const getBuild = require('./get-build');
 const maybeWrite = require('./maybe-write');
 const setExt = require('./set-ext');
 const sortObj = require('./sort-obj');
 const writeBuffer = require('./write-buffer');
-
-const npath = require('npath');
 
 const flattenBuilds = build =>
   [].concat(build, ..._.map(build.builds, flattenBuilds));
@@ -30,16 +29,24 @@ const saveManifest = async ({ env, manifest, onError, onResult }) => {
   }
 };
 
-const saveBuild = async ({ build, manifest, onError, onResult, target }) => {
-  manifest[build.path] = await Promise.all(
-    build.buffers.map(async (buffer, i) => {
+const saveBuild = async ({
+  build: { buffers, path },
+  manifest,
+  onError,
+  onResult,
+  target
+}) => {
+  manifest[path] = await Promise.all(
+    buffers.map(async (buffer, i) => {
       const size = buffer.length;
       const sourcePath =
-        i === 0
-          ? build.path
-          : setExt(build.path, `-${i + 1}${npath.extname(build.path)}`);
+        i === 0 ? path : setExt(path, `-${i + 1}${npath.extname(path)}`);
       try {
-        const { didChange, targetPath } = await writeBuffer({ build, target });
+        const { didChange, targetPath } = await writeBuffer({
+          buffer,
+          path,
+          target
+        });
         await onResult({ didChange, size, sourcePath, targetPath });
         return targetPath;
       } catch (error) {
