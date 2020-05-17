@@ -40,11 +40,11 @@ const saveBuild = async ({
     buffers.map(async (buffer, i) => {
       const size = buffer.length;
       const sourcePath =
-        i === 0 ? path : setExt(path, `-${i + 1}${npath.extname(path)}`);
+        i === 0 ? path : setExt(path, `~${i + 1}${npath.extname(path)}`);
       try {
         const { didChange, targetPath } = await writeBuffer({
           buffer,
-          path,
+          path: sourcePath,
           target
         });
         await onResult({ didChange, size, sourcePath, targetPath });
