@@ -1,4 +1,5 @@
 const _ = require('underscore');
+
 const walk = require('./walk');
 
 const getAllFiles = build =>
@@ -49,15 +50,28 @@ const resolve = async ({ env, path, buildsSeen = {} }) => {
   return { builds, files, path };
 };
 
-const setBuffer = build => {
+const setBuffers = ({ build, env }) => {
   const { builds, files } = build;
-  for (const build of builds) setBuffer(build);
-  build.buffer = Buffer.concat(_.map(files, 'buffer'));
   delete build.files;
+  for (const build of builds) setBuffers({ build, env });
+  let size = 0;
+  let buffers = [];
+  build.buffers = [];
+  for (const path in files) {
+    const { buffer } = files[path];
+    if (size && size + buffer.length > env.maxChunkSize) {
+      build.buffers.push(Buffer.concat(buffers));
+      size = 0;
+      buffers = [];
+    }
+    size += buffer.length;
+    buffers.push(buffer);
+  }
+  if (buffers.length) build.buffers.push(Buffer.concat(buffers));
 };
 
 module.exports = async ({ env, path }) => {
   const build = await resolve({ env, path });
-  setBuffer(build);
+  setBuffers({ build, env });
   return build;
 };

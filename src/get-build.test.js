@@ -19,5 +19,5 @@ test('getBuild', async () => {
     env,
     path: 'test-fixtures/a.txt'
   });
-  expect(build.buffer.toString()).toEqual('A\nB\nC\n');
+  expect(build.buffers[0].toString()).toEqual('A\nB\nC\n');
 });
