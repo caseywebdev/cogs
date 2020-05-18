@@ -7,7 +7,7 @@ const setExt = require('./set-ext');
 const getHash = buffer => {
   const hash = crypto.createHash('md5');
   hash.update(buffer);
-  return hash.digest('hex');
+  return hash.digest('hex').slice(0, 8);
 };
 
 module.exports = ({
