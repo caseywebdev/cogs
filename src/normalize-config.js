@@ -11,11 +11,11 @@ module.exports = config => {
     ({ builds, transformers, manifestPath, maxChunkSize, requires }, name) => ({
       builds: _.mapObject(builds, ({ transformers, ...build }) => ({
         ...build,
+        maxChunkSize: maxChunkSize || Infinity,
         transformers: _.map(toArray(transformers), normalizeTransformer)
       })),
       cache: { buffers, files: {} },
       manifestPath,
-      maxChunkSize: maxChunkSize || Infinity,
       name,
       requires: toArray(requires),
       transformers: _.map(toArray(transformers), normalizeTransformer)

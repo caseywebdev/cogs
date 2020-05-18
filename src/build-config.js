@@ -59,13 +59,10 @@ const saveBuild = async ({
 const saveBuilds = ({ env, manifest, onError, onResult }) =>
   Promise.all(
     _.map(env.builds, async (target, pattern) => {
-      const { transformers } = target;
       return Promise.all(
         _.map(await glob(pattern, { nodir: true }), async path => {
           try {
-            const builds = flattenBuilds(
-              await getBuild({ env, path, transformers })
-            );
+            const builds = flattenBuilds(await getBuild({ env, path, target }));
             await Promise.all(
               _.map(builds, async build => {
                 await saveBuild({ build, manifest, onError, onResult, target });

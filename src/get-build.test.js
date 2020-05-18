@@ -17,7 +17,8 @@ test('getBuild', async () => {
   const env = config.main;
   const build = await getBuild({
     env,
-    path: 'test-fixtures/a.txt'
+    path: 'test-fixtures/a.txt',
+    target: {}
   });
   expect(build.buffers[0].toString()).toEqual('A\nB\nC\n');
 });

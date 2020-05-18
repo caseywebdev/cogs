@@ -50,16 +50,16 @@ const resolve = async ({ env, path, buildsSeen = {} }) => {
   return { builds, files, path };
 };
 
-const setBuffers = ({ build, env }) => {
+const setBuffers = ({ build, target }) => {
   const { builds, files } = build;
   delete build.files;
-  for (const build of builds) setBuffers({ build, env });
+  for (const build of builds) setBuffers({ build, target });
   let size = 0;
   let buffers = [];
   build.buffers = [];
   for (const path in files) {
     const { buffer } = files[path];
-    if (size && size + buffer.length > env.maxChunkSize) {
+    if (size && size + buffer.length > target.maxChunkSize) {
       build.buffers.push(Buffer.concat(buffers));
       size = 0;
       buffers = [];
@@ -70,8 +70,8 @@ const setBuffers = ({ build, env }) => {
   if (buffers.length) build.buffers.push(Buffer.concat(buffers));
 };
 
-module.exports = async ({ env, path }) => {
+module.exports = async ({ env, path, target }) => {
   const build = await resolve({ env, path });
-  setBuffers({ build, env });
+  setBuffers({ build, target });
   return build;
 };
