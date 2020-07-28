@@ -1,11 +1,12 @@
-const applyTransformers = require('./apply-transformers');
-const getBuffer = require('./get-buffer');
-const getOrSet = require('./get-or-set');
+import { promises as fs } from 'fs';
+
+import applyTransformers from './apply-transformers.js';
+import getOrSet from './get-or-set.js';
 
 const readFile = ({ cache, path }) =>
-  getOrSet(cache.buffers, path, () => getBuffer(path));
+  getOrSet(cache.buffers, path, () => fs.readFile(path));
 
-module.exports = ({ env: { cache, transformers }, path }) =>
+export default ({ env: { cache, transformers }, path }) =>
   getOrSet(cache.files, path, async () => {
     try {
       return await applyTransformers({

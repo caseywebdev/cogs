@@ -1,17 +1,14 @@
-const { promisify } = require('util');
-const fs = require('fs');
-const _ = require('underscore');
-const npath = require('npath');
-const mkdirp = promisify(require('mkdirp'));
-const getBuffer = require('./get-buffer');
+import { promises as fs } from 'fs';
 
-const writeFile = promisify(fs.writeFile);
+import mkdirp from 'mkdirp';
+import npath from 'npath';
+import _ from 'underscore';
 
-module.exports = async ({ buffer, targetPath }) => {
-  const targetBuffer = await getBuffer(targetPath).catch(_.noop);
+export default async ({ buffer, targetPath }) => {
+  const targetBuffer = await fs.readFile(targetPath).catch(_.noop);
   if (targetBuffer && buffer.compare(targetBuffer) === 0) return false;
 
   await mkdirp(npath.dirname(targetPath));
-  await writeFile(targetPath, buffer);
+  await fs.writeFile(targetPath, buffer);
   return true;
 };

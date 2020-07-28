@@ -1,6 +1,6 @@
-const _ = require('underscore');
+import _ from 'underscore';
 
-module.exports = val => {
+export default val => {
   if (val == null) return [];
 
   if (_.isArray(val)) return val;

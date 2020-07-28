@@ -1,8 +1,8 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const npath = require('npath');
+import npath from 'npath';
 
-const setExt = require('./set-ext');
+import setExt from './set-ext.js';
 
 const getHash = buffer => {
   const hash = crypto.createHash('md5');
@@ -10,7 +10,7 @@ const getHash = buffer => {
   return hash.digest('hex').slice(0, 8);
 };
 
-module.exports = ({
+export default ({
   buffer,
   path,
   target: { base = '.', dir = '.', ext = {}, fingerprint = false } = {}

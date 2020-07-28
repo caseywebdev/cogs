@@ -1,6 +1,7 @@
-const _ = require('underscore');
-const minimatch = require('minimatch');
-const toArray = require('./to-array');
+import minimatch from 'minimatch';
+import _ from 'underscore';
+
+import toArray from './to-array.js';
 
 const doesMatch = ({ transformer, path }) => {
   const only = toArray(transformer.only);
@@ -12,5 +13,5 @@ const doesMatch = ({ transformer, path }) => {
   );
 };
 
-module.exports = ({ transformers, path }) =>
+export default ({ transformers, path }) =>
   _.filter(transformers, transformer => doesMatch({ transformer, path }));

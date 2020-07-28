@@ -1,33 +1,41 @@
-const _ = require('underscore');
+import normalizeTransformer from './normalize-transformer.js';
+import toArray from './to-array.js';
 
-const normalizeTransformer = require('./normalize-transformer');
-const toArray = require('./to-array');
+const asyncMapObj = async (obj, fn) =>
+  Object.fromEntries(
+    await Promise.all(
+      Object.entries(obj).map(async ([key, val]) => [key, await fn(val, key)])
+    )
+  );
 
-module.exports = config => {
+export default async config => {
   const buffers = {};
 
-  config = _.mapObject(
+  config = await asyncMapObj(
     config,
-    ({ builds, transformers, manifestPath, requires }, name) => ({
-      builds: _.mapObject(
+    async ({ builds, transformers, manifestPath, requires }, name) => ({
+      builds: await asyncMapObj(
         builds,
-        ({ maxChunkSize, transformers, ...build }) => ({
+        async ({ maxChunkSize, transformers, ...build }) => ({
           ...build,
           maxChunkSize: maxChunkSize || Infinity,
-          transformers: _.map(toArray(transformers), normalizeTransformer)
+          transformers: await Promise.all(
+            toArray(transformers).map(normalizeTransformer)
+          )
         })
       ),
       cache: { buffers, files: {} },
       manifestPath,
       name,
       requires: toArray(requires),
-      transformers: _.map(toArray(transformers), normalizeTransformer)
+      transformers: await Promise.all(
+        toArray(transformers).map(normalizeTransformer)
+      )
     })
   );
 
-  _.each(
-    config,
-    env => (env.requires = _.map(env.requires, name => config[name]))
+  Object.values(config).forEach(
+    env => (env.requires = toArray(env.requires).map(name => config[name]))
   );
 
   return config;

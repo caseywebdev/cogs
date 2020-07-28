@@ -44,7 +44,7 @@ JSON, as long as `require`ing the file returns the config object. Here's an
 example in JavaScript:
 
 ```js
-module.exports = {
+export default {
 
   // Define the transformer pipeline here.
   transformers: [

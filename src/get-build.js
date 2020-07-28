@@ -1,6 +1,6 @@
-const _ = require('underscore');
+import _ from 'underscore';
 
-const walk = require('./walk');
+import walk from './walk.js';
 
 const getAllFiles = build =>
   _.reduce(
@@ -70,7 +70,7 @@ const setBuffers = ({ build, target }) => {
   if (buffers.length) build.buffers.push(Buffer.concat(buffers));
 };
 
-module.exports = async ({ env, path, target }) => {
+export default async ({ env, path, target }) => {
   const build = await resolve({ env, path });
   setBuffers({ build, target });
   return build;

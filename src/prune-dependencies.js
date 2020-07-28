@@ -1,11 +1,11 @@
-const _ = require('underscore');
-const npath = require('npath');
+import npath from 'npath';
+import _ from 'underscore';
 
 const normalize = path => npath.normalize(path);
 
 const clean = paths => _.unique(_.map(paths, normalize));
 
-module.exports = file => {
+export default file => {
   let { builds, links, requires } = file;
   requires = clean(requires);
   builds = _.difference(clean(builds), requires);

@@ -1,7 +1,7 @@
-const getTargetPath = require('./get-target-path');
-const maybeWrite = require('./maybe-write');
+import getTargetPath from './get-target-path.js';
+import maybeWrite from './maybe-write.js';
 
-module.exports = async ({ buffer, path, target }) => {
+export default async ({ buffer, path, target }) => {
   const targetPath = getTargetPath({ buffer, path, target });
 
   if (targetPath === path) throw new Error(`Refusing to overwrite ${path}`);

@@ -1,5 +1,6 @@
-const _ = require('underscore');
-const getFile = require('./get-file');
+import _ from 'underscore';
+
+import getFile from './get-file.js';
 
 const getFiles = async ({ env, files = {}, path }) => {
   if (files[path]) return files;
@@ -24,5 +25,5 @@ const walk = ({ files, path, visited = {} }) => {
   return _.unique(_.flatten(graph));
 };
 
-module.exports = async ({ env, path }) =>
+export default async ({ env, path }) =>
   walk({ files: await getFiles({ env, path }), path });

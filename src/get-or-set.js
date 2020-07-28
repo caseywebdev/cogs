@@ -1,4 +1,4 @@
-module.exports = async (cache, key, fn) => {
+export default async (cache, key, fn) => {
   try {
     return cache[key] || (await (cache[key] = fn()));
   } catch (er) {

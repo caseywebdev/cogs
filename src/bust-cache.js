@@ -1,7 +1,8 @@
-const _ = require('underscore');
-const fileHasDependency = require('./file-has-dependency');
+import _ from 'underscore';
 
-module.exports = ({ config, path }) =>
+import fileHasDependency from './file-has-dependency.js';
+
+export default ({ config, path }) =>
   Promise.all(
     _.map(config, async ({ cache }) => {
       const { buffers, files } = cache;

@@ -1,14 +1,16 @@
-const { promisify } = require('util');
+import { promisify } from 'util';
 
-const glob = promisify(require('glob'));
-const npath = require('npath');
-const _ = require('underscore');
+import _glob from 'glob';
+import npath from 'npath';
+import _ from 'underscore';
 
-const getBuild = require('./get-build');
-const maybeWrite = require('./maybe-write');
-const setExt = require('./set-ext');
-const sortObj = require('./sort-obj');
-const writeBuffer = require('./write-buffer');
+import getBuild from './get-build.js';
+import maybeWrite from './maybe-write.js';
+import setExt from './set-ext.js';
+import sortObj from './sort-obj.js';
+import writeBuffer from './write-buffer.js';
+
+const glob = promisify(_glob);
 
 const flattenBuilds = build =>
   [].concat(build, ..._.map(build.builds, flattenBuilds));
@@ -105,5 +107,5 @@ const buildConfig = async ({ built, config, onResult, started }) => {
   );
 };
 
-module.exports = ({ config, onResult = _.noop }) =>
+export default ({ config, onResult = _.noop }) =>
   buildConfig({ built: new Set(), config, onResult, started: new Set() });

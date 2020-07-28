@@ -1,6 +1,6 @@
-const npath = require('npath');
+import npath from 'npath';
 
-module.exports = (path, newExt) => {
+export default (path, newExt) => {
   if (!newExt) return path;
 
   const oldExt = npath.extname(path);

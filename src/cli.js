@@ -1,8 +1,9 @@
-const _ = require('underscore');
-const chalk = require('chalk');
-const formatSize = require('./format-size');
-const parseArgv = require('./parse-argv');
-const run = require('./run');
+import chalk from 'chalk';
+import _ from 'underscore';
+
+import formatSize from './format-size.js';
+import parseArgv from './parse-argv.js';
+import run from './run.js';
 
 ['SIGTERM', 'SIGINT'].forEach(sig => process.once(sig, () => process.exit()));
 

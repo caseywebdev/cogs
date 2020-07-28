@@ -1,18 +1,12 @@
-const { promisify } = require('util');
-const fs = require('fs');
-const npath = require('npath');
-const normalizeConfig = require('./normalize-config');
+import npath from 'npath';
 
-const exists = promisify(fs.exists);
+import normalizeConfig from './normalize-config.js';
 
-module.exports = async configPath => {
+export default async configPath => {
   try {
     const path = npath.resolve(configPath);
-    if (!(await exists(path))) throw new Error(`'${path}' does not exist`);
-
-    delete require.cache[path];
-    // eslint-disable-next-line import/no-dynamic-require
-    return normalizeConfig(require(path));
+    const { default: config } = await import(`${path}?at=${Date.now()}`);
+    return await normalizeConfig(config);
   } catch (er) {
     throw new Error(`Unable to load '${configPath}'\n${er.stack}`);
   }

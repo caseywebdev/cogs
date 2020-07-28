@@ -1,11 +1,12 @@
-const _ = require('underscore');
-const npath = require('npath');
-const watchy = require('watchy');
-const buildConfig = require('./build-config');
-const bustCache = require('./bust-cache');
-const getConfig = require('./get-config');
+import npath from 'npath';
+import _ from 'underscore';
+import watchy from 'watchy';
 
-module.exports = async ({
+import buildConfig from './build-config.js';
+import bustCache from './bust-cache.js';
+import getConfig from './get-config.js';
+
+export default async ({
   configPath = 'cogs.js',
   debounce = 0.1,
   onError = _.noop,

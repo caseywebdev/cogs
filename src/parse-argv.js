@@ -1,8 +1,12 @@
-const commander = require('commander');
+import fs from 'fs';
 
-module.exports = argv =>
+import commander from 'commander';
+
+const { version } = JSON.parse(fs.readFileSync('package.json'));
+
+export default argv =>
   commander
-    .version(require('../package').version)
+    .version(version)
     .description('The fast file transform pipeline.')
     .option('-c, --config-path [path]', 'load config from [path]', 'cogs.js')
     .option(
