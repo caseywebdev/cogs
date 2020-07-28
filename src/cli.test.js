@@ -12,7 +12,7 @@ const deleteBuilt = async () => {
 
 export default async done => {
   await deleteBuilt();
-  const ps = spawn('bin/cogs', ['-c', 'test-fixtures/config.js'], {
+  const ps = spawn('node', ['src/cli.js', '-c', 'test-fixtures/config.js'], {
     stdio: ['inherit', 'inherit', 'inherit']
   });
   ps.on('exit', async code => {

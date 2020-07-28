@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "4.7.1",
+  "version": "4.7.2",
   "type": "module",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
@@ -10,7 +10,7 @@
     "url": "https://github.com/caseywebdev/cogs"
   },
   "bin": {
-    "cogs": "bin/cogs"
+    "cogs": "src/cli.js"
   },
   "dependencies": {
     "chalk": "4",
