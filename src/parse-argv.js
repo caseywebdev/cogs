@@ -1,9 +1,13 @@
 import fs from 'fs';
+import url from 'url';
 
 import commander from 'commander';
+import npath from 'npath';
 
 const { program } = commander;
-const { version } = JSON.parse(fs.readFileSync('package.json'));
+const { path: thisPath } = url.parse(import.meta.url);
+const packagePath = `${npath.dirname(thisPath)}/../package.json`;
+const { version } = JSON.parse(fs.readFileSync(packagePath));
 
 export default argv =>
   program
