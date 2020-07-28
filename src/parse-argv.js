@@ -2,10 +2,11 @@ import fs from 'fs';
 
 import commander from 'commander';
 
+const { program } = commander;
 const { version } = JSON.parse(fs.readFileSync('package.json'));
 
 export default argv =>
-  commander
+  program
     .version(version)
     .description('The fast file transform pipeline.')
     .option('-c, --config-path [path]', 'load config from [path]', 'cogs.js')
