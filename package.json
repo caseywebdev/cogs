@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "4.7.5",
+  "version": "4.7.6",
   "type": "module",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
@@ -18,7 +18,6 @@
     "glob": "7",
     "minimatch": "3",
     "mkdirp": "1",
-    "npath": "1",
     "underscore": "1",
     "watchy": "0.9"
   },

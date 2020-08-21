@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
+import npath from 'path';
 
 import mkdirp from 'mkdirp';
-import npath from 'npath';
 import _ from 'underscore';
 
 export default async ({ buffer, targetPath }) => {

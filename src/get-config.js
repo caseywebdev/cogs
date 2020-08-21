@@ -1,4 +1,4 @@
-import npath from 'npath';
+import npath from 'path';
 
 import normalizeConfig from './normalize-config.js';
 

@@ -1,4 +1,5 @@
-import npath from 'npath';
+import npath from 'path';
+
 import _ from 'underscore';
 import watchy from 'watchy';
 

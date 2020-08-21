@@ -1,6 +1,5 @@
 import crypto from 'crypto';
-
-import npath from 'npath';
+import npath from 'path';
 
 import setExt from './set-ext.js';
 

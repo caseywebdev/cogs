@@ -1,8 +1,8 @@
 import fs from 'fs';
+import npath from 'path';
 import url from 'url';
 
 import commander from 'commander';
-import npath from 'npath';
 
 const { program } = commander;
 const { path: thisPath } = url.parse(import.meta.url);

@@ -1,7 +1,7 @@
+import npath from 'path';
 import { promisify } from 'util';
 
 import _glob from 'glob';
-import npath from 'npath';
 import _ from 'underscore';
 
 import getBuild from './get-build.js';

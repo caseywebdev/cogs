@@ -1,4 +1,4 @@
-import npath from 'npath';
+import npath from 'path';
 
 export default (path, newExt) => {
   if (!newExt) return path;

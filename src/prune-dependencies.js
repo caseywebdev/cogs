@@ -1,4 +1,5 @@
-import npath from 'npath';
+import npath from 'path';
+
 import _ from 'underscore';
 
 const normalize = path => npath.normalize(path);
