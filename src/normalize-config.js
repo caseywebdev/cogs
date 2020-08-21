@@ -4,7 +4,10 @@ import toArray from './to-array.js';
 const asyncMapObj = async (obj, fn) =>
   Object.fromEntries(
     await Promise.all(
-      Object.entries(obj).map(async ([key, val]) => [key, await fn(val, key)])
+      Object.entries(obj ?? {}).map(async ([key, val]) => [
+        key,
+        await fn(val, key)
+      ])
     )
   );
 
