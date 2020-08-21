@@ -17,16 +17,12 @@ export default async config => {
   config = await asyncMapObj(
     config,
     async ({ builds, transformers, manifestPath, requires }, name) => ({
-      builds: await asyncMapObj(
-        builds,
-        async ({ maxChunkSize, transformers, ...build }) => ({
-          ...build,
-          maxChunkSize: maxChunkSize || Infinity,
-          transformers: await Promise.all(
-            toArray(transformers).map(normalizeTransformer)
-          )
-        })
-      ),
+      builds: await asyncMapObj(builds, async ({ transformers, ...build }) => ({
+        ...build,
+        transformers: await Promise.all(
+          toArray(transformers).map(normalizeTransformer)
+        )
+      })),
       cache: { buffers, files: {} },
       manifestPath,
       name,
