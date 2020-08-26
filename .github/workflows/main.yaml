@@ -1,0 +1,14 @@
+name: main
+on: [push]
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    container:
+      image: node:alpine
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install
+      run: npm install
+    - name: Test
+      run: bin/test
