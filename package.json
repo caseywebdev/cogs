@@ -1,13 +1,15 @@
 {
   "name": "cogs",
-  "version": "4.7.10",
+  "version": "4.7.11",
   "type": "module",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
   "license": "MIT",
   "main": "src/index.js",
   "module": "src/index.js",
-  "sideEffects": false,
+  "sideEffects": [
+    "src/cli.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/caseywebdev/cogs"
