@@ -1,15 +1,46 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
+import npath from 'path';
+import url from 'url';
+
 import chalk from 'chalk';
+import commander from 'commander';
 import _ from 'underscore';
 
 import formatSize from './format-size.js';
-import parseArgv from './parse-argv.js';
 import run from './run.js';
 
 ['SIGTERM', 'SIGINT'].forEach(sig => process.once(sig, () => process.exit()));
 
-const argv = parseArgv(process.argv);
+const { program } = commander;
+const { path: thisPath } = url.parse(import.meta.url);
+const packagePath = `${npath.dirname(thisPath)}/../package.json`;
+const { version } = JSON.parse(fs.readFileSync(packagePath));
+
+const argv = program
+  .version(version)
+  .description('The fast file transform pipeline.')
+  .option('-c, --config-path [path]', 'load config from [path]', 'cogs.js')
+  .option(
+    '-d, --debounce [seconds]',
+    'trigger a build at most every [seconds] seconds',
+    parseFloat,
+    0.1
+  )
+  .option(
+    '-w, --watch-paths [path]',
+    'rebuild if [path] changes, can be specified multiple times',
+    (path, paths = []) => [].concat(paths, path)
+  )
+  .option(
+    '-p, --use-polling',
+    'use stat polling instead of fsevents when watching'
+  )
+  .option('-s, --silent', 'do not output build information, only errors')
+  .option('-C, --no-color', 'disable colored output')
+  .parse(process.argv);
+
 const { color, silent } = argv;
 const { blue, gray, green, magenta, red, yellow } = new chalk.Instance({
   level: color ? 1 : 0
