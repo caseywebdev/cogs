@@ -18,7 +18,7 @@ const { path: thisPath } = url.parse(import.meta.url);
 const packagePath = `${npath.dirname(thisPath)}/../package.json`;
 const { version } = JSON.parse(fs.readFileSync(packagePath));
 
-const argv = program
+program
   .version(version)
   .description('The fast file transform pipeline.')
   .option('-c, --config-path [path]', 'load config from [path]', 'cogs.js')
@@ -41,7 +41,7 @@ const argv = program
   .option('-C, --no-color', 'disable colored output')
   .parse(process.argv);
 
-const { color, silent } = argv;
+const { color, silent, watchPaths } = program.opts();
 const { blue, gray, green, magenta, red, yellow } = new chalk.Instance({
   level: color ? 1 : 0
 });
@@ -56,7 +56,7 @@ const log = silent ? _.noop : console.log.bind(console);
 
 const onError = er => {
   console.error(red(er));
-  if (!argv.watchPaths) process.exit(1);
+  if (!watchPaths) process.exit(1);
 };
 
 const onStart = () => {
@@ -96,12 +96,12 @@ const onEnd = () => {
       yellow(`${((_.now() - start) / 1000).toFixed(1)}s`)
     ].join(gray(' | '))
   );
-  if (!argv.watchPaths && failed) {
+  if (!watchPaths && failed) {
     onError(new Error(`${failed} build${failed > 1 ? 's' : ''} failed`));
   }
 };
 
-const options = _.extend(_.omit(argv, 'color', 'silent'), {
+const options = _.extend(_.omit(program.opts(), 'color', 'silent'), {
   onEnd,
   onError,
   onStart,
