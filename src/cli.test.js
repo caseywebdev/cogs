@@ -20,7 +20,7 @@ export default async done => {
       assert.equal(code, 0);
       assert.equal(
         (await fs.readFile('test-fixtures/a.built')).toString(),
-        'A\nB\nC\n'
+        '# start\nA\nB\nC\n# end\n'
       );
       await deleteBuilt();
       done();

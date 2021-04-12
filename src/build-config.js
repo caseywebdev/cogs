@@ -65,7 +65,12 @@ const saveBuilds = ({ env, manifest, onError, onResult }) =>
         _.map(await glob(pattern, { nodir: true }), async path => {
           try {
             const builds = flattenBuilds(
-              await getBuild({ env, maxChunkSize: target.maxChunkSize, path })
+              await getBuild({
+                env,
+                maxChunkSize: target.maxChunkSize,
+                path,
+                transformers: target.transformers
+              })
             );
             await Promise.all(
               _.map(builds, async build => {

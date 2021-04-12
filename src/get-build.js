@@ -1,5 +1,6 @@
 import _ from 'underscore';
 
+import applyTransformers from './apply-transformers.js';
 import walk from './walk.js';
 
 const getAllFiles = build =>
@@ -50,10 +51,12 @@ const resolve = async ({ env, path, buildsSeen = {} }) => {
   return { builds, files, path };
 };
 
-const setBuffers = ({ build, maxChunkSize }) => {
-  const { builds, files } = build;
+const setBuffers = async ({ build, maxChunkSize, transformers }) => {
+  const { builds, files, path } = build;
   delete build.files;
-  for (const build of builds) setBuffers({ build, maxChunkSize });
+  await Promise.all(
+    builds.map(build => setBuffers({ build, maxChunkSize, transformers }))
+  );
   let size = 0;
   let buffers = [];
   build.buffers = [];
@@ -68,10 +71,22 @@ const setBuffers = ({ build, maxChunkSize }) => {
     buffers.push(buffer);
   }
   if (buffers.length) build.buffers.push(Buffer.concat(buffers));
+
+  build.buffers = await Promise.all(
+    build.buffers.map(
+      async buffer =>
+        (
+          await applyTransformers({
+            file: { buffer, builds: [], links: [], path, requires: [path] },
+            transformers
+          })
+        ).buffer
+    )
+  );
 };
 
-export default async ({ env, maxChunkSize, path }) => {
+export default async ({ env, maxChunkSize, path, transformers }) => {
   const build = await resolve({ env, path });
-  setBuffers({ build, maxChunkSize });
+  await setBuffers({ build, maxChunkSize, transformers });
   return build;
 };

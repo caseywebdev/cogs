@@ -17,7 +17,12 @@ export default async config => {
   config = await asyncMapObj(
     config,
     async ({ builds, transformers, manifestPath, requires }, name) => ({
-      builds,
+      builds: await asyncMapObj(builds, async target => ({
+        ...target,
+        transformers: await Promise.all(
+          toArray(target.transformers).map(normalizeTransformer)
+        )
+      })),
       cache: { buffers, files: {} },
       manifestPath,
       name,
