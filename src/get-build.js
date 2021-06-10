@@ -3,48 +3,34 @@ import _ from 'underscore';
 import applyTransformers from './apply-transformers.js';
 import walk from './walk.js';
 
-const getAllFiles = build =>
-  _.reduce(
-    build.builds,
-    (files, build) => ({ ...files, ...getAllFiles(build) }),
-    build.files
-  );
+const getAllFiles = build => [
+  ...Object.values(build.files).map(file => ({ build, file })),
+  ...build.builds.flatMap(getAllFiles)
+];
 
-const deleteFile = ({ build: { builds, files }, path }) => {
-  delete files[path];
-  for (const build of builds) deleteFile({ build, path });
-};
+const resolve = async ({ env, path, seen = new Set() }) => {
+  if (seen.has(path)) return { builds: [], files: [], path };
 
-const resolve = async ({ env, path, buildsSeen = {} }) => {
-  if (buildsSeen[path]) return;
-
-  buildsSeen[path] = true;
-  const files = _.indexBy(await walk({ env, path }), 'path');
-  const builds = _.compact(
-    _.flatten(
-      await Promise.all(
-        _.map(files, file =>
-          Promise.all(
-            _.map(file.builds, path => resolve({ env, path, buildsSeen }))
-          )
-        )
-      )
+  seen.add(path);
+  let files = await walk({ env, path });
+  const builds = await Promise.all(
+    files.flatMap(({ builds }) =>
+      builds.map(path => resolve({ env, path, seen: new Set(seen) }))
     )
   );
 
-  const filesSeen = {};
+  files = _.indexBy(files, 'path');
+  const seenFiles = {};
   for (const build of builds) {
-    for (const [path, file] of Object.entries(getAllFiles(build))) {
-      if (files[path]) {
-        deleteFile({ build, path });
-      } else if (filesSeen[path]) {
+    for (const { build: fileBuild, file } of getAllFiles(build)) {
+      const { path } = file;
+      if (files[path]) delete fileBuild.files[path];
+      else if (seenFiles[path] && seenFiles[path].path !== fileBuild.path) {
         files[path] = file;
-        deleteFile({ build: filesSeen[path], path });
-        deleteFile({ build, path });
-        delete filesSeen[path];
-      } else {
-        filesSeen[path] = build;
-      }
+        delete fileBuild.files[path];
+        delete seenFiles[path].files[path];
+        delete seenFiles[path];
+      } else seenFiles[path] = fileBuild;
     }
   }
 

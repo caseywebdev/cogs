@@ -12,8 +12,7 @@ import writeBuffer from './write-buffer.js';
 
 const glob = promisify(_glob);
 
-const flattenBuilds = build =>
-  [].concat(build, ..._.map(build.builds, flattenBuilds));
+const flattenBuilds = build => [build, ...build.builds.flatMap(flattenBuilds)];
 
 const saveManifest = async ({ env, manifest, onError, onResult }) => {
   const { manifestPath } = env;
