@@ -5,7 +5,7 @@ import npath from 'path';
 import url from 'url';
 
 import chalk from 'chalk';
-import commander from 'commander';
+import { program } from 'commander';
 import _ from 'underscore';
 
 import formatSize from './format-size.js';
@@ -13,7 +13,6 @@ import run from './run.js';
 
 ['SIGTERM', 'SIGINT'].forEach(sig => process.once(sig, () => process.exit()));
 
-const { program } = commander;
 const { path: thisPath } = url.parse(import.meta.url);
 const packagePath = `${npath.dirname(thisPath)}/../package.json`;
 const { version } = JSON.parse(fs.readFileSync(packagePath));
@@ -38,13 +37,10 @@ program
     'use stat polling instead of fsevents when watching'
   )
   .option('-s, --silent', 'do not output build information, only errors')
-  .option('-C, --no-color', 'disable colored output')
   .parse(process.argv);
 
-const { color, silent, watchPaths } = program.opts();
-const { blue, gray, green, magenta, red, yellow } = new chalk.Instance({
-  level: color ? 1 : 0
-});
+const { silent, watchPaths } = program.opts();
+const { blue, gray, green, magenta, red, yellow } = chalk;
 
 let built;
 let failed;
@@ -101,7 +97,7 @@ const onEnd = () => {
   }
 };
 
-const options = _.extend(_.omit(program.opts(), 'color', 'silent'), {
+const options = _.extend(_.omit(program.opts(), 'silent'), {
   onEnd,
   onError,
   onStart,

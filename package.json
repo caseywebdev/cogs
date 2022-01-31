@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "4.8.0",
+  "version": "4.8.1",
   "type": "module",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
@@ -18,8 +18,8 @@
     "cogs": "src/cli.js"
   },
   "dependencies": {
-    "chalk": "4",
-    "commander": "7",
+    "chalk": "5",
+    "commander": "9",
     "glob": "7",
     "minimatch": "3",
     "mkdirp": "1",

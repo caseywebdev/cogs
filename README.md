@@ -33,7 +33,6 @@ Options:
   -w, --watch-paths [path]  rebuild if [path] changes, can be specified multiple times
   -p, --use-polling         use stat polling instead of fsevents when watching
   -s, --silent              do not output build information, only errors
-  -C, --no-color            disable colored output
   -h, --help                output usage information
 ```
 
