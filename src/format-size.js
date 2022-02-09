@@ -2,7 +2,7 @@ const UNITS = ['B', 'K', 'M', 'G', 'T', 'P', 'E'];
 
 const { floor, log, min, round } = Math;
 
-const BASE = 1024;
+const BASE = 1000;
 
 export default size => {
   const i = size ? min(UNITS.length - 1, floor(log(size) / log(BASE))) : 0;
