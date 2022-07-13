@@ -1,4 +1,4 @@
-# Cogs
+# Cogs!
 
 The fast file transform pipeline.
 
