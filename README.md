@@ -1,6 +1,6 @@
 # Cogs
 
-The fast file transform pipeline!
+The fast file transform pipeline.
 
 > George Jetson's workweek is typical of his era: an hour a day, two days a
 > week. His boss is Cosmo Spacely, the diminutive yet bombastic owner of Spacely
