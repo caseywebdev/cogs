@@ -15,7 +15,7 @@ const resolve = async ({ env, path, seen = new Set() }) => {
   let files = await walk({ env, path });
   const builds = await Promise.all(
     files.flatMap(({ builds }) =>
-      builds.map(path => resolve({ env, path, seen: new Set(seen) }))
+      builds.map(path => resolve({ env, path, seen }))
     )
   );
 

@@ -24,11 +24,11 @@ export default async done => {
       assert.equal(code, 0);
       assert.equal(
         (await fs.readFile('test-fixtures/a.built')).toString(),
-        '# start\nA\nG\nD\n# end\n'
+        '# start\nA\nG\n# end\n'
       );
       assert.equal(
         (await fs.readFile('test-fixtures/b.built')).toString(),
-        '# start\nB\n# end\n'
+        '# start\nB\nD\n# end\n'
       );
       assert.equal(
         (await fs.readFile('test-fixtures/c.built')).toString(),
