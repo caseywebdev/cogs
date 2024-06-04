@@ -1,4 +1,4 @@
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import _ from 'underscore';
 
 export default ({ file: { builds, links }, path }) =>

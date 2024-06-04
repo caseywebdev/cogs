@@ -1,7 +1,6 @@
 import npath from 'path';
-import { promisify } from 'util';
 
-import _glob from 'glob';
+import { glob } from 'glob';
 import _ from 'underscore';
 
 import getBuild from './get-build.js';
@@ -9,8 +8,6 @@ import maybeWrite from './maybe-write.js';
 import setExt from './set-ext.js';
 import sortObj from './sort-obj.js';
 import writeBuffer from './write-buffer.js';
-
-const glob = promisify(_glob);
 
 const flattenBuilds = build => [build, ...build.builds.flatMap(flattenBuilds)];
 

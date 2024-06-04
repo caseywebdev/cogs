@@ -1,4 +1,4 @@
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import _ from 'underscore';
 
 import toArray from './to-array.js';
