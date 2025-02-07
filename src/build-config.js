@@ -54,14 +54,17 @@ const saveBuild = async ({
   );
 };
 
-const getPaths = async pattern =>
-  (await Array.fromAsync(fs.glob(pattern, { withFileTypes: true })))
-    .flatMap(dirent =>
-      dirent.isDirectory()
-        ? []
-        : npath.relative('.', npath.join(dirent.parentPath, dirent.name))
-    )
-    .sort();
+const getPaths = async pattern => {
+  const paths = [];
+  for await (const dirent of fs.glob(pattern, { withFileTypes: true })) {
+    if (!dirent.isDirectory()) {
+      paths.push(
+        npath.relative('.', npath.join(dirent.parentPath, dirent.name))
+      );
+    }
+  }
+  return paths.sort();
+};
 
 const saveBuilds = async ({ env, manifest, onError, onResult }) =>
   await Promise.all(
