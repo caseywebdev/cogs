@@ -58,9 +58,7 @@ const saveBuilds = async ({ env, manifest, onError, onResult }) =>
   await Promise.all(
     _.map(env.builds, async (target, pattern) => {
       const paths = (
-        await Array.fromAsync(
-          fs.glob(pattern, { exclude: () => true, withFileTypes: true })
-        )
+        await Array.fromAsync(fs.glob(pattern, { withFileTypes: true }))
       ).flatMap(dirent =>
         dirent.isDirectory()
           ? []
