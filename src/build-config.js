@@ -54,38 +54,48 @@ const saveBuild = async ({
   );
 };
 
+const glob = async pattern =>
+  (await Array.fromAsync(fs.glob(pattern, { withFileTypes: true })))
+    .flatMap(dirent =>
+      dirent.isDirectory()
+        ? []
+        : npath.relative('.', npath.join(dirent.parentPath, dirent.name))
+    )
+    .sort();
+
 const saveBuilds = async ({ env, manifest, onError, onResult }) =>
   await Promise.all(
-    _.map(env.builds, async (target, pattern) => {
-      const paths = (
-        await Array.fromAsync(fs.glob(pattern, { withFileTypes: true }))
-      ).flatMap(dirent =>
-        dirent.isDirectory()
-          ? []
-          : npath.relative('.', npath.join(dirent.parentPath, dirent.name))
-      );
-      return await Promise.all(
-        paths.map(async path => {
-          try {
-            const builds = flattenBuilds(
-              await getBuild({
-                env,
-                maxChunkSize: target.maxChunkSize,
-                path,
-                transformers: target.transformers
-              })
-            );
-            await Promise.all(
-              _.map(builds, async build => {
-                await saveBuild({ build, manifest, onError, onResult, target });
-              })
-            );
-          } catch (error) {
-            await onError({ error, sourcePath: path });
-          }
-        })
-      );
-    })
+    _.map(
+      env.builds,
+      async (target, pattern) =>
+        await Promise.all(
+          (await glob(pattern)).map(async path => {
+            try {
+              const builds = flattenBuilds(
+                await getBuild({
+                  env,
+                  maxChunkSize: target.maxChunkSize,
+                  path,
+                  transformers: target.transformers
+                })
+              );
+              await Promise.all(
+                _.map(builds, async build => {
+                  await saveBuild({
+                    build,
+                    manifest,
+                    onError,
+                    onResult,
+                    target
+                  });
+                })
+              );
+            } catch (error) {
+              await onError({ error, sourcePath: path });
+            }
+          })
+        )
+    )
   );
 
 const buildConfig = async ({ built, config, onResult, started }) => {
