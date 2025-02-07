@@ -1,6 +1,6 @@
-import npath from 'path';
+import fs from 'node:fs/promises';
+import npath from 'node:path';
 
-import { glob } from 'glob';
 import _ from 'underscore';
 
 import getBuild from './get-build.js';
@@ -54,11 +54,20 @@ const saveBuild = async ({
   );
 };
 
-const saveBuilds = ({ env, manifest, onError, onResult }) =>
-  Promise.all(
+const saveBuilds = async ({ env, manifest, onError, onResult }) =>
+  await Promise.all(
     _.map(env.builds, async (target, pattern) => {
-      return Promise.all(
-        _.map(await glob(pattern, { nodir: true }), async path => {
+      const paths = (
+        await Array.fromAsync(
+          fs.glob(pattern, { exclude: () => true, withFileTypes: true })
+        )
+      ).flatMap(dirent =>
+        dirent.isDirectory()
+          ? []
+          : npath.relative('.', npath.join(dirent.parentPath, dirent.name))
+      );
+      return await Promise.all(
+        paths.map(async path => {
           try {
             const builds = flattenBuilds(
               await getBuild({

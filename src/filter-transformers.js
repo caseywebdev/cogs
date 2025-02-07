@@ -1,4 +1,5 @@
-import { minimatch } from 'minimatch';
+import npath from 'node:path';
+
 import _ from 'underscore';
 
 import toArray from './to-array.js';
@@ -6,10 +7,11 @@ import toArray from './to-array.js';
 const doesMatch = ({ transformer, path }) => {
   const only = toArray(transformer.only);
   const except = toArray(transformer.except);
-  const match = _.partial(minimatch, path);
   return (
-    (!only.length || _.any(only, match)) &&
-    (!except.length || !_.any(except, match))
+    (!only.length ||
+      _.any(only, pattern => npath.matchesGlob(path, pattern))) &&
+    (!except.length ||
+      !_.any(except, pattern => npath.matchesGlob(path, pattern)))
   );
 };
 

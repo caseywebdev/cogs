@@ -28,4 +28,4 @@ export default ({ file: { path } }) =>
       ],
       builds: ['test-fixtures/a.txt']
     }
-  }[path]);
+  })[path];
