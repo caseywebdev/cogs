@@ -54,7 +54,7 @@ const saveBuild = async ({
   );
 };
 
-const glob = async pattern =>
+const getPaths = async pattern =>
   (await Array.fromAsync(fs.glob(pattern, { withFileTypes: true })))
     .flatMap(dirent =>
       dirent.isDirectory()
@@ -69,7 +69,7 @@ const saveBuilds = async ({ env, manifest, onError, onResult }) =>
       env.builds,
       async (target, pattern) =>
         await Promise.all(
-          (await glob(pattern)).map(async path => {
+          (await getPaths(pattern)).map(async path => {
             try {
               const builds = flattenBuilds(
                 await getBuild({
