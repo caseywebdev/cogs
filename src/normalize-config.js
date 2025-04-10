@@ -12,6 +12,8 @@ const asyncMapObj = async (obj, fn) =>
   );
 
 export default async config => {
+  const buffers = {};
+
   config = await asyncMapObj(
     config,
     async ({ builds, transformers, manifestPath, requires }, name) => ({
@@ -21,7 +23,7 @@ export default async config => {
           toArray(target.transformers).map(normalizeTransformer)
         )
       })),
-      cache: {},
+      cache: { buffers, files: {} },
       manifestPath,
       name,
       requires: toArray(requires),

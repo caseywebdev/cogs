@@ -1,25 +1,34 @@
 import { promises as fs } from 'fs';
 
-import _ from 'underscore';
-
 import applyTransformers from './apply-transformers.js';
 
-export default async ({ env: { cache, transformers }, path }) =>
-  (cache[path] ??= (async () => {
-    const file = {
-      buffer: await fs.readFile(path),
-      builds: [],
-      links: [],
-      path,
-      requires: [path]
-    };
-
-    const transformed = await applyTransformers({ file, transformers });
-
-    if (_.isEqual(file, transformed)) delete cache[path];
-
-    return transformed;
-  })()).catch(er => {
-    delete cache[path];
+const getOrSet = async (cache, key, fn) => {
+  try {
+    return await (cache[key] ??= fn());
+  } catch (er) {
+    delete cache[key];
     throw er;
+  }
+};
+
+const readFile = ({ cache, path }) =>
+  getOrSet(cache.buffers, path, () => fs.readFile(path));
+
+export default ({ env: { cache, transformers }, path }) =>
+  getOrSet(cache.files, path, async () => {
+    try {
+      return await applyTransformers({
+        file: {
+          buffer: await readFile({ cache, path }),
+          builds: [],
+          links: [],
+          path,
+          requires: [path]
+        },
+        transformers
+      });
+    } catch (er) {
+      er.message += `\n  ${path}`;
+      throw er;
+    }
   });
