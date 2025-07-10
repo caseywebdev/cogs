@@ -63,7 +63,7 @@ export default async ({
     }
   };
 
-  const handleChangedPath = ({ path }) => {
+  const handleChangedPath = path => {
     changedPaths.add(npath.relative('.', path));
     if (!debounce) return tryBuild();
 
