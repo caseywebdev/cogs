@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import npath from 'path';
-import url from 'url';
 
 import chalk from 'chalk';
 import { program } from 'commander';
@@ -11,9 +10,11 @@ import _ from 'underscore';
 import formatSize from './format-size.js';
 import run from './run.js';
 
+const { URL } = globalThis;
+
 ['SIGTERM', 'SIGINT'].forEach(sig => process.once(sig, () => process.exit()));
 
-const { path: thisPath } = url.parse(import.meta.url);
+const { pathname: thisPath } = new URL(import.meta.url);
 const packagePath = `${npath.dirname(thisPath)}/../package.json`;
 const { version } = JSON.parse(fs.readFileSync(packagePath));
 
@@ -31,10 +32,6 @@ program
     '-w, --watch-paths [path]',
     'rebuild if [path] changes, can be specified multiple times',
     (path, paths = []) => [].concat(paths, path)
-  )
-  .option(
-    '-p, --use-polling',
-    'use stat polling instead of fsevents when watching'
   )
   .option('-s, --silent', 'do not output build information, only errors')
   .parse(process.argv);

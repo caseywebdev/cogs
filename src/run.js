@@ -1,7 +1,7 @@
 import npath from 'path';
 
 import _ from 'underscore';
-import watchy from 'watchy';
+import { watch } from 'watchy';
 
 import buildConfig from './build-config.js';
 import bustCache from './bust-cache.js';
@@ -14,7 +14,6 @@ export default async ({
   onEnd = _.noop,
   onResult = _.noop,
   onStart = _.noop,
-  usePolling = false,
   watchPaths = []
 }) => {
   let building = false;
@@ -72,14 +71,12 @@ export default async ({
     timeoutId = setTimeout(tryBuild, debounce * 1000);
   };
 
-  const watcher = await watchy({
-    onError,
+  const closeWatcher = watch({
     onChange: handleChangedPath,
-    patterns: [].concat(configPath, watchPaths),
-    usePolling
+    patterns: [].concat(configPath, watchPaths)
   });
 
   await tryBuild();
 
-  return watcher;
+  return closeWatcher;
 };
