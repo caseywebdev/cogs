@@ -19,6 +19,7 @@ const packagePath = `${npath.dirname(thisPath)}/../package.json`;
 const { version } = JSON.parse(fs.readFileSync(packagePath));
 
 program
+  .name('cogs')
   .version(version)
   .description('The fast file transform pipeline.')
   .option('-c, --config-path [path]', 'load config from [path]', 'cogs.js')
