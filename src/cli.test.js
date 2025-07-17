@@ -1,7 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
-import { test } from 'node:test';
 
 const deleteBuilt = async () => {
   try {
@@ -15,8 +14,7 @@ const deleteBuilt = async () => {
   }
 };
 
-test('basic build', async () => {
-  const { promise, resolve, reject } = Promise.withResolvers();
+export default async done => {
   await deleteBuilt();
   const ps = spawn('node', ['src/cli.js', '-c', 'test-fixtures/config.js'], {
     stdio: ['inherit', 'inherit', 'inherit']
@@ -45,11 +43,9 @@ test('basic build', async () => {
         '# start\nF\n# end\n'
       );
       await deleteBuilt();
-      resolve();
+      done();
     } catch (er) {
-      reject(er);
+      done(er);
     }
   });
-
-  return promise;
-});
+};

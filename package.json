@@ -22,5 +22,8 @@
     "commander": "14",
     "underscore": "1",
     "watchy": "0.12"
+  },
+  "devDependencies": {
+    "kiss-test": "0.2"
   }
 }
