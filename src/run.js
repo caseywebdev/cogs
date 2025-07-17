@@ -9,7 +9,6 @@ import getConfig from './get-config.js';
 
 export default async ({
   configPath = 'cogs.js',
-  debounce = 0.1,
   onError = _.noop,
   onEnd = _.noop,
   onResult = _.noop,
@@ -19,7 +18,6 @@ export default async ({
   let building = false;
   let changedPaths = new Set();
   let config;
-  let timeoutId;
 
   const build = async () => {
     if (building) return;
@@ -65,10 +63,7 @@ export default async ({
 
   const handleChangedPath = paths => {
     for (const path of paths) changedPaths.add(npath.relative('.', path));
-    if (!debounce) return tryBuild();
-
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(tryBuild, debounce * 1000);
+    tryBuild();
   };
 
   const closeWatcher = watch({

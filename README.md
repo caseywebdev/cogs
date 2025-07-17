@@ -29,7 +29,6 @@ Options:
 
   -V, --version             output the version number
   -c, --config-path [path]  load config from [path] (default: cogs.js)
-  -d, --debounce [seconds]  trigger a build at most every [seconds] seconds (default: 0.1)
   -w, --watch-paths [path]  rebuild if [path] changes, can be specified multiple times
   -p, --use-polling         use stat polling instead of fsevents when watching
   -s, --silent              do not output build information, only errors
