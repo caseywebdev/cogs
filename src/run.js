@@ -63,8 +63,8 @@ export default async ({
     }
   };
 
-  const handleChangedPath = path => {
-    changedPaths.add(npath.relative('.', path));
+  const handleChangedPath = paths => {
+    for (const path of paths) changedPaths.add(npath.relative('.', path));
     if (!debounce) return tryBuild();
 
     clearTimeout(timeoutId);
