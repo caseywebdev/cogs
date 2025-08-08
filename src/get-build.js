@@ -12,14 +12,18 @@ const resolve = async ({ env, path, seen = new Set() }) => {
   if (seen.has(path)) return { builds: [], files: [], path };
 
   seen.add(path);
-  let files = await walk({ env, path });
+  const files = await walk({ env, path });
   const builds = await Promise.all(
     files.flatMap(({ builds }) =>
       builds.map(path => resolve({ env, path, seen }))
     )
   );
 
-  files = _.indexBy(files, 'path');
+  return { builds, files: _.indexBy(files, 'path'), path };
+};
+
+const prune = ({ builds, files, path }) => {
+  builds = builds.map(prune);
   const seenFiles = {};
   for (const build of builds) {
     for (const { build: fileBuild, file } of getAllFiles(build)) {
@@ -72,7 +76,7 @@ const setBuffers = async ({ build, maxChunkSize, transformers }) => {
 };
 
 export default async ({ env, maxChunkSize, path, transformers }) => {
-  const build = await resolve({ env, path });
+  const build = prune(await resolve({ env, path }));
   await setBuffers({ build, maxChunkSize, transformers });
   return build;
 };
