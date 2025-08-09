@@ -9,8 +9,7 @@ export default ({ file: { path } }) =>
       builds: ['test-fixtures/e.txt', 'test-fixtures/f.txt']
     },
     'test-fixtures/c.txt': {
-      requires: ['test-fixtures/c.txt', 'test-fixtures/g.txt'],
-      builds: ['test-fixtures/e.txt']
+      requires: ['test-fixtures/c.txt', 'test-fixtures/g.txt']
     },
     'test-fixtures/e.txt': {
       requires: [

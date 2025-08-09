@@ -1,4 +1,4 @@
-import getBuild from './get-build.js';
+import getBuilds from './get-builds.js';
 import normalizeConfig from './normalize-config.js';
 
-export default { getBuild, normalizeConfig };
+export default { getBuilds, normalizeConfig };

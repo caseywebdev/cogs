@@ -3,13 +3,13 @@ import npath from 'node:path';
 
 import _ from 'underscore';
 
-import getBuild from './get-build.js';
+import getBuilds from './get-builds.js';
 import maybeWrite from './maybe-write.js';
 import setExt from './set-ext.js';
 import sortObj from './sort-obj.js';
 import writeBuffer from './write-buffer.js';
 
-const flattenBuilds = build => [build, ...build.builds.flatMap(flattenBuilds)];
+const { Buffer } = globalThis;
 
 const saveManifest = async ({ env, manifest, onError, onResult }) => {
   const { manifestPath } = env;
@@ -74,16 +74,15 @@ const saveBuilds = async ({ env, manifest, onError, onResult }) =>
         await Promise.all(
           (await getPaths(pattern)).map(async path => {
             try {
-              const builds = flattenBuilds(
-                await getBuild({
-                  env,
-                  maxChunkSize: target.maxChunkSize,
-                  path,
-                  transformers: target.transformers
-                })
-              );
               await Promise.all(
-                _.map(builds, async build => {
+                (
+                  await getBuilds({
+                    env,
+                    maxChunkSize: target.maxChunkSize,
+                    path,
+                    transformers: target.transformers
+                  })
+                ).map(async build => {
                   await saveBuild({
                     build,
                     manifest,
