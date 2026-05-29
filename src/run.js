@@ -2,9 +2,9 @@ import npath from 'node:path';
 
 import { watch } from 'watchy';
 
-import buildConfig from './build-config.js';
-import bustCache from './bust-cache.js';
-import getConfig from './get-config.js';
+import buildConfig from '#src/build-config.js';
+import bustCache from '#src/bust-cache.js';
+import getConfig from '#src/get-config.js';
 
 export default async ({
   configPath = 'cogs.js',

@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { parseArgs, styleText } from 'node:util';
 
-import formatSize from './format-size.js';
-import run from './run.js';
+import formatSize from '#src/format-size.js';
+import run from '#src/run.js';
 
 const { console, process, URL } = globalThis;
 

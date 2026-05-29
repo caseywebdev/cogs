@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 
-import applyTransformers from './apply-transformers.js';
+import applyTransformers from '#src/apply-transformers.js';
 
 const getOrSet = async (cache, key, fn) => {
   try {

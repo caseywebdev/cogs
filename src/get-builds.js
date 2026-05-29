@@ -1,5 +1,5 @@
-import applyTransformers from './apply-transformers.js';
-import walk from './walk.js';
+import applyTransformers from '#src/apply-transformers.js';
+import walk from '#src/walk.js';
 
 const { Buffer } = globalThis;
 

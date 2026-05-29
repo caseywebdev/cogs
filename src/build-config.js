@@ -1,11 +1,12 @@
 import fs from 'node:fs/promises';
-import npath from 'node:path';
+import { join, relative } from 'node:path';
 
-import getBuilds from './get-builds.js';
-import maybeWrite from './maybe-write.js';
-import setExt from './set-ext.js';
-import sortObj from './sort-obj.js';
-import writeBuffer from './write-buffer.js';
+import getBuilds from '#src/get-builds.js';
+import { getExt } from '#src/get-ext.js';
+import maybeWrite from '#src/maybe-write.js';
+import setExt from '#src/set-ext.js';
+import sortObj from '#src/sort-obj.js';
+import writeBuffer from '#src/write-buffer.js';
 
 const { Buffer } = globalThis;
 
@@ -36,7 +37,7 @@ const saveBuild = async ({
     buffers.map(async (buffer, i) => {
       const size = buffer.length;
       const sourcePath =
-        i === 0 ? path : setExt(path, `~${i + 1}${npath.extname(path)}`);
+        i === 0 ? path : setExt(path, `~${i + 1}${getExt(path)}`);
       try {
         const { didChange, targetPath } = await writeBuffer({
           buffer,
@@ -56,9 +57,7 @@ const getPaths = async pattern => {
   const paths = [];
   for await (const dirent of fs.glob(pattern, { withFileTypes: true })) {
     if (!dirent.isDirectory()) {
-      paths.push(
-        npath.relative('.', npath.join(dirent.parentPath, dirent.name))
-      );
+      paths.push(relative('.', join(dirent.parentPath, dirent.name)));
     }
   }
   return paths.sort();

@@ -1,5 +1,5 @@
-import filterTransformers from './filter-transformers.js';
-import pruneDependencies from './prune-dependencies.js';
+import filterTransformers from '#src/filter-transformers.js';
+import pruneDependencies from '#src/prune-dependencies.js';
 
 export default async ({ file, transformers }) => {
   const applicable = filterTransformers({ transformers, path: file.path });

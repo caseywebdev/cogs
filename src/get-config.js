@@ -1,6 +1,6 @@
 import npath from 'path';
 
-import normalizeConfig from './normalize-config.js';
+import normalizeConfig from '#src/normalize-config.js';
 
 export default async configPath => {
   try {

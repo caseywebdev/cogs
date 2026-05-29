@@ -1,4 +1,4 @@
-import fileHasDependency from './file-has-dependency.js';
+import fileHasDependency from '#src/file-has-dependency.js';
 
 export default ({ config, path }) =>
   Promise.all(

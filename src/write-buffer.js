@@ -1,5 +1,5 @@
-import getTargetPath from './get-target-path.js';
-import maybeWrite from './maybe-write.js';
+import getTargetPath from '#src/get-target-path.js';
+import maybeWrite from '#src/maybe-write.js';
 
 export default async ({ buffer, path, target }) => {
   const targetPath = getTargetPath({ buffer, path, target });

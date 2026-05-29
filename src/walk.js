@@ -1,4 +1,4 @@
-import getFile from './get-file.js';
+import getFile from '#src/get-file.js';
 
 const getFiles = async ({ env, files = {}, path }) => {
   if (files[path]) return files;

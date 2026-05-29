@@ -1,7 +1,8 @@
 import crypto from 'crypto';
-import npath from 'path';
+import { join, relative } from 'path';
 
-import setExt from './set-ext.js';
+import { getExt } from '#src/get-ext.js';
+import setExt from '#src/set-ext.js';
 
 const getHash = buffer => {
   const hash = crypto.createHash('md5');
@@ -14,9 +15,9 @@ export default ({
   path,
   target: { base = '.', dir = '.', ext = {}, fingerprint = false } = {}
 }) => {
-  const oldExt = npath.extname(path);
+  const oldExt = getExt(path);
   return setExt(
-    npath.join(dir, npath.relative(base, path).replace(/\.\./g, '__')),
+    join(dir, relative(base, path).replace(/\.\./g, '__')),
     (fingerprint ? `~${getHash(buffer)}` : '') + (ext[oldExt] ?? oldExt)
   );
 };

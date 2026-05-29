@@ -1,6 +1,6 @@
 import npath from 'node:path';
 
-import toArray from './to-array.js';
+import toArray from '#src/to-array.js';
 
 const doesMatch = ({ transformer, path }) => {
   const only = toArray(transformer.only);

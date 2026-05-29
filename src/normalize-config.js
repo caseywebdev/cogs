@@ -1,5 +1,5 @@
-import normalizeTransformer from './normalize-transformer.js';
-import toArray from './to-array.js';
+import normalizeTransformer from '#src/normalize-transformer.js';
+import toArray from '#src/to-array.js';
 
 const asyncMapObj = async (obj, fn) =>
   Object.fromEntries(

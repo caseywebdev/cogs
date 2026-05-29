@@ -1,7 +1,4 @@
-import npath from 'path';
+import { getExt } from '#src/get-ext.js';
 
-export default (path, newExt) => {
-  const oldExt = npath.extname(path);
-  if (oldExt) path = path.slice(0, -oldExt.length);
-  return path + newExt;
-};
+export default (path, newExt) =>
+  `${path.slice(0, path.length - getExt(path).length)}${newExt}`;
