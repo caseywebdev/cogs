@@ -17,6 +17,6 @@ export default ({
   const oldExt = npath.extname(path);
   return setExt(
     npath.join(dir, npath.relative(base, path).replace(/\.\./g, '__')),
-    (fingerprint ? `~${getHash(buffer)}` : '') + (ext[oldExt] || oldExt)
+    (fingerprint ? `~${getHash(buffer)}` : '') + (ext[oldExt] ?? oldExt)
   );
 };
