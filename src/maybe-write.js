@@ -1,10 +1,8 @@
 import { promises as fs } from 'fs';
-import npath from 'path';
-
-import _ from 'underscore';
+import npath from 'node:path';
 
 export default async ({ buffer, targetPath }) => {
-  const targetBuffer = await fs.readFile(targetPath).catch(_.noop);
+  const targetBuffer = await fs.readFile(targetPath).catch(() => {});
   if (targetBuffer && buffer.compare(targetBuffer) === 0) return false;
 
   await fs.mkdir(npath.dirname(targetPath), { recursive: true });

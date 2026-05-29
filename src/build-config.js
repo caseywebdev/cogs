@@ -1,8 +1,6 @@
 import fs from 'node:fs/promises';
 import npath from 'node:path';
 
-import _ from 'underscore';
-
 import getBuilds from './get-builds.js';
 import maybeWrite from './maybe-write.js';
 import setExt from './set-ext.js';
@@ -68,9 +66,8 @@ const getPaths = async pattern => {
 
 const saveBuilds = async ({ env, manifest, onError, onResult }) =>
   await Promise.all(
-    _.map(
-      env.builds,
-      async (target, pattern) =>
+    Object.entries(env.builds).map(
+      async ([pattern, target]) =>
         await Promise.all(
           (await getPaths(pattern)).map(async path => {
             try {
@@ -109,8 +106,8 @@ const buildConfig = async ({ built, config, onResult, started }) => {
   };
 
   await Promise.all(
-    _.map(config, async env => {
-      if (started.has(env) || !_.all(env.requires, env => built.has(env))) {
+    Object.values(config).map(async env => {
+      if (started.has(env) || !env.requires.every(env => built.has(env))) {
         return;
       }
 
@@ -129,5 +126,5 @@ const buildConfig = async ({ built, config, onResult, started }) => {
   );
 };
 
-export default ({ config, onResult = _.noop }) =>
+export default ({ config, onResult = () => {} }) =>
   buildConfig({ built: new Set(), config, onResult, started: new Set() });

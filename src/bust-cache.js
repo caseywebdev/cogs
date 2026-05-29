@@ -1,15 +1,13 @@
-import _ from 'underscore';
-
 import fileHasDependency from './file-has-dependency.js';
 
 export default ({ config, path }) =>
   Promise.all(
-    _.map(config, async ({ cache }) => {
+    Object.values(config).map(async ({ cache }) => {
       const { buffers, files } = cache;
       delete buffers[path];
       delete files[path];
       await Promise.all(
-        _.map(files, async (file, key) => {
+        Object.entries(files).map(async ([key, file]) => {
           if (fileHasDependency({ file: await file, path })) delete files[key];
         })
       );

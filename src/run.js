@@ -1,6 +1,5 @@
-import npath from 'path';
+import npath from 'node:path';
 
-import _ from 'underscore';
 import { watch } from 'watchy';
 
 import buildConfig from './build-config.js';
@@ -9,10 +8,10 @@ import getConfig from './get-config.js';
 
 export default async ({
   configPath = 'cogs.js',
-  onError = _.noop,
-  onEnd = _.noop,
-  onResult = _.noop,
-  onStart = _.noop,
+  onError = async () => {},
+  onEnd = async () => {},
+  onResult = async () => {},
+  onStart = async () => {},
   watchPaths = []
 }) => {
   let building = false;
@@ -30,7 +29,7 @@ export default async ({
       config = null;
     } else if (config) {
       await Promise.all(
-        _.map(Array.from(paths), path => bustCache({ config, path }))
+        Array.from(paths).map(path => bustCache({ config, path }))
       );
     }
 

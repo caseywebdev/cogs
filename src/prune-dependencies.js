@@ -1,15 +1,22 @@
 import npath from 'path';
 
-import _ from 'underscore';
-
 const normalize = path => npath.normalize(path);
 
-const clean = paths => _.unique(_.map(paths, normalize));
+const clean = paths => new Set(paths.map(normalize));
 
 export default file => {
   let { builds, links, requires } = file;
   requires = clean(requires);
-  builds = _.difference(clean(builds), requires);
-  links = _.difference(clean(links), [].concat(builds, requires));
-  return _.extend({}, file, { builds, links, requires });
+  builds = clean(builds);
+  links = clean(links);
+  for (const path of requires) {
+    builds.delete(path);
+    links.delete(path);
+  }
+  for (const path of builds) links.delete(path);
+  return Object.assign({}, file, {
+    builds: [...builds],
+    links: [...links],
+    requires: [...requires]
+  });
 };

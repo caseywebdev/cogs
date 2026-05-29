@@ -1,5 +1,3 @@
-import _ from 'underscore';
-
 import getFile from './get-file.js';
 
 const getFiles = async ({ env, files = {}, path }) => {
@@ -9,9 +7,7 @@ const getFiles = async ({ env, files = {}, path }) => {
   const file = await getFile({ env, path });
 
   files[path] = file;
-  await Promise.all(
-    _.map(file.requires, path => getFiles({ env, files, path }))
-  );
+  await Promise.all(file.requires.map(path => getFiles({ env, files, path })));
 
   return files;
 };
@@ -21,8 +17,8 @@ const walk = ({ files, path, visited = {} }) => {
   if (visited[path]) return file;
 
   visited[path] = true;
-  const graph = _.map(file.requires, path => walk({ files, path, visited }));
-  return _.unique(_.flatten(graph));
+  const graph = file.requires.map(path => walk({ files, path, visited }));
+  return [...new Set(graph.flat(Infinity))];
 };
 
 export default async ({ env, path }) =>

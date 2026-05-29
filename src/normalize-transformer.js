@@ -1,11 +1,9 @@
-import npath from 'path';
-
-import _ from 'underscore';
+import npath from 'node:path';
 
 export default async transformer => {
-  if (_.isString(transformer)) transformer = { name: transformer };
-  else if (_.isFunction(transformer)) transformer = { fn: transformer };
-  else transformer = _.clone(transformer);
+  if (typeof transformer === 'string') transformer = { name: transformer };
+  else if (typeof transformer === 'function') transformer = { fn: transformer };
+  else transformer = { ...transformer };
 
   if (!transformer.options) transformer.options = {};
 
@@ -21,7 +19,7 @@ export default async transformer => {
       return transformer;
     } catch (er) {
       if (er.code !== 'ERR_MODULE_NOT_FOUND') {
-        throw _.extend(er, {
+        throw Object.assign(er, {
           message: `Failed to load '${name}'\n${er.message}`
         });
       }

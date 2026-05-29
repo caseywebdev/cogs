@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "4.9.5",
+  "version": "4.9.6",
   "type": "module",
   "author": "Casey Foster <c@sey.me>",
   "description": "The fast file transform pipeline.",
@@ -18,12 +18,11 @@
     "cogs": "src/cli.js"
   },
   "dependencies": {
-    "chalk": "5",
-    "commander": "14",
-    "underscore": "1",
     "watchy": "0.12"
   },
   "devDependencies": {
+    "eslint": "10",
+    "eslint-config-coderiety": "2",
     "kiss-test": "0.2"
   }
 }

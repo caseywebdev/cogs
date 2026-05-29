@@ -1,5 +1,3 @@
-import _ from 'underscore';
-
 import applyTransformers from './apply-transformers.js';
 import walk from './walk.js';
 
@@ -37,7 +35,7 @@ const resolve = async ({ env, path }, parent, depth = 0, cache = new Map()) => {
       builds.map(path => resolve({ env, path }, build, depth + 1, cache))
     )
   );
-  build.files = _.indexBy(files, 'path');
+  build.files = Object.fromEntries(files.map(file => [file.path, file]));
   return build;
 };
 

@@ -1,3 +1,5 @@
+const { Buffer } = globalThis;
+
 export default {
   main: {
     transformers: 'test-fixtures/transformer.js',

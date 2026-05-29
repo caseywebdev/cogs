@@ -1,3 +1,5 @@
-#!/bin/sh
+#!/bin/sh -e
+
+node_modules/.bin/eslint
 
 exec node_modules/.bin/kiss-test 'src/**/*.test.js'
