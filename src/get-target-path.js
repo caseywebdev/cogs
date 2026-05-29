@@ -1,7 +1,6 @@
 import crypto from 'crypto';
-import { join, relative } from 'path';
+import { extname, join, relative } from 'path';
 
-import { getExt } from '#src/get-ext.js';
 import setExt from '#src/set-ext.js';
 
 const getHash = buffer => {
@@ -15,9 +14,9 @@ export default ({
   path,
   target: { base = '.', dir = '.', ext = {}, fingerprint = false } = {}
 }) => {
-  const oldExt = getExt(path);
-  return setExt(
-    join(dir, relative(base, path).replace(/\.\./g, '__')),
-    (fingerprint ? `~${getHash(buffer)}` : '') + (ext[oldExt] ?? oldExt)
-  );
+  path = join(dir, relative(base, path).replace(/\.\./g, '__'));
+  const newExt = ext[extname(path)];
+  if (newExt != null) path = setExt(path, newExt);
+  if (fingerprint) path = setExt(path, `~${getHash(buffer)}${extname(path)}`);
+  return path;
 };

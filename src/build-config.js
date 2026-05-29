@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { extname, join, relative } from 'node:path';
 
 import getBuilds from '#src/get-builds.js';
-import { getExt } from '#src/get-ext.js';
 import maybeWrite from '#src/maybe-write.js';
 import setExt from '#src/set-ext.js';
 import sortObj from '#src/sort-obj.js';
@@ -37,7 +36,7 @@ const saveBuild = async ({
     buffers.map(async (buffer, i) => {
       const size = buffer.length;
       const sourcePath =
-        i === 0 ? path : setExt(path, `~${i + 1}${getExt(path)}`);
+        i === 0 ? path : setExt(path, `~${i + 1}${extname(path)}`);
       try {
         const { didChange, targetPath } = await writeBuffer({
           buffer,
