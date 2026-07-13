@@ -29,8 +29,7 @@ const options = /** @type {const} */ ({
     description: 'Rebuild if [path] changes, can be specified multiple times',
     type: 'string',
     short: 'w',
-    multiple: true,
-    default: /** @type {string[]} */ ([])
+    multiple: true
   }
 });
 
@@ -82,7 +81,6 @@ let unchanged;
 const log = silent ? () => {} : console.log.bind(console);
 
 const onError = er => {
-  console.error(er.stack);
   console.error(styleText('red', er.toString()));
   if (!watchPaths) process.exit(1);
 };
